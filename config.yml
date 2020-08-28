@@ -1,0 +1,189 @@
+---
+AnnotSV ID:
+    POSITION: 1
+SV chrom:
+    POSITION: 2
+SV start:
+    POSITION: 3
+SV end:
+    POSITION: 4
+SV length:
+    POSITION: 5
+SV type:
+    POSITION: 6
+Samples_ID:
+    POSITION: 7
+REF:
+    POSITION: 8
+ALT:
+    POSITION: 9
+FORMAT:
+    POSITION: 10
+Sample ID:
+    POSITION: 11
+AnnotSV type:
+    POSITION: 12
+Gene name:
+    POSITION: 13
+tx:
+    POSITION: 14
+CDS length:
+    POSITION: 15
+tx length:
+    POSITION: 16
+location:
+    POSITION: 17
+location2:
+    POSITION: 18
+intersectStart:
+    POSITION: 19
+intersectEnd:
+    POSITION: 20
+DGV_GAIN_IDs:
+    POSITION: 21
+DGV_GAIN_n_samples_with_SV:
+    POSITION: 22
+DGV_GAIN_n_samples_tested:
+    POSITION: 23
+DGV_GAIN_Frequency:
+    POSITION: 24
+DGV_LOSS_IDs:
+    POSITION: 25
+DGV_LOSS_n_samples_with_SV:
+    POSITION: 26
+DGV_LOSS_n_samples_tested:
+    POSITION: 27
+DGV_LOSS_Frequency:
+    POSITION: 28
+DDD_SV:
+    POSITION: 29
+DDD_DUP_n_samples_with_SV:
+    POSITION: 30
+DDD_DUP_Frequency:
+    POSITION: 31
+DDD_DEL_n_samples_with_SV:
+    POSITION: 32
+DDD_DEL_Frequency:
+    POSITION: 33
+DDD_status:
+    POSITION: 34
+GD_ID:
+    POSITION: 35
+GD_AN:
+    POSITION: 36
+GD_N_HET:
+    POSITION: 37
+GD_N_HOMALT:
+    POSITION: 38
+GD_AF:
+    POSITION: 39
+GD_POPMAX:
+    POSITION: 40
+GD_ID_others:
+    POSITION: 41
+1000g_event:
+    POSITION: 42
+IMH_ID:
+    POSITION: 43
+IMH_AF:
+    POSITION: 44
+IMH_ID_others:
+    POSITION: 45
+promoters:
+    POSITION: 46
+dbVar_event:
+    POSITION: 47
+dbVar_variant:
+    POSITION: 48
+dbVar_status:
+    POSITION: 49
+GHid_elite:
+    POSITION: 50
+GHid_not_elite:
+    POSITION: 51
+GHtype:
+    POSITION: 52
+GHgene_elite:
+    POSITION: 53
+GHgene_not_elite:
+    POSITION: 54
+GHtissue:
+    POSITION: 55
+COSMIC_ID:
+    POSITION: 56
+COSMIC_MUT_TYP:
+    POSITION: 57
+TADcoordinates:
+    POSITION: 58
+ENCODEexperiments:
+    POSITION: 59
+GCcontent_left:
+    POSITION: 60
+Repeats_coord_left:
+    POSITION: 61
+Repeats_type_left:
+    POSITION: 62
+Repeats_coord_right:
+    POSITION: 63
+Repeats_type_right:
+    POSITION: 64
+ACMG:
+    POSITION: 65
+HI_CGscore:
+    POSITION: 66
+TriS_CGscore:
+    POSITION: 67
+DDD_mode:
+    POSITION: 68
+DDD_consequence:
+    POSITION: 69
+DDD_pmids:
+    POSITION: 70
+HI_DDDpercent:
+    POSITION: 71
+synZ_ExAC:
+    POSITION: 72
+misZ_ExAC:
+    POSITION: 73
+pLI_ExAC:
+    POSITION: 74
+delZ_ExAC:
+    POSITION: 75
+dupZ_ExAC:
+    POSITION: 76
+cnvZ_ExAC:
+    POSITION: 77
+morbidGenes:
+    POSITION: 78
+morbidGenesCandidates:
+    POSITION: 79
+Mim Number:
+    POSITION: 80
+Phenotypes:
+    POSITION: 81
+Inheritance:
+    POSITION: 82
+EXOMISER_GENE_PHENO_SCORE:
+    POSITION: 83
+HUMAN_PHENO_EVIDENCE:
+    POSITION: 84
+MOUSE_PHENO_EVIDENCE:
+    POSITION: 85
+FISH_PHENO_EVIDENCE:
+    POSITION: 86
+compound-htz(sample):
+    POSITION: 87
+#hom(sample):
+    POSITION: 88
+#htz(sample):
+    POSITION: 89
+#htz/allHom(sample):
+    POSITION: 90
+#htz/total(cohort):
+    POSITION: 91
+#total(cohort):
+    POSITION: 92
+AnnotSV ranking:
+    POSITION: 93
+
+

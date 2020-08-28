@@ -1,0 +1,8 @@
+---
+FIELD:
+    NAME: AnnotSV ID
+    POSITION: 1
+    NAME: SV chrom
+    POSITION: 2
+    NAME: SV start
+    POSITION: 3
