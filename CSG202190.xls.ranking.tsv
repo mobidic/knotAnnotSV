@@ -1,0 +1,79 @@
+AnnotSV ID	AnnotSV type	Genes	AnnotSV ranking	Ranking decision
+14_20253739_20376267_DEL_1	full	OR4K2/OR4K3/OR4N2	1	> 70% SV overlapped with a frequent SV + doesn't contain CDS from i) a morbid gene, ii) a morbid gene candidate and iii) a candidate gene
+14_20253739_20376267_DEL_1	split	OR4K2	1	> 70% SV overlapped with a frequent SV + doesn't contain CDS from i) a morbid gene, ii) a morbid gene candidate and iii) a candidate gene
+14_20253739_20376267_DEL_1	split	OR4K3	1	> 70% SV overlapped with a frequent SV + doesn't contain CDS from i) a morbid gene, ii) a morbid gene candidate and iii) a candidate gene
+14_20253739_20376267_DEL_1	split	OR4N2	1	> 70% SV overlapped with a frequent SV + doesn't contain CDS from i) a morbid gene, ii) a morbid gene candidate and iii) a candidate gene
+14_106665119_106763946_DEL_1	full	LINC00226	1	> 70% SV overlapped with a frequent SV + doesn't contain CDS from i) a morbid gene, ii) a morbid gene candidate and iii) a candidate gene
+14_106665119_106763946_DEL_1	split	LINC00226	1	> 70% SV overlapped with a frequent SV + doesn't contain CDS from i) a morbid gene, ii) a morbid gene candidate and iii) a candidate gene
+15_20575646_22509254_DEL_1	full	CXADRP2/FAM30C/GOLGA6L6/GOLGA8CP/HERC2P3/IGHV1OR15-1/IGHV1OR15-3/LINC01193/LINC02203/LOC101927079/LOC102723534/LOC102724760/LOC105369274/LOC642131/LOC646214/MIR3118-2/MIR3118-3/MIR3118-4/MIR5701-1/MIR5701-2/MIR5701-3/NBEAP1/NF1P2/OR4M2/OR4N3P/OR4N4/POTEB/POTEB2/POTEB3	1	> 70% SV overlapped with a frequent SV + doesn't contain CDS from i) a morbid gene, ii) a morbid gene candidate and iii) a candidate gene
+15_20575646_22509254_DEL_1	split	CXADRP2	1	> 70% SV overlapped with a frequent SV + doesn't contain CDS from i) a morbid gene, ii) a morbid gene candidate and iii) a candidate gene
+15_20575646_22509254_DEL_1	split	FAM30C	1	> 70% SV overlapped with a frequent SV + doesn't contain CDS from i) a morbid gene, ii) a morbid gene candidate and iii) a candidate gene
+15_20575646_22509254_DEL_1	split	GOLGA6L6	1	> 70% SV overlapped with a frequent SV + doesn't contain CDS from i) a morbid gene, ii) a morbid gene candidate and iii) a candidate gene
+15_20575646_22509254_DEL_1	split	GOLGA8CP	1	> 70% SV overlapped with a frequent SV + doesn't contain CDS from i) a morbid gene, ii) a morbid gene candidate and iii) a candidate gene
+15_20575646_22509254_DEL_1	split	HERC2P3	1	> 70% SV overlapped with a frequent SV + doesn't contain CDS from i) a morbid gene, ii) a morbid gene candidate and iii) a candidate gene
+15_20575646_22509254_DEL_1	split	IGHV1OR15-1	1	> 70% SV overlapped with a frequent SV + doesn't contain CDS from i) a morbid gene, ii) a morbid gene candidate and iii) a candidate gene
+15_20575646_22509254_DEL_1	split	IGHV1OR15-3	1	> 70% SV overlapped with a frequent SV + doesn't contain CDS from i) a morbid gene, ii) a morbid gene candidate and iii) a candidate gene
+15_20575646_22509254_DEL_1	split	LINC01193	1	> 70% SV overlapped with a frequent SV + doesn't contain CDS from i) a morbid gene, ii) a morbid gene candidate and iii) a candidate gene
+15_20575646_22509254_DEL_1	split	LINC02203	1	> 70% SV overlapped with a frequent SV + doesn't contain CDS from i) a morbid gene, ii) a morbid gene candidate and iii) a candidate gene
+15_20575646_22509254_DEL_1	split	LOC101927079	1	> 70% SV overlapped with a frequent SV + doesn't contain CDS from i) a morbid gene, ii) a morbid gene candidate and iii) a candidate gene
+15_20575646_22509254_DEL_1	split	LOC102723534	1	> 70% SV overlapped with a frequent SV + doesn't contain CDS from i) a morbid gene, ii) a morbid gene candidate and iii) a candidate gene
+15_20575646_22509254_DEL_1	split	LOC102724760	1	> 70% SV overlapped with a frequent SV + doesn't contain CDS from i) a morbid gene, ii) a morbid gene candidate and iii) a candidate gene
+15_20575646_22509254_DEL_1	split	LOC105369274	1	> 70% SV overlapped with a frequent SV + doesn't contain CDS from i) a morbid gene, ii) a morbid gene candidate and iii) a candidate gene
+15_20575646_22509254_DEL_1	split	LOC642131	1	> 70% SV overlapped with a frequent SV + doesn't contain CDS from i) a morbid gene, ii) a morbid gene candidate and iii) a candidate gene
+15_20575646_22509254_DEL_1	split	LOC646214	1	> 70% SV overlapped with a frequent SV + doesn't contain CDS from i) a morbid gene, ii) a morbid gene candidate and iii) a candidate gene
+15_20575646_22509254_DEL_1	split	MIR3118-2	1	> 70% SV overlapped with a frequent SV + doesn't contain CDS from i) a morbid gene, ii) a morbid gene candidate and iii) a candidate gene
+15_20575646_22509254_DEL_1	split	MIR3118-3	1	> 70% SV overlapped with a frequent SV + doesn't contain CDS from i) a morbid gene, ii) a morbid gene candidate and iii) a candidate gene
+15_20575646_22509254_DEL_1	split	MIR3118-4	1	> 70% SV overlapped with a frequent SV + doesn't contain CDS from i) a morbid gene, ii) a morbid gene candidate and iii) a candidate gene
+15_20575646_22509254_DEL_1	split	MIR5701-1	1	> 70% SV overlapped with a frequent SV + doesn't contain CDS from i) a morbid gene, ii) a morbid gene candidate and iii) a candidate gene
+15_20575646_22509254_DEL_1	split	MIR5701-2	1	> 70% SV overlapped with a frequent SV + doesn't contain CDS from i) a morbid gene, ii) a morbid gene candidate and iii) a candidate gene
+15_20575646_22509254_DEL_1	split	MIR5701-3	1	> 70% SV overlapped with a frequent SV + doesn't contain CDS from i) a morbid gene, ii) a morbid gene candidate and iii) a candidate gene
+15_20575646_22509254_DEL_1	split	NBEAP1	1	> 70% SV overlapped with a frequent SV + doesn't contain CDS from i) a morbid gene, ii) a morbid gene candidate and iii) a candidate gene
+15_20575646_22509254_DEL_1	split	NF1P2	1	> 70% SV overlapped with a frequent SV + doesn't contain CDS from i) a morbid gene, ii) a morbid gene candidate and iii) a candidate gene
+15_20575646_22509254_DEL_1	split	OR4M2	1	> 70% SV overlapped with a frequent SV + doesn't contain CDS from i) a morbid gene, ii) a morbid gene candidate and iii) a candidate gene
+15_20575646_22509254_DEL_1	split	OR4N3P	1	> 70% SV overlapped with a frequent SV + doesn't contain CDS from i) a morbid gene, ii) a morbid gene candidate and iii) a candidate gene
+15_20575646_22509254_DEL_1	split	OR4N4	1	> 70% SV overlapped with a frequent SV + doesn't contain CDS from i) a morbid gene, ii) a morbid gene candidate and iii) a candidate gene
+15_20575646_22509254_DEL_1	split	POTEB	1	> 70% SV overlapped with a frequent SV + doesn't contain CDS from i) a morbid gene, ii) a morbid gene candidate and iii) a candidate gene
+15_20575646_22509254_DEL_1	split	POTEB2	1	> 70% SV overlapped with a frequent SV + doesn't contain CDS from i) a morbid gene, ii) a morbid gene candidate and iii) a candidate gene
+15_20575646_22509254_DEL_1	split	POTEB3	1	> 70% SV overlapped with a frequent SV + doesn't contain CDS from i) a morbid gene, ii) a morbid gene candidate and iii) a candidate gene
+15_46866621_47028952_DUP_1	full		2	< 70% SV overlapped with a benign SV + doesn't contain CDS from i) a morbid gene, ii) a morbid gene candidate and iii) a candidate gene
+16_29673954_30198600_DEL_1	full	ALDOA/ASPHD1/C16orf54/C16orf92/CDIPT/CDIPTOSP/CORO1A/DOC2A/GDPD3/HIRIP3/INO80E/KCTD13/KIF22/LOC101928595/LOC112694756/MAPK3/MAZ/MVP/PAGR1/PPP4C/PRRT2/QPRT/SEZ6L2/SPN/TAOK2/TBX6/TLCD3B/TMEM219/YPEL3/ZG16	5	LOSS: pathogenic SV overlapped
+16_29673954_30198600_DEL_1	split	ALDOA	4	morbid gene overlapped
+16_29673954_30198600_DEL_1	split	ASPHD1	2	< 70% SV overlapped with a benign SV + doesn't contain CDS from i) a morbid gene, ii) a morbid gene candidate and iii) a candidate gene
+16_29673954_30198600_DEL_1	split	C16orf54	2	< 70% SV overlapped with a benign SV + doesn't contain CDS from i) a morbid gene, ii) a morbid gene candidate and iii) a candidate gene
+16_29673954_30198600_DEL_1	split	C16orf92	2	< 70% SV overlapped with a benign SV + doesn't contain CDS from i) a morbid gene, ii) a morbid gene candidate and iii) a candidate gene
+16_29673954_30198600_DEL_1	split	CDIPT	2	< 70% SV overlapped with a benign SV + doesn't contain CDS from i) a morbid gene, ii) a morbid gene candidate and iii) a candidate gene
+16_29673954_30198600_DEL_1	split	CDIPTOSP	2	< 70% SV overlapped with a benign SV + doesn't contain CDS from i) a morbid gene, ii) a morbid gene candidate and iii) a candidate gene
+16_29673954_30198600_DEL_1	split	CORO1A	4	morbid gene overlapped
+16_29673954_30198600_DEL_1	split	DOC2A	2	< 70% SV overlapped with a benign SV + doesn't contain CDS from i) a morbid gene, ii) a morbid gene candidate and iii) a candidate gene
+16_29673954_30198600_DEL_1	split	GDPD3	2	< 70% SV overlapped with a benign SV + doesn't contain CDS from i) a morbid gene, ii) a morbid gene candidate and iii) a candidate gene
+16_29673954_30198600_DEL_1	split	HIRIP3	2	< 70% SV overlapped with a benign SV + doesn't contain CDS from i) a morbid gene, ii) a morbid gene candidate and iii) a candidate gene
+16_29673954_30198600_DEL_1	split	INO80E	2	< 70% SV overlapped with a benign SV + doesn't contain CDS from i) a morbid gene, ii) a morbid gene candidate and iii) a candidate gene
+16_29673954_30198600_DEL_1	split	KCTD13	2	< 70% SV overlapped with a benign SV + doesn't contain CDS from i) a morbid gene, ii) a morbid gene candidate and iii) a candidate gene
+16_29673954_30198600_DEL_1	split	KIF22	4	morbid gene overlapped
+16_29673954_30198600_DEL_1	split	LOC101928595	2	< 70% SV overlapped with a benign SV + doesn't contain CDS from i) a morbid gene, ii) a morbid gene candidate and iii) a candidate gene
+16_29673954_30198600_DEL_1	split	LOC112694756	2	< 70% SV overlapped with a benign SV + doesn't contain CDS from i) a morbid gene, ii) a morbid gene candidate and iii) a candidate gene
+16_29673954_30198600_DEL_1	split	MAPK3	4	LOSS: pLI (0.926362439436612) > 0.9
+16_29673954_30198600_DEL_1	split	MAZ	4	LOSS: pLI (0.942609945564316) > 0.9
+16_29673954_30198600_DEL_1	split	MVP	5	LOSS: pathogenic SV overlapped
+16_29673954_30198600_DEL_1	split	PAGR1	2	< 70% SV overlapped with a benign SV + doesn't contain CDS from i) a morbid gene, ii) a morbid gene candidate and iii) a candidate gene
+16_29673954_30198600_DEL_1	split	PPP4C	2	< 70% SV overlapped with a benign SV + doesn't contain CDS from i) a morbid gene, ii) a morbid gene candidate and iii) a candidate gene
+16_29673954_30198600_DEL_1	split	PRRT2	5	LOSS: pathogenic SV overlapped
+16_29673954_30198600_DEL_1	split	QPRT	2	< 70% SV overlapped with a benign SV + doesn't contain CDS from i) a morbid gene, ii) a morbid gene candidate and iii) a candidate gene
+16_29673954_30198600_DEL_1	split	SEZ6L2	2	< 70% SV overlapped with a benign SV + doesn't contain CDS from i) a morbid gene, ii) a morbid gene candidate and iii) a candidate gene
+16_29673954_30198600_DEL_1	split	SPN	4	morbid gene overlapped
+16_29673954_30198600_DEL_1	split	TAOK2	4	LOSS: pLI (0.999144075970291) > 0.9
+16_29673954_30198600_DEL_1	split	TBX6	4	morbid gene overlapped
+16_29673954_30198600_DEL_1	split	TLCD3B	2	< 70% SV overlapped with a benign SV + doesn't contain CDS from i) a morbid gene, ii) a morbid gene candidate and iii) a candidate gene
+16_29673954_30198600_DEL_1	split	TMEM219	2	< 70% SV overlapped with a benign SV + doesn't contain CDS from i) a morbid gene, ii) a morbid gene candidate and iii) a candidate gene
+16_29673954_30198600_DEL_1	split	YPEL3	2	< 70% SV overlapped with a benign SV + doesn't contain CDS from i) a morbid gene, ii) a morbid gene candidate and iii) a candidate gene
+16_29673954_30198600_DEL_1	split	ZG16	2	< 70% SV overlapped with a benign SV + doesn't contain CDS from i) a morbid gene, ii) a morbid gene candidate and iii) a candidate gene
+22_25664618_25892253_DEL_1	full	CRYBB2P1/IGLL3P/LRP5L/MIR6817	1	> 70% SV overlapped with a frequent SV + doesn't contain CDS from i) a morbid gene, ii) a morbid gene candidate and iii) a candidate gene
+22_25664618_25892253_DEL_1	split	CRYBB2P1	1	> 70% SV overlapped with a frequent SV + doesn't contain CDS from i) a morbid gene, ii) a morbid gene candidate and iii) a candidate gene
+22_25664618_25892253_DEL_1	split	IGLL3P	1	> 70% SV overlapped with a frequent SV + doesn't contain CDS from i) a morbid gene, ii) a morbid gene candidate and iii) a candidate gene
+22_25664618_25892253_DEL_1	split	LRP5L	1	> 70% SV overlapped with a frequent SV + doesn't contain CDS from i) a morbid gene, ii) a morbid gene candidate and iii) a candidate gene
+22_25664618_25892253_DEL_1	split	MIR6817	1	> 70% SV overlapped with a frequent SV + doesn't contain CDS from i) a morbid gene, ii) a morbid gene candidate and iii) a candidate gene
+3_22504366_22646787_DUP_1	full		2	< 70% SV overlapped with a benign SV + doesn't contain CDS from i) a morbid gene, ii) a morbid gene candidate and iii) a candidate gene
+6_32485173_32604038_DEL_1	full	HLA-DRB1/HLA-DRB5/HLA-DRB6	3	morbid gene candidate overlapped
+6_32485173_32604038_DEL_1	split	HLA-DRB1	3	morbid gene candidate overlapped
+6_32485173_32604038_DEL_1	split	HLA-DRB5	1	> 70% SV overlapped with a frequent SV + doesn't contain CDS from i) a morbid gene, ii) a morbid gene candidate and iii) a candidate gene
+6_32485173_32604038_DEL_1	split	HLA-DRB6	1	> 70% SV overlapped with a frequent SV + doesn't contain CDS from i) a morbid gene, ii) a morbid gene candidate and iii) a candidate gene
