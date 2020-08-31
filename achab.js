@@ -1,7 +1,9 @@
 
 $(document).ready(function () {
 
-     $('#tab').DataTable();
+     $('#tabFULL').DataTable();
+     $('#tabFULLSPLIT').DataTable();
+     /* original for achab $('#tab').DataTable();*/
 
 });
 

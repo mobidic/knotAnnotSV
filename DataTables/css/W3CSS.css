@@ -31,12 +31,15 @@
 .tab button.active {
   background-color: #ccc;
 }
+.tab1 button.active {
+  background-color: #ccc;
+}
 
 /* Style the tab content */
 .tabcontent {
   display: none;
   padding: 6px 12px;
-  border: 1px solid #ccc;
+  /*border: 1px solid #ccc;*/
   border-top: none;
 }
 
@@ -55,22 +58,26 @@ button:hover + div#contentA {
 
 	  .tooltip .tooltiptext {
 		    visibility: hidden;
-			  width: 120px;
-			    background-color: #555;
-				  color: #fff;
-				    text-align: center;
-					  border-radius: 6px;
-					    padding: 5px 0;
-						  position: absolute;
-						    z-index: 1;
-							  bottom: 125%;
-							    left: 50%;
-								  margin-left: -60px;
-								    opacity: 0;
-									  transition: opacity 0.3s;
-								  }
+			width: auto;
+            min-width: 300px;
+			height: auto;
+			background-color: #555;
+			color: #fff;
+			text-align: left;
+			border-radius: 6px;
+			padding: 5px 0;
+			position: absolute;
+			z-index: 1;
+			top: 125%;
+			left: 50%;
+		    margin-left: -60px;
+		    opacity: 0;
+			transition: opacity 0.3s;
+		 }
 
-								  .tooltip .tooltiptext::after {
+
+/* le petit triangle sous le tooltip
+								  .tooltip .tooltiptext::before {
 									    content: "";
 										  position: absolute;
 										    top: 100%;
@@ -80,9 +87,9 @@ button:hover + div#contentA {
 												    border-style: solid;
 													  border-color: #555 transparent transparent transparent;
 												  }
+*/
 
-												  .tooltip:hover .tooltiptext {
-													    visibility: visible;
-														  opacity: 1;
-													  }
-
+	.tooltip:hover .tooltiptext {
+	    visibility: visible;
+		opacity: 1;
+	 }

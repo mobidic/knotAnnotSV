@@ -21,4 +21,5 @@ Gene name:
     POSITION: 8
 AnnotSV ranking:
     POSITION: 9
-
+pLI_ExAC:
+    POSITION: 10
