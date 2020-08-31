@@ -128,12 +128,12 @@ promoters:
     POSITION: 14
     COMMENTLIST:
         - TADcoordinates
-        - GHid_elite
-        - GHid_not_elite
-        - GHtype
-        - GHgene_elite
-        - GHgene_not_elite
-        - GHtissue
+#        - GHid_elite
+#        - GHid_not_elite
+#        - GHtype
+#        - GHgene_elite
+#        - GHgene_not_elite
+#        - GHtissue
 dbVar_event:
     POSITION: 0
 dbVar_variant:
@@ -182,11 +182,13 @@ HI_CGscore:
 TriS_CGscore:
     POSITION: 0
 DDD_mode:
-    POSITION: 68
+    POSITION: 16
+    COMMENTLIST:
+        - DDD_consequence 
 DDD_consequence:
-    POSITION: 69
+    POSITION: 0
 DDD_pmids:
-    POSITION: 70
+    POSITION: 0
 HI_DDDpercent:
     POSITION: 0
 synZ_ExAC:
@@ -202,38 +204,43 @@ dupZ_ExAC:
 cnvZ_ExAC:
     POSITION: 0
 morbidGenes:
-    POSITION: 78
+    POSITION: 17
+    COMMENTLIST:
+        - Mim Number
+        - Phenotypes
+        - Inheritance
+        - morbidGenesCandidates
 morbidGenesCandidates:
-    POSITION: 79
+    POSITION: 0
 Mim Number:
-    POSITION: 80
+    POSITION: 0
 Phenotypes:
-    POSITION: 81
+    POSITION: 0
 Inheritance:
-    POSITION: 82
+    POSITION: 0
 EXOMISER_GENE_PHENO_SCORE:
-    POSITION: 83
+    POSITION: 18
     COMMENTLIST:
         - HUMAN_PHENO_EVIDENCE
         - MOUSE_PHENO_EVIDENCE
         - FISH_PHENO_EVIDENCE
 HUMAN_PHENO_EVIDENCE:
-    POSITION: 84
+    POSITION: 0
 MOUSE_PHENO_EVIDENCE:
-    POSITION: 85
+    POSITION: 0
 FISH_PHENO_EVIDENCE:
-    POSITION: 86
+    POSITION: 0
 compound-htz(sample):
-    POSITION: 87
+    POSITION: 0
 #hom(sample):
-    POSITION: 88
+    POSITION: 0
 #htz(sample):
-    POSITION: 89
+    POSITION: 0
 #htz/allHom(sample):
-    POSITION: 90
+    POSITION: 0
 #htz/total(cohort):
-    POSITION: 91
+    POSITION: 0
 #total(cohort):
-    POSITION: 92
+    POSITION: 0
 
 

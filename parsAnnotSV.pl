@@ -81,11 +81,11 @@ if($outPrefix ne ""){
 
 			
 			
-print  STDERR "Starting a new fishing trip ... \n" ; 
 
 
+#open( CONFIG, "<$config" ) or die ("Cannot open vcf file $config") ;
 
-open( CONFIG, "<$config" ) or die ("Cannot open vcf file $config") ;
+
 print STDERR "Parsing config file....\n";
 my @configLine;
 my %configHash;
@@ -102,10 +102,16 @@ foreach my $item (keys %{$configHash}){
 		#print $item."\n";
 		my $field = $item;
 		#print $configHash->{$field}->{POSITION}."\n";
-		
-		$OutColHash{$configHash->{$field}->{POSITION}} = $field;
-		$NameColHash{$field} = $configHash->{$field}->{POSITION};
-		
+	
+        if ($configHash->{$field}->{POSITION} != 0 && defined $OutColHash{$configHash->{$field}->{POSITION}}){
+            print "\nError in config file: 'POSITION : ".$configHash->{$field}->{POSITION}."' is assigned twice.\nPlease correct config file to avoid 2 identical positions.\n\n";
+            exit 1;
+        }else {
+		    if ($configHash->{$field}->{POSITION} != 0){
+                $OutColHash{$configHash->{$field}->{POSITION}} = $field;
+            }
+		    $NameColHash{$field} = $configHash->{$field}->{POSITION};
+        }
 		
 		if (defined $configHash->{$field}->{COMMENTLIST}){
 			$dataCommentHash{$field}{'commentFieldList'}=$configHash->{$field}->{COMMENTLIST} ;
@@ -205,13 +211,6 @@ while( <VCF> ){
 			
 			$dataHash{$line[$fieldNbr]} = ".";
 			
-
-			#$columnHash{$fields}{"newColPosition"}=$configHash{$line[$fields]};
-			#$columnHash{$fields}{"isComment"}=0;
-			#$columnHash{$fields}{"hasComment"}=0;
-			#$columnHash{$fields}{"commentFields"}="";
-			#$columnHash{$fields}{"finalColName"}=$configHash{$line[$fields]};
-
 			
 		}
 
@@ -249,10 +248,6 @@ while( <VCF> ){
 		#fill printable string
 		for( my $fieldNbr = 0 ; $fieldNbr < scalar @line; $fieldNbr++){
 
-			#if (defined $columnHash{$fieldNbr}{"newColPosition"} and $columnHash{$fieldNbr}{"newColPosition"} > 0) {
-			#	$finalSortData[$columnHash{$fieldNbr}{"newColPosition"}]=$line[$fieldNbr]-1;
-			#}
-
 			$dataHash{$InColHash{$fieldNbr}} = $line[$fieldNbr];
 
 		}
@@ -265,8 +260,14 @@ while( <VCF> ){
 			if (defined $dataCommentHash{$field}){
                 if (! defined $dataCommentHash{$field}{'values'}){
 				    foreach my $fieldCom (@{$dataCommentHash{$field}{'commentFieldList'}}){
-					    $dataCommentHash{$field}{'values'} .= "<br><br><b>".$fieldCom . " :</b> ".$dataHash{$fieldCom};
-                        #print $dataCommentHash{$field}{'values'}."\n";
+					    if (defined $dataHash{$fieldCom}){
+                            $dataCommentHash{$field}{'values'} .= "<br><br><b>".$fieldCom . " :</b> ".$dataHash{$fieldCom};
+                            #print $dataCommentHash{$field}{'values'}."\n";
+                        }else{
+                            print $field."\n";
+                            $dataCommentHash{$field}{'values'} .= "<br><br><b>".$fieldCom . " :</b> undef";
+                            
+                        }
 				    }
 			    }
 			}
@@ -274,9 +275,9 @@ while( <VCF> ){
 
 		#fill finalSortData array
 		foreach my $field (keys %dataHash){
-			if (defined $NameColHash{$field}){
+			if (defined $NameColHash{$field} && $NameColHash{$field} != 0){
 				$finalSortData[$NameColHash{$field} - 1] = $dataHash{$field};
-			}
+            }
 		}
 
 
@@ -298,6 +299,13 @@ while( <VCF> ){
             }
 		}
         
+
+
+            # check if column names and data have the same size
+            if (scalar @finalSortData != keys %OutColHash){
+                print "\nError in config file: it seems that some POSITION are missing.\nPlease correct config file with continuous 'POSITION' number.\n\n"; 
+                exit 1;
+            }
 
 		
 		#	print Dumper(\@finalSortData);
@@ -321,7 +329,7 @@ while( <VCF> ){
 			
 			foreach my $fieldCom (keys %dataCommentHash){
 				
-				$hashFinalSortData{$dataHash{"AnnotSV ranking"}.$scorePenalty."_".$variantID}{$count}{'hashComments'}{$NameColHash{$fieldCom}} = $dataCommentHash{$fieldCom}{'values'} ; 
+				$hashFinalSortData{$dataHash{"AnnotSV ranking"}.$scorePenalty."_".$variantID}{$count}{'hashComments'}{$NameColHash{$fieldCom} -1} = $dataCommentHash{$fieldCom}{'values'} ; 
 				#TODO check color for gene according to output position of gene field 
 			}
 
