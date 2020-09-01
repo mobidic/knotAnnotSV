@@ -13,7 +13,7 @@ use warnings;
 use Getopt::Long; 
 use Switch;
 use YAML::XS 'LoadFile';
-use Data::Dumper;
+#use Data::Dumper;
 
 use Sort::Key::Natural qw(rnatkeysort);
 #use Sort::Naturally;
@@ -24,7 +24,8 @@ my $man = "USAGE : \nperl parsAnnotSV.pl
 \n--annotSVfile <annotSV annotated file> 
 \n--annotSVranking <annotSV ranking explanations file>
 \n--outDir <output directory (default = current dir)> 
-\n--outPrefix <output file prelifx (default = \"\")>"; 
+\n--outPrefix <output file prefix (default = \"\")> 
+\n--datatableDir <directory containing datatables file (default = \"\")>"; 
 
 
 my $configFile = ".";
@@ -34,6 +35,8 @@ my $current_line;
 my $incfile = "";
 my $outDir = ".";
 my $outPrefix = "";
+my $annotSVranking = "";
+my $datatableDir = "";
 
 
 #vcf parsing and output
@@ -57,44 +60,45 @@ my $scorePenalty;
 my %SV_ID;
 
 
-#$arguments = GetOptions( "vcf=s" => \$incfile ) or pod2usage(-vcf => "$0: argument required\n") ;
 
-GetOptions( 	"annotSVfile=s"				=> \$incfile,
-		"configFile=s"		=> \$config,
-		"outDir=s"			=> \$outDir,
-		"outPrefix:s"			=> \$outPrefix,
-		"help|h"			=> \$help);
+GetOptions( "annotSVfile=s"		=> \$incfile,
+			"configFile=s"		=> \$config,
+			"annotSVranking=s"	=> \$annotSVranking,
+			"outDir=s"			=> \$outDir,
+			"outPrefix:s"		=> \$outPrefix,
+			"datatableDir=s"	=> \$datatableDir,
+			"help|h"			=> \$help);
 				
 				
 
 
 #check mandatory arguments
-#if(defined $help || $incfile eq ""){
-#	die("$man");
-#}
+if(defined $help || $incfile eq ""){
+	die("$man");
+}
 
 #add underscore to output prefix
 if($outPrefix ne ""){
 	$outPrefix .= "_";
 }
 
-
+#check datatable pathname
+if ($datatableDir ne "" && ! -d $datatableDir){
+    print "\nError with datatableDir argument: ".$datatableDir." is not an existing directory.\n\n";
+    exit 1;    
+}
 			
 			
 
 
 #open( CONFIG, "<$config" ) or die ("Cannot open vcf file $config") ;
 
-
+#CONFIG FILE PARSING
 print STDERR "Parsing config file....\n";
-my @configLine;
 my %configHash;
-
 my $configHash;
 
 $configHash = LoadFile($config);
-	#@configLine = split (/=/ , $_);
-	#$configHash{$configLine[0]}=$configLine[1];
 	#print Dumper($configHash);
 
 
@@ -120,22 +124,29 @@ foreach my $item (keys %{$configHash}){
 }
 
 
+#ANNOTSV RANKING PARSING to get ranking decision
+my @SVrankLine;
+my %SVrankHash;
+
+if ($annotSVranking ne ""){
+	open( SVRANK , "<$annotSVranking" )or die("Cannot open ranking file ".$annotSVranking) ;
+	
+	
+	while( <SVRANK> ){
+
+		chomp $_;
+		@SVrankLine = split( /\t/, $_ );	
+
+		if (defined $SVrankHash{$SVrankLine[0]."_".$SVrankLine[2]}){
+			print "Doublon detected in ranking file : ".$_."\n\n";
+		}else{
+			$SVrankHash{$SVrankLine[0]."_".$SVrankLine[2]} = $SVrankLine[4];
+		}	
+	}
+}
 
 
-
-
-
-#print Dumper($configHash);
-
-#open( VCF , "<$incfile" )or die("Cannot open vcf file $incfile") ;
-
-
-#TODO check if header contains required INFO
-#Parse VCF header to fill the dictionnary of parameters
-print STDERR "Parsing VCF header in order to get sample names and to check if required informations are present ... \n";
-my %dicoParam;
-
-#Hash of ACMG incidentalome genes
+#Hash of ACMG incidentalome genes  => grey color #808080
 my %ACMGgene = ("ACTA2" =>1,"ACTC1" =>1,"APC" =>1,"APOB" =>1,"ATP7B" =>1,"BMPR1A" =>1,"BRCA1" =>1,"BRCA2" =>1,"CACNA1S" =>1,"COL3A1" =>1,"DSC2" =>1,"DSG2" =>1,"DSP" =>1,"FBN1" =>1,"GLA" =>1,"KCNH2" =>1,"KCNQ1" =>1,"LDLR" =>1,"LMNA" =>1,"MEN1" =>1,"MLH1" =>1,"MSH2" =>1,"MSH6" =>1,"MUTYH" =>1,"MYBPC3" =>1,"MYH11" =>1,"MYH7" =>1,"MYL2" =>1,"MYL3" =>1,"NF2" =>1,"OTC" =>1,"PCSK9" =>1,"PKP2" =>1,"PMS2" =>1,"PRKAG2" =>1,"PTEN" =>1,"RB1" =>1,"RET" =>1,"RYR1" =>1,"RYR2" =>1,"SCN5A" =>1,"SDHAF2" =>1,"SDHB" =>1,"SDHC" =>1,"SDHD" =>1,"SMAD3" =>1,"SMAD4" =>1,"STK11" =>1,"TGFBR1" =>1,"TGFBR2" =>1,"TMEM43" =>1,"TNNI3" =>1,"TNNT2" =>1,"TP53" =>1,"TPM1" =>1,"TSC1" =>1,"TSC2" =>1,"VHL" =>1,"WT1"=>1);
 
 
@@ -155,26 +166,7 @@ $pLI_ColorHash{'0.1'} = '#3FFF00';
 $pLI_ColorHash{'0.0'} = '#00FF00';
 #$pLI_ColorHash{'.'} = '#FFFFFF';
 
-#$pLI_ColorHash{'0.0'} = '#FF0000';
-#$pLI_ColorHash{'1.0'} = '#FF3300';
-#$pLI_ColorHash{'2.0'} = '#FF6600';
-#$pLI_ColorHash{'3.0'} = '#FF9900';
-#$pLI_ColorHash{'4.0'} = '#FFCC00';
-#$pLI_ColorHash{'5.0'} = '#FFFF00';
-#$pLI_ColorHash{'6.0'} = '#BFFF00';
-#$pLI_ColorHash{'7.0'} = '#7FFF00';
-#$pLI_ColorHash{'8.0'} = '#3FFF00';
-#$pLI_ColorHash{'9.0'} = '#00FF00';
-#$pLI_ColorHash{'.'} = '#FFFFFF';
 
-
-#final strings for comment
-my $commentMPAscore;
-
-#define sorted arrays with score for comment
-my @CommentMPA_score = ("MPA_ranking",
-						"MPA_final_score",
-						'fathmm-MKL_coding_pred');
 
 ####################################################################
 #############################################
@@ -188,20 +180,18 @@ while( <VCF> ){
   	$current_line = $_;
 	$count++;
 
-#############################################
-##############   skip header
 
 	chomp $current_line;
 	@line = split( /\t/, $current_line );	
 	
-	#DEBUG print STDERR $dicoColumnNbr{'Gene.refGene'}."\n";
-
-
 
 #############################################
 ##############   Treatment for First line to create header of the output
 
 	if ( $line[0] eq "AnnotSV ID" )   {
+		
+		#TODO check if header contains required INFO
+		print STDERR "Parsing AnnotSV header in order to get column names ... \n";
 
 		#initialize column order
 		for( my $fieldNbr = 0 ; $fieldNbr < scalar @line; $fieldNbr++){
@@ -210,7 +200,6 @@ while( <VCF> ){
 			$InColHash{$fieldNbr} = $line[$fieldNbr];
 			
 			$dataHash{$line[$fieldNbr]} = ".";
-			
 			
 		}
 
@@ -227,53 +216,53 @@ while( <VCF> ){
         $pLI_Color=".";
 
 
-
-
-
-
         #fill nbr of SV_ID;
         if (defined $SV_ID{$line[0]} ){
             $SV_ID{$line[0]}++;
         }else{
             $SV_ID{$line[0]} = 1;
-            #reinitialize Comment Values
-		    foreach my $field (keys %dataCommentHash){
-                undef($dataCommentHash{$field}{'values'});
-            }
-
         }
-
+        
+		#reinitialize Comment Values
+		foreach my $field (keys %dataCommentHash){
+			delete $dataCommentHash{$field}{'values'};
+		}
 
 
 		#fill printable string
 		for( my $fieldNbr = 0 ; $fieldNbr < scalar @line; $fieldNbr++){
 
 			$dataHash{$InColHash{$fieldNbr}} = $line[$fieldNbr];
+		}
 
+		
+		# add ranking decision as comment of AnnotSV ranking field
+		if (defined $SVrankHash{$dataHash{'AnnotSV ID'}."_".$dataHash{'Gene name'}}){
+			#TODO	
 		}
 
 		#get all comments values
 		foreach my $field (keys %dataCommentHash){
             #print $field."\n";
-			#if (defined $dataCommentHash{$field}){
+			#if (defined $dataCommentHash{$field})
 			#	foreach my $fieldCom (@{$dataCommentHash{$field}{'commentFieldList'}}){
 			if (defined $dataCommentHash{$field}){
                 if (! defined $dataCommentHash{$field}{'values'}){
 				    foreach my $fieldCom (@{$dataCommentHash{$field}{'commentFieldList'}}){
 					    if (defined $dataHash{$fieldCom}){
                             $dataCommentHash{$field}{'values'} .= "<br><br><b>".$fieldCom . " :</b> ".$dataHash{$fieldCom};
-                            #print $dataCommentHash{$field}{'values'}."\n";
                         }else{
                             print $field."\n";
-                            $dataCommentHash{$field}{'values'} .= "<br><br><b>".$fieldCom . " :</b> undef";
-                            
+                            $dataCommentHash{$field}{'values'} .= "<br><br><b>".$fieldCom . " :</b> Absent in file";
                         }
+                        #print $field.":\t".$fieldCom.":\t".$dataCommentHash{'Gene name'}{'values'}."\n";
 				    }
 			    }
 			}
 		}
 
-		#fill finalSortData array
+
+		#fill finalSortData array   (try to invert foreach with NameColHash for external name)
 		foreach my $field (keys %dataHash){
 			if (defined $NameColHash{$field} && $NameColHash{$field} != 0){
 				$finalSortData[$NameColHash{$field} - 1] = $dataHash{$field};
@@ -299,13 +288,18 @@ while( <VCF> ){
             }
 		}
         
+		#change pli color if ACMG gene
+		if (defined $ACMGgene{$dataHash{'Gene name'}}){
+			$pLI_Color = '#808080';
+		}
 
 
-            # check if column names and data have the same size
-            if (scalar @finalSortData != keys %OutColHash){
-                print "\nError in config file: it seems that some POSITION are missing.\nPlease correct config file with continuous 'POSITION' number.\n\n"; 
-                exit 1;
-            }
+
+		# check if column names and data have the same size
+		if (scalar @finalSortData != keys %OutColHash){
+			print "\nError in config file: it seems that some POSITION are missing.\nPlease correct config file with continuous 'POSITION' number.\n\n"; 
+			exit 1;
+		}
 
 		
 		#	print Dumper(\@finalSortData);
@@ -318,32 +312,29 @@ while( <VCF> ){
 
 			#key for good sorting should be rank concatenated with annotSV_ID
 			#
-			#
+			#grant full line to be first
 			if ($dataHash{"AnnotSV type"} eq "full"){
 				$scorePenalty = ".1";	
 			}else{
 				$scorePenalty = ".0";	
+			}
 
-			}	
+
+			#finalsortData assigment
 			$hashFinalSortData{$dataHash{"AnnotSV ranking"}.$scorePenalty."_".$variantID}{$count}{'finalArray'} = [@finalSortData] ; 
 			
+			#comment assigment
 			foreach my $fieldCom (keys %dataCommentHash){
-				
 				$hashFinalSortData{$dataHash{"AnnotSV ranking"}.$scorePenalty."_".$variantID}{$count}{'hashComments'}{$NameColHash{$fieldCom} -1} = $dataCommentHash{$fieldCom}{'values'} ; 
+				#print $dataCommentHash{'Gene name'}{'values'}."\n\n";
 				#TODO check color for gene according to output position of gene field 
 			}
 
+
             #assign color to Gene Name
 			$hashFinalSortData{$dataHash{"AnnotSV ranking"}.$scorePenalty."_".$variantID}{$count}{'hashColor'}{$NameColHash{'Gene name'}-1} = $pLI_Color ;
-            #print $NameColHash{'Gene name'}."\n";
 
-			#$hashFinalSortData{$finalSortData[$configHash{'AnnotSV ranking'}]}{$variantID}{'finalArray'} = [@finalSortData] ; 
-			#$hashFinalSortData{$finalSortData[$configHash{'AnnotSV ranking'}]}{$variantID}{'hashComments'} = [@finalSortData] ; 
-#			$hashFinalSortData{$finalSortData[$dicoColumnNbr{'AnnotSV Ranking'}]}{$variantID}{'finalArray'} = [@finalSortData] ;
-
-
-#			$hashFinalSortData{$finalSortData[$dicoColumnNbr{'MPA_ranking'}]}{$variantID}{'nbSample'} = scalar keys %dicoSamples ;
-#			$hashFinalSortData{$finalSortData[$dicoColumnNbr{'MPA_ranking'}]}{$variantID}{'commentGnomADexome'} = $commentGnomADExomeScore  ;
+			#print $NameColHash{'Gene name'}."\n";
 
 				#ACMG
 				#if(defined $ACMGgene{$finalSortData[$dicoColumnNbr{'Gene.refGene'}]} )
@@ -370,11 +361,11 @@ my $htmlStart = "<!DOCTYPE html>\n<html>
 \n<head>
 \n<meta charset=\"utf-8\">
 \n<title>".$outPrefix." AnnotSV</title>\n
-\n<script type=\"text/javascript\" src='DataTables/js/jquery.js'></script>
-\n<script type=\"text/javascript\" src='DataTables/js/jquery.dataTables.min.js'></script>
-\n<script type=\"text/javascript\" src='achab.js'></script>
-\n<link rel=\"stylesheet\" type=\"text/css\" href='DataTables/css/jquery.dataTables.min.css'>
-\n<link rel=\"stylesheet\" type=\"text/css\" href='DataTables/css/W3CSS.css'>
+\n<script type=\"text/javascript\" src='".$datatableDir."DataTables/js/jquery.js'></script>
+\n<script type=\"text/javascript\" src='".$datatableDir."DataTables/js/jquery.dataTables.min.js'></script>
+\n<script type=\"text/javascript\" src='".$datatableDir."achab.js'></script>
+\n<link rel=\"stylesheet\" type=\"text/css\" href='".$datatableDir."DataTables/css/jquery.dataTables.min.css'>
+\n<link rel=\"stylesheet\" type=\"text/css\" href='".$datatableDir."DataTables/css/W3CSS.css'>
 \n</head>
 \n<body>\n\n";
 
@@ -400,14 +391,9 @@ foreach my $col (sort {$a <=> $b} keys %OutColHash){
 $htmlALL .= "</tr>\n</thead>\n<tbody>\n";
 $htmlFULL .= "</tr>\n</thead>\n<tbody>\n";
 					
-					
 
 my $htmlEndTable = "</tbody>\n</table>\n</div>\n\n\n";
 					
-					
-					
-
-
 my $htmlEnd = "<div class=\"tab\">\n
 <button class=\"tablinks\" onclick=\"openCity(event, 'FULL')\">FULL</button>\n
 <button class=\"tablinks\" onclick=\"openCity(event, 'FULL+SPLIT')\">FULL+SPLIT</button>\n
@@ -418,14 +404,11 @@ $htmlEnd .= "\n</body>\n</html>";
 
 
 
-
-
-
 open(HTML, '>', $outDir."/".$outPrefix."annotSV.html") or die $!;
 
 
 #########################################################################
-#################### Sort by MPA ranking for the output
+#################### Sort by AnnotSV ranking for the output
 
 #create user friendly ranking score
 my $kindRank=0;
@@ -439,8 +422,6 @@ foreach my $rank (rnatkeysort { "$_-$hashFinalSortData{$_}" } keys %hashFinalSor
 	
 	foreach my $variant ( keys %{$hashFinalSortData{$rank}}){
 
-#		$format_pLI = $workbook->add_format(bg_color => '#FFFFFF');
-		
 		#increse rank number then change final array
 		#$kindRank++;
 		
@@ -453,123 +434,104 @@ foreach my $rank (rnatkeysort { "$_-$hashFinalSortData{$_}" } keys %hashFinalSor
 
 
 
-		#create reference of Hashes
-		#my $hashTemp = $hashFinalSortData{$rank}{$variant};
-		#my $hashColumn_ref = \%dicoColumnNbr;
+		#FILL tab 'ALL';
+		$htmlALL .= "<tr>\n";
 
 
+		#Once for "ALL"  = FULL+SPLIT
+		for( my $fieldNbr = 0 ; $fieldNbr < scalar @{$hashFinalSortData{$rank}{$variant}{'finalArray'}} ; $fieldNbr++){
+			#print $fieldNbr."\n";
+				#print $hashFinalSortData{$rank}{$variant}{'finalArray'}[$fieldNbr]."\n";
 
-#FILL tab 'ALL';
-$htmlALL .= "<tr>\n";
-
-
-#Once for "ALL"  = FULL+SPLIT
-for( my $fieldNbr = 0 ; $fieldNbr < scalar @{$hashFinalSortData{$rank}{$variant}{'finalArray'}} ; $fieldNbr++){
-    #print $fieldNbr."\n";
-    #print $hashFinalSortData{$rank}{$variant}{'finalArray'}[$fieldNbr]."\n";
-
-
-
-#foreach my $field ( @{$hashFinalSortData{$rank}{$variant}{'finalArray'}} ){
-		#print $rank."bis\n";
-        #print HTML "\t<td style=\"word-wrap: break-word\";class=\"tooltip\"; title=".$field."  >";
-        #print HTML "\t<td >";
 	
-    #implementing rowspan only if line is "full" type
-    # TODO loop on finalArray with counter to skip first td SVID for split line
-    #if (     $hashFinalSortData{$rank}{$variant}{'finalArray'}[$NameColHash{'AnnotSV type'} - 1] eq "full") {
+			  #implementing rowspan only if line is "full" type
+			# TODO loop on finalArray with counter to skip first td SVID for split line
+			#if (     $hashFinalSortData{$rank}{$variant}{'finalArray'}[$NameColHash{'AnnotSV type'} - 1] eq "full") {
        
 		
-       if (defined $hashFinalSortData{$rank}{$variant}{'hashColor'}{$fieldNbr}){
-            $htmlALL .= "\t<td bgcolor=\"".$hashFinalSortData{$rank}{$variant}{'hashColor'}{$fieldNbr}."\">";
+			if (defined $hashFinalSortData{$rank}{$variant}{'hashColor'}{$fieldNbr}){
+				$htmlALL .= "\t<td bgcolor=\"".$hashFinalSortData{$rank}{$variant}{'hashColor'}{$fieldNbr}."\">";
         
-       }else{
-            $htmlALL .= "\t<td >";
-       }
-       #$htmlALL .= "\t<td rowspan=\".$hashFinalSortData{$rank}{$variant}{SVIDNbr}."\">";
-    #}
+			}else{
+				$htmlALL .= "\t<td >";
+			}
+				#$htmlALL .= "\t<td rowspan=\".$hashFinalSortData{$rank}{$variant}{SVIDNbr}."\">";
+			#}
 
 
 
 
-	#if (defined $field){
-	if (defined $hashFinalSortData{$rank}{$variant}{'finalArray'}[$fieldNbr]){
-	#print HTML $field;
-	$htmlALL .= "<div class=\"tooltip\">".$hashFinalSortData{$rank}{$variant}{'finalArray'}[$fieldNbr];
-    $htmlALL .= "<span class=\"tooltiptext tooltip-bottom\">".$hashFinalSortData{$rank}{$variant}{'finalArray'}[$fieldNbr];
-    # add comments
-        if (defined $hashFinalSortData{$rank}{$variant}{'hashComments'}{$fieldNbr}){
-            $htmlALL .= $hashFinalSortData{$rank}{$variant}{'hashComments'}{$fieldNbr}."</span></div>";   
-        }else{
-            $htmlALL .= "</span></div>";
-        }
+			#if (defined $field){
+			if (defined $hashFinalSortData{$rank}{$variant}{'finalArray'}[$fieldNbr]){
+				#print HTML $field;
+				$htmlALL .= "<div class=\"tooltip\">".$hashFinalSortData{$rank}{$variant}{'finalArray'}[$fieldNbr];
+				$htmlALL .= "<span class=\"tooltiptext tooltip-bottom\"><b>".$OutColHash{$fieldNbr + 1}. " :</b> ".$hashFinalSortData{$rank}{$variant}{'finalArray'}[$fieldNbr];
+			# add comments
+				if (defined $hashFinalSortData{$rank}{$variant}{'hashComments'}{$fieldNbr}){
+					$htmlALL .= $hashFinalSortData{$rank}{$variant}{'hashComments'}{$fieldNbr}."</span></div>";   
+				}else{
+					$htmlALL .= "</span></div>";
+				}
 
-    #	$hashFinalSortData{$rank}{$variant}{'hashComments'}{$NameColHash{$fieldCom}} 
+			 #	$hashFinalSortData{$rank}{$variant}{'hashComments'}{$NameColHash{$fieldCom}} 
 
-    }else {
-		#print HTML "."
-        $htmlALL .= "."
-	}
-    #print HTML "\t</td>\n";
-	$htmlALL .= "\t</td>\n";
-}
+			}else {
+				#print HTML "."
+				$htmlALL .= "."
+			}
+			#print HTML "\t</td>\n";
+			$htmlALL .= "\t</td>\n";
+		} #END FOR FULL+SPLIT tab
 
-#Once for "FULL"  = FULL only
-for( my $fieldNbr = 0 ; $fieldNbr < scalar @{$hashFinalSortData{$rank}{$variant}{'finalArray'}} ; $fieldNbr++){
 
-    if ($hashFinalSortData{$rank}{$variant}{'finalArray'}[$NameColHash{'AnnotSV type'} - 1] eq "split") {
-		$FULLboolean = 0;
-		next;
-	}elsif ($FULLboolean != 1){
-			$htmlFULL .= "<tr>\n";
-			$FULLboolean = 1;
-	} 
+		#Once for "FULL" tab  = FULL only
+		for( my $fieldNbr = 0 ; $fieldNbr < scalar @{$hashFinalSortData{$rank}{$variant}{'finalArray'}} ; $fieldNbr++){
 
+			if ($hashFinalSortData{$rank}{$variant}{'finalArray'}[$NameColHash{'AnnotSV type'} - 1] eq "split") {
+				$FULLboolean = 0;
+				next;
+			}elsif ($FULLboolean != 1){
+				$htmlFULL .= "<tr>\n";
+				$FULLboolean = 1;
+			} 
 
        
-	#assign color	
-	if (defined $hashFinalSortData{$rank}{$variant}{'hashColor'}{$fieldNbr}){
-		$htmlFULL .= "\t<td bgcolor=\"".$hashFinalSortData{$rank}{$variant}{'hashColor'}{$fieldNbr}."\">";    
-	}else{
-		$htmlFULL .= "\t<td >";
-	}
+			#assign color	
+			if (defined $hashFinalSortData{$rank}{$variant}{'hashColor'}{$fieldNbr}){
+				$htmlFULL .= "\t<td bgcolor=\"".$hashFinalSortData{$rank}{$variant}{'hashColor'}{$fieldNbr}."\">";    
+			}else{
+				$htmlFULL .= "\t<td >";
+			}
 
-	#assign values and tooltip value
-	if (defined $hashFinalSortData{$rank}{$variant}{'finalArray'}[$fieldNbr]){
-		$htmlFULL .= "<div class=\"tooltip\">".$hashFinalSortData{$rank}{$variant}{'finalArray'}[$fieldNbr];
-		$htmlFULL .= "<span class=\"tooltiptext tooltip-bottom\">".$hashFinalSortData{$rank}{$variant}{'finalArray'}[$fieldNbr];
-    # add comments
-        if (defined $hashFinalSortData{$rank}{$variant}{'hashComments'}{$fieldNbr}){
-            $htmlFULL .= $hashFinalSortData{$rank}{$variant}{'hashComments'}{$fieldNbr}."</span></div>";   
-        }else{
-            $htmlFULL .= "</span></div>";
-        }
-
-
-    }else {
-        $htmlFULL .= "."
-	}
-	$htmlFULL .= "\t</td>\n";
-}
+			#assign values and tooltip value
+			if (defined $hashFinalSortData{$rank}{$variant}{'finalArray'}[$fieldNbr]){
+				$htmlFULL .= "<div class=\"tooltip\">".$hashFinalSortData{$rank}{$variant}{'finalArray'}[$fieldNbr];
+				$htmlFULL .= "<span class=\"tooltiptext tooltip-bottom\">".$hashFinalSortData{$rank}{$variant}{'finalArray'}[$fieldNbr];
+				# add comments
+			    if (defined $hashFinalSortData{$rank}{$variant}{'hashComments'}{$fieldNbr}){
+					$htmlFULL .= $hashFinalSortData{$rank}{$variant}{'hashComments'}{$fieldNbr}."</span></div>";   
+				}else{
+					$htmlFULL .= "</span></div>";
+				}
 
 
+			}else {
+				$htmlFULL .= "."
+			}
+			$htmlFULL .= "\t</td>\n";
+		} #END FULL only tab
 
 
-	#end of table line
-	$htmlALL .= "</tr>\n";
-	if ($FULLboolean == 1){
-		$htmlFULL .= "</tr>\n";
-		$FULLboolean = 0;
-	}
+
+
+		#end of table line
+		$htmlALL .= "</tr>\n";
+		if ($FULLboolean == 1){
+			$htmlFULL .= "</tr>\n";
+			$FULLboolean = 0;
+		}
 	
 	
-
-
-
-
-##############################################################
-###########################      ALL     #####################
-
 	
 	}   # END FOREACH VARIANT
 }	#END FOREACH RANK
@@ -580,7 +542,7 @@ close(VCF);
 
 
 
-
+#Write in HTML file
 print HTML $htmlStart;
 print HTML $htmlFULL;
 print HTML $htmlEndTable;
@@ -589,12 +551,12 @@ print HTML $htmlEndTable;
 print HTML $htmlEnd;
 
 
-close(HTMl);
+close(HTML);
 
 
 
 
-print STDERR "Done!\n\n\n";
+print STDERR "\n\n\nDone!\n\n\n";
 
 ###################################################################
 ######################### FUNCTIONS ###############################
@@ -602,4 +564,9 @@ print STDERR "Done!\n\n\n";
 sub writeThisSheet {
 }#END OF SUB
 
+
+
+
 exit 0; 
+
+

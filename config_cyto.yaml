@@ -107,7 +107,7 @@ GD_N_HOMALT:
     POSITION: 0
 GD_AF:
     POSITION: 0
-GD_POPMAX:
+GD_POPMAX_AF:
     POSITION: 12
     COMMENTLIST:
         - GD_AN
@@ -178,7 +178,7 @@ Repeats_type_right:
 ACMG:
     POSITION: 0
 HI_CGscore:
-    POSITION: 0
+    POSITION: 19
 TriS_CGscore:
     POSITION: 0
 DDD_mode:
