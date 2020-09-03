@@ -268,9 +268,9 @@ while( <VCF> ){
 				if (defined $dataCommentHash{$field}{'SVrank'}){
 	  				if (defined $SVrankHash{$dataHash{'AnnotSV ID'}."_".$dataHash{'Gene name'}}){
                 		if (! defined $dataCommentHash{$field}{'values'}){
-							$dataCommentHash{$field}{'values'}= $SVrankHash{$dataHash{'AnnotSV ID'}."_".$dataHash{'Gene name'}} ;
+							$dataCommentHash{$field}{'values'}= "<br><br><b>Ranking :</b> " . $SVrankHash{$dataHash{'AnnotSV ID'}."_".$dataHash{'Gene name'}} ;
 						}else{
-							$dataCommentHash{$field}{'values'} = $SVrankHash{$dataHash{'AnnotSV ID'}."_".$dataHash{'Gene name'}} . $dataCommentHash{$field}{'values'};  	
+							$dataCommentHash{$field}{'values'} = "<br><br><b>Ranking :</b> " .$SVrankHash{$dataHash{'AnnotSV ID'}."_".$dataHash{'Gene name'}} . $dataCommentHash{$field}{'values'};  	
 						}
 					}
 				}
