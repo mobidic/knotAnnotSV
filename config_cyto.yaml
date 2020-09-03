@@ -1,10 +1,10 @@
 ---
-AnnotSV ID:
+AnnotSV ID:    #mandatory
     POSITION: 1
     COMMENTLIST:
         - SV length
         - SV type
-AnnotSV ranking:
+AnnotSV ranking:  # mandatory
     POSITION: 2
 SV chrom:
     POSITION: 0
@@ -28,11 +28,7 @@ Sample ID:
     POSITION: 0
 AnnotSV type:
     POSITION: 4 #should be kept  //// specify mandatory fields for good computing
-                                # check also if 2 positions are same
-                                # check field need to have a position here to be included as comment
-                                # check what's best position= 0 or comment the 2 lines
-                                # check if field exist in annotSV 
-Gene name:
+Gene name:     # mandatory
     POSITION: 5
     COMMENTLIST:
         - pLI_ExAC
@@ -53,6 +49,24 @@ tx length:
     POSITION: 0
 location:
     POSITION: 6
+morbidGenes:
+    POSITION: 7
+    COMMENTLIST:
+        - Mim Number
+        - Phenotypes
+        - Inheritance
+        - morbidGenesCandidates
+EXOMISER_GENE_PHENO_SCORE:
+    POSITION: 8
+    COMMENTLIST:
+        - HUMAN_PHENO_EVIDENCE
+        - MOUSE_PHENO_EVIDENCE
+        - FISH_PHENO_EVIDENCE
+dbVar_status:
+    POSITION: 9
+    COMMENTLIST:
+        - dbVar_event
+        - dbVar_variant
 location2:
     POSITION: 0
 intersectStart:
@@ -66,10 +80,13 @@ DGV_GAIN_n_samples_with_SV:
 DGV_GAIN_n_samples_tested:
     POSITION: 0
 DGV_GAIN_Frequency:
-    POSITION: 7
+    POSITION: 10 
     COMMENTLIST:
         - DGV_GAIN_n_samples_with_SV
         - DGV_GAIN_n_samples_tested
+        - DGV_LOSS_Frequency
+        - DGV_LOSS_n_samples_with_SV
+        - DGV_LOSS_n_samples_tested
 DGV_LOSS_IDs:
     POSITION: 0
 DGV_LOSS_n_samples_with_SV:
@@ -77,26 +94,26 @@ DGV_LOSS_n_samples_with_SV:
 DGV_LOSS_n_samples_tested:
     POSITION: 0
 DGV_LOSS_Frequency:
-    POSITION: 8
-    COMMENTLIST:
-        - DGV_LOSS_n_samples_with_SV
-        - DGV_LOSS_n_samples_tested
+    POSITION: 0
 DDD_SV:
     POSITION: 0
 DDD_DUP_n_samples_with_SV:
     POSITION: 0
 DDD_DUP_Frequency:
-    POSITION: 9
+    POSITION: 11
     COMMENTLIST:
         - DDD_DUP_n_samples_with_SV
+        - DDD_DEL_Frequency
+        - DDD_DEL_n_samples_with_SV
+        - DDD_status
+        - DDD_mode
+        - DDD_consequence 
 DDD_DEL_n_samples_with_SV:
     POSITION: 0
 DDD_DEL_Frequency:
-    POSITION: 10
-    COMMENTLIST:
-        - DDD_DEL_n_samples_with_SV
+    POSITION: 0
 DDD_status:
-    POSITION: 11
+    POSITION: 0 
 GD_ID:
     POSITION: 0
 GD_AN:
@@ -138,11 +155,6 @@ dbVar_event:
     POSITION: 0
 dbVar_variant:
     POSITION: 0
-dbVar_status:
-    POSITION: 15
-    COMMENTLIST:
-        - dbVar_event
-        - dbVar_variant
 GHid_elite:
     POSITION: 0
 GHid_not_elite:
@@ -178,13 +190,11 @@ Repeats_type_right:
 ACMG:
     POSITION: 0
 HI_CGscore:
-    POSITION: 19
+    POSITION: 0
 TriS_CGscore:
     POSITION: 0
 DDD_mode:
-    POSITION: 16
-    COMMENTLIST:
-        - DDD_consequence 
+    POSITION: 0
 DDD_consequence:
     POSITION: 0
 DDD_pmids:
@@ -203,13 +213,6 @@ dupZ_ExAC:
     POSITION: 0
 cnvZ_ExAC:
     POSITION: 0
-morbidGenes:
-    POSITION: 17
-    COMMENTLIST:
-        - Mim Number
-        - Phenotypes
-        - Inheritance
-        - morbidGenesCandidates
 morbidGenesCandidates:
     POSITION: 0
 Mim Number:
@@ -218,12 +221,6 @@ Phenotypes:
     POSITION: 0
 Inheritance:
     POSITION: 0
-EXOMISER_GENE_PHENO_SCORE:
-    POSITION: 18
-    COMMENTLIST:
-        - HUMAN_PHENO_EVIDENCE
-        - MOUSE_PHENO_EVIDENCE
-        - FISH_PHENO_EVIDENCE
 HUMAN_PHENO_EVIDENCE:
     POSITION: 0
 MOUSE_PHENO_EVIDENCE:

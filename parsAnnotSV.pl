@@ -5,17 +5,17 @@
 # Author : Thomas Guignard 2020
 
 # Description : 
-# Create an User friendly Excel file from an AnnotSV annotated file. 
+# Create an User friendly HTML file from an AnnotSV annotated file. 
 
 
 use strict; 
 use warnings;
 use Getopt::Long; 
-use Switch;
 use YAML::XS 'LoadFile';
-#use Data::Dumper;
-
 use Sort::Key::Natural qw(rnatkeysort);
+
+#use Switch;
+#use Data::Dumper;
 #use Sort::Naturally;
 
 #parameters
@@ -143,7 +143,16 @@ if ($annotSVranking ne ""){
 			$SVrankHash{$SVrankLine[0]."_".$SVrankLine[2]} = $SVrankLine[4];
 		}	
 	}
+
+	#add comment with rank to AnnotSV ranking column
+	if (! defined $dataCommentHash{'AnnotSV ranking'}{'commentFieldList'}){
+		$dataCommentHash{'AnnotSV ranking'}{'SVrank'} = "OK";
+	}
+
 }
+
+
+
 
 
 #Hash of ACMG incidentalome genes  => grey color #808080
@@ -172,7 +181,7 @@ $pLI_ColorHash{'0.0'} = '#00FF00';
 #############################################
 ##################   Start parsing VCF
 
-open( VCF , "<$incfile" )or die("Cannot open vcf file ".$incfile) ;
+open( VCF , "<$incfile" )or die("Cannot open annotSV file ".$incfile) ;
 
 
 
@@ -236,16 +245,12 @@ while( <VCF> ){
 		}
 
 		
-		# add ranking decision as comment of AnnotSV ranking field
-		if (defined $SVrankHash{$dataHash{'AnnotSV ID'}."_".$dataHash{'Gene name'}}){
-			#TODO	
-		}
 
 		#get all comments values
 		foreach my $field (keys %dataCommentHash){
             #print $field."\n";
 			#if (defined $dataCommentHash{$field})
-			#	foreach my $fieldCom (@{$dataCommentHash{$field}{'commentFieldList'}}){
+			#	foreach my $fieldCom (@{$dataCommentHash{$field}{'commentFieldList'}})
 			if (defined $dataCommentHash{$field}){
                 if (! defined $dataCommentHash{$field}{'values'}){
 				    foreach my $fieldCom (@{$dataCommentHash{$field}{'commentFieldList'}}){
@@ -258,6 +263,17 @@ while( <VCF> ){
                         #print $field.":\t".$fieldCom.":\t".$dataCommentHash{'Gene name'}{'values'}."\n";
 				    }
 			    }
+				
+				# add ranking decision as comment of AnnotSV ranking field
+				if (defined $dataCommentHash{$field}{'SVrank'}){
+	  				if (defined $SVrankHash{$dataHash{'AnnotSV ID'}."_".$dataHash{'Gene name'}}){
+                		if (! defined $dataCommentHash{$field}{'values'}){
+							$dataCommentHash{$field}{'values'}= $SVrankHash{$dataHash{'AnnotSV ID'}."_".$dataHash{'Gene name'}} ;
+						}else{
+							$dataCommentHash{$field}{'values'} = $SVrankHash{$dataHash{'AnnotSV ID'}."_".$dataHash{'Gene name'}} . $dataCommentHash{$field}{'values'};  	
+						}
+					}
+				}
 			}
 		}
 
@@ -363,7 +379,42 @@ my $htmlStart = "<!DOCTYPE html>\n<html>
 \n<title>".$outPrefix." AnnotSV</title>\n
 \n<script type=\"text/javascript\" src='".$datatableDir."DataTables/js/jquery.js'></script>
 \n<script type=\"text/javascript\" src='".$datatableDir."DataTables/js/jquery.dataTables.min.js'></script>
-\n<script type=\"text/javascript\" src='".$datatableDir."achab.js'></script>
+\n<script> 
+\$(document).ready(function () {
+
+	\$('#tabFULL').DataTable(        {\"order\": []} );
+	\$('#tabFULLSPLIT').DataTable(   {\"order\": []} );
+
+});
+
+function openCity(evt, cityName) {
+	var i, tabcontent, tablinks;
+	tabcontent = document.getElementsByClassName(\"tabcontent\");
+	for (i = 0; i < tabcontent.length; i++) {
+		tabcontent[i].style.display = \"none\";
+	}
+	tablinks = document.getElementsByClassName(\"tablinks\");
+	for (i = 0; i < tablinks.length; i++) {
+		tablinks[i].className = tablinks[i].className.replace(\" active\", \"\");
+	}
+	document.getElementById(cityName).style.display = \"block\";
+	evt.currentTarget.className += \" active\";
+}
+
+/*click to display comment*/
+function myFunction() {
+	var x = document.getElementById(\"contentA\");																														
+	if (x.style.display === \"none\") {
+		x.style.display = \"block\";
+	} else {
+		x.style.display = \"none\";
+	}																																								 	
+}
+
+
+
+
+</script>
 \n<link rel=\"stylesheet\" type=\"text/css\" href='".$datatableDir."DataTables/css/jquery.dataTables.min.css'>
 \n<link rel=\"stylesheet\" type=\"text/css\" href='".$datatableDir."DataTables/css/W3CSS.css'>
 \n</head>
