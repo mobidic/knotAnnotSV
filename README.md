@@ -20,9 +20,14 @@ $ git clone https://github.com/thomasguignard/parsAnnot.git
 - Perl library via cpan : Switch, YAML::XS, Sort::Key::Natural
 
 
-# Output configuration
+# Input
 
-Use a indented yaml file to configure output (use splace instead of tab for indentation).
+## AnnotSV output Files
+
+
+## configuration of output columns
+
+Use a indented yaml file to configure output (use space instead of tab for indentation, tab are not allowed).
 
 Precise the POSITION field you want to display.
 
@@ -44,11 +49,20 @@ SV chrom:
 #SV start:
 #    POSITION: 0
 ```
+# Output
+
+An AnnotSV html File is produced to be display on web browser (firefox 80.0 tested so far). It should be in the same directory as Datatables folder. 
+
+See exemple annotSV.html
 
 
 # Command:
 ```bash
+#Basic output
 ./parsAnnotSV.pl --annotSVfile CSG202190.xls.annotated.tsv --configFile config_cyto.yaml
+
+#Integrate annotSV anking File
+./parsAnnotSV.pl --annotSVfile CSG202190.xls.annotated.tsv --configFile config_cyto.yaml --annotSVranking CSG202190.xls.ranking.tsv
 ```
 
 
