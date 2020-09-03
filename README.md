@@ -17,7 +17,7 @@ $ git clone https://github.com/thomasguignard/parsAnnot.git
 # Requirements 
 
 - Linux OS
-- Perl library via cpan : Switch, YAML::XS, Sort::Key::Natural
+- Perl library via cpan : YAML::XS, Sort::Key::Natural
 
 
 # Input
