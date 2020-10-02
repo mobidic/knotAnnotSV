@@ -59,7 +59,8 @@ button:hover + div#contentA {
 	  .tooltip .tooltiptext {
 		    visibility: hidden;
 			width: auto;
-            min-width: 300px;
+            		min-width: 300px;
+		  	max-width: 600px;
 			height: auto;
 			background-color: #555;
 			color: #fff;
@@ -70,9 +71,14 @@ button:hover + div#contentA {
 			z-index: 1;
 			top: 125%;
 			left: 50%;
-		    margin-left: -60px;
-		    opacity: 0;
+		    	margin-left: -60px;
+		    	opacity: 0;
 			transition: opacity 0.3s;
+		      	overflow: hidden;
+    			text-overflow: ellipsis;
+    			white-space: normal;
+    			overflow-wrap: break-word;
+		  
 		 }
 
 
