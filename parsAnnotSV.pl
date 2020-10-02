@@ -382,13 +382,19 @@ my $htmlStart = "<!DOCTYPE html>\n<html>
 \n<script> 
 \$(document).ready(function () {
 
-	\$('#tabFULL').DataTable(        {\"order\": []} );
-	\$('#tabFULLSPLIT').DataTable(   {\"order\": []} );
+	\$('#tabFULL').DataTable(        {\"order\": [] ,\"lengthMenu\":[ [ 50, 100, -1 ],[ 50, 100, \"All\" ]] } );
+	\$('#tabFULLSPLIT').DataTable(   {\"order\": [] ,\"lengthMenu\":[ [ 50, 100, -1 ],[ 50, 100, \"All\" ]] } );
 
 });
 
 function openCity(evt, cityName) {
-	var i, tabcontent, tablinks;
+	var i, tabcontent, tabcontentFULL tablinks;
+	
+	tabcontentFULL = document.getElementsByClassName(\"tabcontentFULL\");
+	for (i = 0; i < tabcontentFULL.length; i++) {
+  		tabcontentFULL[i].style.display = \"none\";	
+  	}
+
 	tabcontent = document.getElementsByClassName(\"tabcontent\");
 	for (i = 0; i < tabcontent.length; i++) {
 		tabcontent[i].style.display = \"none\";
@@ -428,7 +434,7 @@ $htmlALL .= "\n\t<table id='tabFULLSPLIT' class='display' >
         \n\t\t<thead><tr>";
 
 
-my $htmlFULL="<div id=\"FULL\" class=\"tabcontent\">";
+my $htmlFULL="<div id=\"FULL\" class=\"tabcontentFULL\">";
 $htmlFULL .= "\n\t<table id='tabFULL' class='display' >
         \n\t\t<thead><tr>";
 
