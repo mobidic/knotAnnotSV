@@ -1,11 +1,30 @@
 #!/usr/bin/perl
 
-##### parsAnnotSV.pl ####
-
-# Author : Thomas Guignard 2020
-
-# Description : 
-# Create an User friendly HTML file from an AnnotSV annotated file. 
+##############################################################################################
+# knotAnnotSV 1.0                                                                            #	
+#                                                                                            #
+# knotAnnotSV: Creation of a customizable html file to visualize, filter                     # 
+#                   and analyze a an AnnotSV output                                          #
+#                                                                                            #
+# Author: Thomas Guignard 2020                                                               #
+#                                                                                            #
+# Copyright (C) 2020 Thomas Guignard (t-guignard@chu-montpellier.fr)                         #
+#                                                                                            #
+# This is part of knotAnnotSV source code.        	                                     #
+#                                                                                            #
+# This program is free software; you can redistribute it and/or                              #
+# modify it under the terms of the GNU General Public License                                #
+# as published by the Free Software Foundation; either version 3                             #
+# of the License, or (at your option) any later version.                                     #
+#                                                                                            #
+# This program is distributed in the hope that it will be useful,                            #
+# but WITHOUT ANY WARRANTY; without even the implied warranty of                             #
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the                              #
+# GNU General Public License for more details.                                               #
+#                                                                                            #
+# You should have received a copy of the GNU General Public License                          #
+# along with this program; If not, see <http://www.gnu.org/licenses/>.                       #
+##############################################################################################
 
 
 use strict; 
