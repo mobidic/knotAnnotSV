@@ -35,6 +35,12 @@
   background-color: #ccc;
 }
 
+
+thead input {
+	width: 100%;
+}
+
+
 /* Style the tab content */
 .tabcontent {
   display: none;
@@ -59,10 +65,10 @@ button:hover + div#contentA {
 }
 
 .tooltip {
-	  position: relative;
-	    display: inline-block;
-		  border-bottom: 1px dotted black;
-	  }
+	position: relative;
+	display: inline-block;
+	border-bottom: 1px dotted black;
+}
 
 	  .tooltip .tooltiptext {
 		    visibility: hidden;
