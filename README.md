@@ -1,4 +1,4 @@
-# What is parsAnnotSV?
+# What is knotAnnotSV?
 A simple script to create a customizable html file from an AnnotSV output (So far from a Bed file format).
 
 You can customize column order, number and comments with "mouseovering".
@@ -6,12 +6,12 @@ You can customize column order, number and comments with "mouseovering".
 
 # Installation
 
-To download parsAnnot, please use git to download the most recent development tree.
+To download knotAnnotSV, please use git to download the most recent development tree.
 
 Currently, the tree is hosted on github, and can be obtained via:
 
 ```bash
-$ git clone https://github.com/thomasguignard/parsAnnot.git
+$ git clone https://github.com/thomasguignard/knotAnnotSV.git
 ```
 
 # Requirements 
@@ -59,10 +59,10 @@ See exemple annotSV.html
 # Command:
 ```bash
 #Basic output
-./parsAnnotSV.pl --annotSVfile CSG202190.xls.annotated.tsv --configFile config_cyto.yaml
+./knotAnnotSV.pl --annotSVfile example.annotated.tsv --configFile config_cyto.yaml
 
 #Integrate annotSV anking File
-./parsAnnotSV.pl --annotSVfile CSG202190.xls.annotated.tsv --configFile config_cyto.yaml --annotSVranking CSG202190.xls.ranking.tsv
+./knotAnnotSV.pl --annotSVfile example.annotated.tsv --configFile config_cyto.yaml --annotSVranking example.ranking.tsv
 ```
 
 
