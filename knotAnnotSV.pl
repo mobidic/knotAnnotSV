@@ -38,7 +38,7 @@ use Sort::Key::Natural qw(rnatkeysort);
 #use Sort::Naturally;
 
 #parameters
-my $man = "USAGE : \nperl parsAnnotSV.pl 
+my $man = "USAGE : \nperl knotAnnotSV.pl 
 \n--configFile <YAML config file for customizing output>
 \n--annotSVfile <annotSV annotated file> 
 \n--annotSVranking <annotSV ranking explanations file>
