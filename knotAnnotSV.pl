@@ -396,13 +396,46 @@ my $htmlStart = "<!DOCTYPE html>\n<html>
 \n<head>
 \n<meta charset=\"utf-8\">
 \n<title>".$outPrefix." AnnotSV</title>\n
-\n<script type=\"text/javascript\" src='".$datatableDir."DataTables/js/jquery.js'></script>
-\n<script type=\"text/javascript\" src='".$datatableDir."DataTables/js/jquery.dataTables.min.js'></script>
+\n<script type=\"text/javascript\" language=\"javascript\" src='https://code.jquery.com/jquery-3.5.1.js'></script>
+\n<script type=\"text/javascript\" language=\"javascript\" src='https://cdn.datatables.net/1.10.22/js/jquery.dataTables.min.js'></script>
+\n<script type=\"text/javascript\" language=\"javascript\" src='https://cdn.datatables.net/fixedheader/3.1.7/js/dataTables.fixedHeader.min.js'></script>
 \n<script> 
 \$(document).ready(function () {
+ 
+ 	\$('#tabFULL thead tr').clone(true).appendTo( '#tabFULL thead' );
+            \$('#tabFULL thead tr:eq(1) th').each( function (i) {
+             var title = \$(this).text();
+              \$(this).html( '<input type=\"text\" placeholder=\"Search '+title+'\" />' );
+                                                 
+              \$( 'input', this ).on( 'keyup change', function () {
+                  if ( table.column(i).search() !== this.value ) {
+                        table
+                       .column(i)
+                       .search( this.value,true,false )
+                       .draw();
+                  }
+            } );
+        } );
 
-	\$('#tabFULL').DataTable(        {\"order\": [] ,\"lengthMenu\":[ [ 50, 100, -1 ],[ 50, 100, \"All\" ]],\"oLanguage\": { \"sLengthMenu\": \"Show _MENU_ lines\",\"sInfo\": \"Showing _START_ to _END_ of _TOTAL_ lines\" } } );
-	\$('#tabFULLSPLIT').DataTable(   {\"order\": [] ,\"lengthMenu\":[ [ 50, 100, -1 ],[ 50, 100, \"All\" ]],\"oLanguage\": { \"sLengthMenu\": \"Show _MENU_ lines\",\"sInfo\": \"Showing _START_ to _END_ of _TOTAL_ lines\" } } );
+	 \$('#tabFULLSPLIT thead tr').clone(true).appendTo( '#tabFULLSPLIT thead' );
+            \$('#tabFULLSPLIT thead tr:eq(1) th').each( function (i) {
+             var title = \$(this).text();
+              \$(this).html( '<input type=\"text\" placeholder=\"Search '+title+'\" />' );
+                                                 
+              \$( 'input', this ).on( 'keyup change', function () {
+                  if ( tableFULLSPLIT.column(i).search() !== this.value ) {
+                        tableFULLSPLIT
+                       .column(i)
+                       .search( this.value,true,false )
+                       .draw();
+                  }
+            } );
+        } );
+
+
+
+	var table = \$('#tabFULL').DataTable(        {\"order\": [] ,\"lengthMenu\":[ [ 50, 100, -1 ],[ 50, 100, \"All\" ]], \"fixedHeader\": true, \"orderCellsTop\": true, \"oLanguage\": { \"sLengthMenu\": \"Show _MENU_ lines\",\"sInfo\": \"Showing _START_ to _END_ of _TOTAL_ lines\" } } );
+	var tableFULLSPLIT = \$('#tabFULLSPLIT').DataTable(   {\"order\": [] ,\"lengthMenu\":[ [ 50, 100, -1 ],[ 50, 100, \"All\" ]], \"fixedHeader\": true, \"orderCellsTop\": true, \"oLanguage\": { \"sLengthMenu\": \"Show _MENU_ lines\",\"sInfo\": \"Showing _START_ to _END_ of _TOTAL_ lines\" } } );
 
 });
 
@@ -440,7 +473,8 @@ function myFunction() {
 
 
 </script>
-\n<link rel=\"stylesheet\" type=\"text/css\" href='".$datatableDir."DataTables/css/jquery.dataTables.min.css'>
+\n<link rel=\"stylesheet\" type=\"text/css\" href='https://cdn.datatables.net/1.10.22/css/jquery.dataTables.min.css'>
+\n<link rel=\"stylesheet\" type=\"text/css\" href='https://cdn.datatables.net/fixedheader/3.1.7/css/fixedHeader.dataTables.min.css'>
 \n<link rel=\"stylesheet\" type=\"text/css\" href='".$datatableDir."DataTables/css/W3CSS.css'>
 \n</head>
 \n<body>\n\n";
