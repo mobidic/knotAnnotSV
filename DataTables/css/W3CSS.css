@@ -83,8 +83,8 @@ button:hover + div#contentA {
 			padding: 5px 0;
 			position: absolute;
 			z-index: 1;
-			top: 125%;
-			left: 50%;
+			top: 100%;
+			left: 20%;
 		    	margin-left: -60px;
 		    	opacity: 0;
 			transition: opacity 0.3s;
