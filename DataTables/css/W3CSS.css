@@ -3,12 +3,12 @@
   overflow: hidden;
   border: 1px solid #ccc;
   background-color: #f1f1f1;
-  /*position: fixed;*/
   left: 0;
   bottom: 0;
+	position: fixed;
 	position: -webkit-sticky;
 	position: sticky;
-	position: fixed;
+	
 }
 
 /* Style the buttons inside the tab */
