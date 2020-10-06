@@ -6,8 +6,9 @@
   /*position: fixed;*/
   left: 0;
   bottom: 0;
-    position: -webkit-sticky;
+	position: -webkit-sticky;
 	position: sticky;
+	position: fixed;
 }
 
 /* Style the buttons inside the tab */
@@ -68,6 +69,8 @@ button:hover + div#contentA {
 	position: relative;
 	display: inline-block;
 	border-bottom: 1px dotted black;
+	max-width: 300px;
+	word-wrap: break-word;
 }
 
 	  .tooltip .tooltiptext {
