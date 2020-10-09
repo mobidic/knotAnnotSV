@@ -1,8 +1,9 @@
 # What is knotAnnotSV?
 A simple script to create a customizable html file from an AnnotSV output (So far from a Bed file format).
 
-You can customize column order, number and comments with "mouseovering".
+The user can customize the order, the number and the comments of the columns thanks to a configuration file (config_cyto.yaml)
 
+TODO: explain mouseovering / filter / tab (full-split)
 
 # Installation
 
@@ -51,7 +52,7 @@ SV chrom:
 ```
 # Output
 
-An AnnotSV html File is produced to be display on web browser (firefox 80.0 tested so far). It should be in the same directory as Datatables folder. 
+An AnnotSV html File is produced to be displayed on web browser (Firefox 81.0, Chrome 86.0.4240.75, Edge 83.0.478.54, IE 11, tested so far). It should be in the same directory as Datatables folder. 
 
 See exemple annotSV.html
 
