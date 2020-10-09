@@ -59,13 +59,29 @@ An AnnotSV html File is produced to be displayed on web browser (Firefox 81.0, C
 See exemple annotSV.html
 
 
-# Command:
+# Command line:
 ```bash
 #Basic output
-./knotAnnotSV.pl --annotSVfile example.annotated.tsv --configFile config_cyto.yaml
+perl knotAnnotSV.pl --annotSVfile example.annotated.tsv --configFile config_cyto.yaml
 
-#Integrate annotSV anking File
-./knotAnnotSV.pl --annotSVfile example.annotated.tsv --configFile config_cyto.yaml --annotSVranking example.ranking.tsv
+#Integrate annotSV ranking File
+perl knotAnnotSV.pl --annotSVfile example.annotated.tsv --configFile config_cyto.yaml --annotSVranking example.ranking.tsv
+
+#USAGE arguments of knotAnnotSV.pl
+perl knotAnnotSV.pl
+
+    --configFile <YAML config file for customizing output>
+
+    --annotSVfile <annotSV annotated file> 
+
+    --annotSVranking <annotSV ranking explanations file>
+
+    --outDir <output directory (default = current dir)> 
+
+    --outPrefix <output file prefix (default = "")> 
+
+    --datatableDir <directory containing datatables files (default = "")>
+  
 ```
 
 
