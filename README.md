@@ -1,7 +1,9 @@
 # What is knotAnnotSV?
-A simple script to create a customizable html file from an AnnotSV output (So far from a Bed file format).
+A simple script to create a customizable html file from an AnnotSV output.
 
 The user can customize the order, the number and the comments of the columns thanks to a configuration file (config_cyto.yaml)
+
+Check AnnotSV repo: https://github.com/lgmgeo/AnnotSV
 
 TODO: explain mouseovering / filter / tab (full-split)
 
@@ -28,7 +30,7 @@ $ git clone https://github.com/thomasguignard/knotAnnotSV.git
 
 ## configuration of output columns
 
-Use a indented yaml file to configure output (use space instead of tab for indentation, tab are not allowed).
+Use a indented yaml file to configure output (use space instead of tab for indentation, tabs are not allowed).
 
 Precise the POSITION field you want to display.
 
