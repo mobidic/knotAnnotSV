@@ -1,42 +1,45 @@
 # What is knotAnnotSV?
-A simple script to create a customizable html file from an AnnotSV output.
 
-The user can customize the order, the number and the comments of the columns thanks to a configuration file (config_cyto.yaml)
+knotAnnotSV is a simple script to create a customizable html file (to be displayed on a web browser) from an [AnnotSV](https://lbgi.fr/AnnotSV) output.
+
+The user can customize the order and the number of the annotation columns as well as the display mode (direct display or by comment) thanks to a configuration file.
 
 Check AnnotSV repo: https://github.com/lgmgeo/AnnotSV
 
 TODO: explain mouseovering / filter / tab (full-split)
 
+
 # Installation
 
-To download knotAnnotSV, please use git to download the most recent development tree.
+Please use git to download the most recent development tree.
 
-Currently, the tree is hosted on github, and can be obtained via:
-
+The sources can be cloned to any directory:
 ```bash
-$ git clone https://github.com/thomasguignard/knotAnnotSV.git
+cd /path/to/install/
+$ git clone https://github.com/mobidic/knotAnnotSV.git
 ```
 
 # Requirements 
 
 - Linux OS
+
 - Perl library via cpan : YAML::XS, Sort::Key::Natural
 
 
 # Input
 
-## AnnotSV output Files
+### An AnnotSV output file
 
 
-## configuration of output columns
+### A configuration file
 
-Use a indented yaml file to configure output (use space instead of tab for indentation, tabs are not allowed).
+Use an indented yaml file (config_cyto.yaml) to configure the AnnotSV output file (use space instead of tab for indentation, tabs are not allowed):
 
-Precise the POSITION field you want to display.
+- Precise the POSITION (column ordering) of each field you want to display
 
-Precise which fields you want to include in COMMENTLIST.
+- Precise in COMMENTLIST which associated fields you want to display in tooltips (by mousing over)
 
-Inactivate fields you don't care with a starting '#' or 'POSITION: 0' or by deleting line.
+- Inactivate fields you don't care either with a starting '#' or 'POSITION: 0' or by deleting line.
 
 ```bash
 ---
@@ -52,29 +55,37 @@ SV chrom:
 #SV start:
 #    POSITION: 0
 ```
+
 # Output
 
-An AnnotSV html File is produced to be displayed on web browser (Firefox 81.0, Chrome 86.0.4240.75, Edge 83.0.478.54, IE 11, tested so far). It should be in the same directory as Datatables folder. 
+An AnnotSV html file is produced to be displayed on a web browser (Firefox 81.0, Chrome 86.0.4240.75, Edge 83.0.478.54, IE 11, tested so far). 
 
-See exemple annotSV.html
+It should be in the same directory as the ```Datatables``` folder. 
+
+To help you get how to make effective use of knotAnnotSV, we have provided an input/output example in the ```example``` folder. 
 
 
 # Command line:
+
+1. Change to the repo directory, and run the example
 ```bash
-#Basic output
-perl knotAnnotSV.pl --annotSVfile example.annotated.tsv --configFile config_cyto.yaml
 
-#Integrate annotSV ranking File
-perl knotAnnotSV.pl --annotSVfile example.annotated.tsv --configFile config_cyto.yaml --annotSVranking example.ranking.tsv
+cd /path/to/install/knotAnnotSV
 
-#USAGE arguments of knotAnnotSV.pl
+perl ./knotAnnotSV.pl --annotSVfile ./example/example.annotated.tsv --configFile ./config_cyto.yaml
+```
+2. Display the html output on a web browser
+
+3. Have fun with the exploring!
+
+
+# USAGE: arguments
 perl knotAnnotSV.pl
 
+```
     --configFile <YAML config file for customizing output>
 
-    --annotSVfile <annotSV annotated file> 
-
-    --annotSVranking <annotSV ranking explanations file>
+    --annotSVfile <AnnotSV annotated file> 
 
     --outDir <output directory (default = current dir)> 
 
