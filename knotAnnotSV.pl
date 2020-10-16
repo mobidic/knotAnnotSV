@@ -4,7 +4,7 @@
 # knotAnnotSV 1.0                                                                            #	
 #                                                                                            #
 # knotAnnotSV: Creation of a customizable html file to visualize, filter                     # 
-#                   and analyze a an AnnotSV output                                          #
+#                   and analyze an AnnotSV output                                          #
 #                                                                                            #
 # Author: Thomas Guignard 2020                                                               #
 #                                                                                            #
