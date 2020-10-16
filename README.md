@@ -62,10 +62,28 @@ An AnnotSV html file is produced to be displayed on a web browser (Firefox 81.0,
 
 It should be in the same directory as the ```Datatables``` folder. 
 
+
+# USAGE
+```
+cd /path/to/install/knotAnnotSV
+
+perl ./knotAnnotSV.pl
+
+    --configFile <YAML config file for customizing output>
+
+    --annotSVfile <AnnotSV annotated file> 
+
+    --outDir <output directory (default = current dir)> 
+
+    --outPrefix <output file prefix (default = "")> 
+
+    --datatableDir <directory containing datatables files (default = "")>
+  
+```
+
+# Test knotAnnotSV
+
 To help you get how to make effective use of knotAnnotSV, we have provided an input/output example in the ```example``` folder. 
-
-
-# Command line:
 
 1. Change to the repo directory, and run the example
 ```bash
@@ -78,22 +96,6 @@ perl ./knotAnnotSV.pl --annotSVfile ./example/example.annotated.tsv --configFile
 
 3. Have fun with the exploring!
 
-
-# USAGE: arguments
-perl knotAnnotSV.pl
-
-```
-    --configFile <YAML config file for customizing output>
-
-    --annotSVfile <AnnotSV annotated file> 
-
-    --outDir <output directory (default = current dir)> 
-
-    --outPrefix <output file prefix (default = "")> 
-
-    --datatableDir <directory containing datatables files (default = "")>
-  
-```
 
 
 --------------------------------------------------------------------------------
