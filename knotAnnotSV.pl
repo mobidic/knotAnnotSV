@@ -440,7 +440,7 @@ my $htmlStart = "<!DOCTYPE html>\n<html>
 });
 
 function openCity(evt, cityName) {
-	var i, tabcontent, tabcontentFULL tablinks;
+	var i, tabcontent, tabcontentFULL, tablinks;
 	
 	tabcontentFULL = document.getElementsByClassName(\"tabcontentFULL\");
 	for (i = 0; i < tabcontentFULL.length; i++) {
