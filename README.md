@@ -76,8 +76,10 @@ perl ./knotAnnotSV.pl
     --outDir <output directory (default = current dir)> 
 
     --outPrefix <output file prefix (default = "")> 
+    
+    --genomeBuild <Genome Assembly reference (default = hg19)>
 
-    --datatableDir <directory containing datatables files (default = "")>
+    --datatableDir <Local Path to dataTables directory containing css and js files (default = \"\", requires web connection)>
   
 ```
 
