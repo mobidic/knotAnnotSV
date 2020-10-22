@@ -44,7 +44,8 @@ my $man = "USAGE : \nperl knotAnnotSV.pl
 \n--annotSVranking <annotSV ranking explanations file>
 \n--outDir <output directory (default = current dir)> 
 \n--outPrefix <output file prefix (default = \"\")> 
-\n--datatableDir <directory containing datatables file (default = \"\")>"; 
+\n--genomeBuild <Genome Assembly reference (default = hg19)> 
+\n--datatableDir <Local Path to dataTables directory containing css and js files (default = \"\", requires web connection)>"; 
 
 
 my $configFile = ".";
@@ -401,6 +402,38 @@ while( <VCF> ){
 }#END WHILE VCF
 
 
+#prepare path to lib css and js
+
+
+#original url used
+#'https://code.jquery.com/jquery-3.5.1.js'
+#'https://cdn.datatables.net/1.10.22/js/jquery.dataTables.min.js'
+#'https://cdn.datatables.net/fixedheader/3.1.7/js/dataTables.fixedHeader.min.js'
+#'https://cdn.datatables.net/1.10.22/css/jquery.dataTables.min.css'
+#'https://cdn.datatables.net/fixedheader/3.1.7/css/fixedHeader.dataTables.min.css'
+
+
+
+my $path2jquery = "https://code.jquery.com/";
+my $path2jqueryDT = "https://cdn.datatables.net/1.10.22/js/";
+my $path2jsFHDT = "https://cdn.datatables.net/fixedheader/3.1.7/js/";
+
+my $path2css = "https://cdn.datatables.net/1.10.22/css/"; 
+my $path2FHcss = "https://cdn.datatables.net/fixedheader/3.1.7/css/";
+
+if ($datatableDir ne ""){
+
+	#remove trailing slash from path
+	$datatableDir =~ s/\/$//;
+
+	$path2jquery = $datatableDir."/js/";
+	$path2jqueryDT = $datatableDir."/js/";
+	$path2jsFHDT = $datatableDir."/js/";
+
+	$path2css = $datatableDir."/css/"; 
+	$path2FHcss = $datatableDir."/css/";
+}
+
 
 
 
@@ -414,9 +447,9 @@ my $htmlStart = "<!DOCTYPE html>\n<html>
 \n<head>
 \n<meta charset=\"utf-8\">
 \n<title>".$outPrefix." knotAnnotSV</title>\n
-\n<script type=\"text/javascript\" language=\"javascript\" src='https://code.jquery.com/jquery-3.5.1.js'></script>
-\n<script type=\"text/javascript\" language=\"javascript\" src='https://cdn.datatables.net/1.10.22/js/jquery.dataTables.min.js'></script>
-\n<script type=\"text/javascript\" language=\"javascript\" src='https://cdn.datatables.net/fixedheader/3.1.7/js/dataTables.fixedHeader.min.js'></script>
+\n<script type=\"text/javascript\" language=\"javascript\" src='".$path2jquery."jquery-3.5.1.js'></script>
+\n<script type=\"text/javascript\" language=\"javascript\" src='".$path2jqueryDT."jquery.dataTables.min.js'></script>
+\n<script type=\"text/javascript\" language=\"javascript\" src='".$path2jsFHDT."dataTables.fixedHeader.min.js'></script>
 \n<script> 
 \$(document).ready(function () {
  
@@ -455,6 +488,8 @@ my $htmlStart = "<!DOCTYPE html>\n<html>
 	var table = \$('#tabFULL').DataTable(        {\"order\": [] ,\"lengthMenu\":[ [ 50, 100, -1 ],[ 50, 100, \"All\" ]], \"fixedHeader\": true, \"orderCellsTop\": true, \"oLanguage\": { \"sLengthMenu\": \"Show _MENU_ lines\",\"sInfo\": \"Showing _START_ to _END_ of _TOTAL_ lines\" } } );
 	var tableFULLSPLIT = \$('#tabFULLSPLIT').DataTable(   {\"order\": [] ,\"lengthMenu\":[ [ 50, 100, -1 ],[ 50, 100, \"All\" ]], \"fixedHeader\": true, \"orderCellsTop\": true, \"oLanguage\": { \"sLengthMenu\": \"Show _MENU_ lines\",\"sInfo\": \"Showing _START_ to _END_ of _TOTAL_ lines\" } } );
 
+	window.onload = document.getElementById('focusFULLfirst').focus();
+
 });
 
 function openCity(evt, cityName) {
@@ -484,8 +519,8 @@ function openCity(evt, cityName) {
 
 
 </script>
-\n<link rel=\"stylesheet\" type=\"text/css\" href='https://cdn.datatables.net/1.10.22/css/jquery.dataTables.min.css'>
-\n<link rel=\"stylesheet\" type=\"text/css\" href='https://cdn.datatables.net/fixedheader/3.1.7/css/fixedHeader.dataTables.min.css'>
+\n<link rel=\"stylesheet\" type=\"text/css\" href='".$path2css."jquery.dataTables.min.css'>
+\n<link rel=\"stylesheet\" type=\"text/css\" href='".$path2FHcss."fixedHeader.dataTables.min.css'>
 
 \n<style>
 /* Style the tab */
@@ -520,7 +555,7 @@ function openCity(evt, cityName) {
 	.tab button.active {
 		background-color: #ccc;
 		}
-	.tab1 button.active {
+	.tab button:focus {
 		background-color: #ccc;
 		}
 
@@ -614,7 +649,7 @@ $htmlFULL .= "</tr>\n</thead>\n<tbody>\n";
 my $htmlEndTable = "</tbody>\n</table>\n</div>\n\n\n";
 					
 my $htmlEnd = "<div class=\"tab\">\n
-<button class=\"tablinks\" onclick=\"openCity(event, 'FULL')\">FULL</button>\n
+<button id=\"focusFULLfirst\" class=\"tablinks\" onclick=\"openCity(event, 'FULL')\">FULL</button>\n
 <button class=\"tablinks\" onclick=\"openCity(event, 'FULL+SPLIT')\">FULL+SPLIT</button>\n
 </div>";
 
