@@ -3,14 +3,14 @@
 ##############################################################################################
 # knotAnnotSV 1.0                                                                            #	
 #                                                                                            #
-# knotAnnotSV: Creation of a customizable html file to visualize, filter                     # 
-#                   and analyze an AnnotSV output                                          #
+# knotAnnotSV: Creation of a customizable html file to visualize, filter                   	 # 
+#                   and analyze an AnnotSV output                                            #
 #                                                                                            #
 # Author: Thomas Guignard 2020                                                               #
 #                                                                                            #
 # Copyright (C) 2020 Thomas Guignard (t-guignard@chu-montpellier.fr)                         #
 #                                                                                            #
-# This is part of knotAnnotSV source code.        	                                     #
+# This is part of knotAnnotSV source code.        	                                         #
 #                                                                                            #
 # This program is free software; you can redistribute it and/or                              #
 # modify it under the terms of the GNU General Public License                                #
@@ -78,7 +78,12 @@ my %dataColorHash;
 my $scorePenalty;
 my %SV_ID;
 
+my $url2UCSC="";
+my $url2OMIM="";
+my $url2DECIPHER="";
+my $url2ensembl="";
 
+my $genomeBuild="";
 
 GetOptions( "annotSVfile=s"		=> \$incfile,
 			"configFile=s"		=> \$config,
@@ -86,6 +91,7 @@ GetOptions( "annotSVfile=s"		=> \$incfile,
 			"outDir=s"			=> \$outDir,
 			"outPrefix:s"		=> \$outPrefix,
 			"datatableDir=s"	=> \$datatableDir,
+			"genomeBuild=s"		=> \$genomeBuild,
 			"help|h"			=> \$help);
 				
 				
@@ -107,7 +113,10 @@ if ($datatableDir ne "" && ! -d $datatableDir){
     exit 1;    
 }
 			
-			
+#check if genomeBuild exists (hg19 grch37 hg38, mm etc..) and put hg19 as default build 
+if($genomeBuild eq ""){
+	$genomeBuild = "hg19";
+}
 
 
 #open( CONFIG, "<$config" ) or die ("Cannot open vcf file $config") ;
@@ -357,7 +366,16 @@ while( <VCF> ){
 
 			#finalsortData assigment
 			$hashFinalSortData{$dataHash{"AnnotSV ranking"}.$scorePenalty."_".$variantID}{$count}{'finalArray'} = [@finalSortData] ; 
+
 			
+			#url to UCSC for SV , highlight in blue and zoomout x3
+			$hashFinalSortData{$dataHash{"AnnotSV ranking"}.$scorePenalty."_".$variantID}{$count}{'url2UCSC'} = "http://genome.ucsc.edu/cgi-bin/hgTracks?db=".$genomeBuild."&position=chr".$dataHash{"SV chrom"}.":".$dataHash{"SV start"}."-".$dataHash{"SV end"}."&hgt.out1=submit&highlight=".$genomeBuild.".chr".$dataHash{"SV chrom"}.":".$dataHash{"SV start"}."-".$dataHash{"SV end"}."#aaedff\" target=\"_blank\" rel=\"noopener noreferrer\"" ; 
+
+			#url to OMIM
+			$hashFinalSortData{$dataHash{"AnnotSV ranking"}.$scorePenalty."_".$variantID}{$count}{'url2OMIM'} = "https://www.omim.org/entry/".$dataHash{"Mim Number"}  ; 
+
+
+
 			#comment assigment
 			foreach my $fieldCom (keys %dataCommentHash){
 				$hashFinalSortData{$dataHash{"AnnotSV ranking"}.$scorePenalty."_".$variantID}{$count}{'hashComments'}{$NameColHash{$fieldCom} -1} = $dataCommentHash{$fieldCom}{'values'} ; 
@@ -395,7 +413,7 @@ while( <VCF> ){
 my $htmlStart = "<!DOCTYPE html>\n<html>
 \n<head>
 \n<meta charset=\"utf-8\">
-\n<title>".$outPrefix." AnnotSV</title>\n
+\n<title>".$outPrefix." knotAnnotSV</title>\n
 \n<script type=\"text/javascript\" language=\"javascript\" src='https://code.jquery.com/jquery-3.5.1.js'></script>
 \n<script type=\"text/javascript\" language=\"javascript\" src='https://cdn.datatables.net/1.10.22/js/jquery.dataTables.min.js'></script>
 \n<script type=\"text/javascript\" language=\"javascript\" src='https://cdn.datatables.net/fixedheader/3.1.7/js/dataTables.fixedHeader.min.js'></script>
@@ -457,17 +475,10 @@ function openCity(evt, cityName) {
 	}
 	document.getElementById(cityName).style.display = \"block\";
 	evt.currentTarget.className += \" active\";
+
+	\$('#tabFULLSPLIT').DataTable().fixedHeader.adjust();
 }
 
-/*click to display comment*/
-function myFunction() {
-	var x = document.getElementById(\"contentA\");																														
-	if (x.style.display === \"none\") {
-		x.style.display = \"block\";
-	} else {
-		x.style.display = \"none\";
-	}																																								 	
-}
 
 
 
@@ -475,7 +486,105 @@ function myFunction() {
 </script>
 \n<link rel=\"stylesheet\" type=\"text/css\" href='https://cdn.datatables.net/1.10.22/css/jquery.dataTables.min.css'>
 \n<link rel=\"stylesheet\" type=\"text/css\" href='https://cdn.datatables.net/fixedheader/3.1.7/css/fixedHeader.dataTables.min.css'>
-\n<link rel=\"stylesheet\" type=\"text/css\" href='".$datatableDir."DataTables/css/W3CSS.css'>
+
+\n<style>
+/* Style the tab */
+	.tab {
+		overflow: hidden;
+		border: 1px solid #ccc;
+		background-color: #f1f1f1;
+		left: 0;
+		bottom: 0;
+		position: fixed;
+		position: -webkit-sticky;
+		position: sticky;
+		}
+
+/* Style the buttons inside the tab */
+	.tab button {
+		background-color: inherit;
+		float: left;
+		border: none;
+		outline: none;
+		cursor: pointer;
+		padding: 14px 16px;
+		transition: 0.3s;
+		font-size: 17px;
+		}
+/* Change background color of buttons on hover */
+	.tab button:hover {
+		background-color: #ddd;
+		}
+
+/* Create an active/current tablink class */
+	.tab button.active {
+		background-color: #ccc;
+		}
+	.tab1 button.active {
+		background-color: #ccc;
+		}
+
+	thead input {
+		width: 100%;
+		}
+
+/* Style the tab content */
+	.tabcontent {
+		display: none;
+		padding: 6px 12px;
+		/*border: 1px solid #ccc;*/
+		border-top: none;
+		}
+
+/* Style the tab content FULL */
+	.tabcontentFULL {
+		display: block;
+		padding: 6px 12px;
+		/*border: 1px solid #ccc;*/
+		border-top: none;
+		}
+
+	.tooltip {
+		position: relative;
+		display: inline-block;
+		border-bottom: 1px dotted black;
+		max-width: 300px;
+		word-wrap: break-word;
+		}
+	
+	.tooltip .tooltiptext {
+		visibility: hidden;
+		width: auto;
+		min-width: 300px;
+		max-width: 600px;
+		height: auto;
+		background-color: #555;
+		color: #fff;
+		text-align: left;
+		border-radius: 6px;
+		padding: 5px 0;
+		position: absolute;
+		z-index: 1;
+		top: 100%;
+		left: 20%;
+		margin-left: -60px;
+		opacity: 0;
+		transition: opacity 0.3s;
+		overflow: hidden;
+		text-overflow: ellipsis;
+		white-space: normal;
+		overflow-wrap: break-word;
+		}
+
+	.tooltip:hover .tooltiptext {
+		visibility: visible;
+		opacity: 1;
+		}
+
+
+
+\n</style>
+
 \n</head>
 \n<body>\n\n";
 
@@ -545,8 +654,12 @@ foreach my $rank (rnatkeysort { "$_-$hashFinalSortData{$_}" } keys %hashFinalSor
 
 
 		#FILL tab 'ALL';
-		$htmlALL .= "<tr>\n";
-
+		# change bgcolor for FULL row
+		if (     $hashFinalSortData{$rank}{$variant}{'finalArray'}[$NameColHash{'AnnotSV type'} - 1] eq "full") {
+			$htmlALL .= "<tr style=\"background-color:teal\">\n";
+		}else{
+			$htmlALL .= "<tr>\n";
+		}
 
 		#Once for "ALL"  = FULL+SPLIT
 		for( my $fieldNbr = 0 ; $fieldNbr < scalar @{$hashFinalSortData{$rank}{$variant}{'finalArray'}} ; $fieldNbr++){
@@ -558,9 +671,13 @@ foreach my $rank (rnatkeysort { "$_-$hashFinalSortData{$_}" } keys %hashFinalSor
 			# TODO loop on finalArray with counter to skip first td SVID for split line
 			#if (     $hashFinalSortData{$rank}{$variant}{'finalArray'}[$NameColHash{'AnnotSV type'} - 1] eq "full") {
        
-		
+					
 			if (defined $hashFinalSortData{$rank}{$variant}{'hashColor'}{$fieldNbr}){
-				$htmlALL .= "\t<td bgcolor=\"".$hashFinalSortData{$rank}{$variant}{'hashColor'}{$fieldNbr}."\">";
+				if ($hashFinalSortData{$rank}{$variant}{'finalArray'}[$NameColHash{'location'} - 1] ne "txStart-txEnd" && $hashFinalSortData{$rank}{$variant}{'finalArray'}[$NameColHash{'location'} - 1] ne "") {
+					$htmlALL .= "\t<td style=\"background: linear-gradient(-45deg,".$hashFinalSortData{$rank}{$variant}{'hashColor'}{$fieldNbr}." 50%, white 50% )\">";
+				}else{
+					$htmlALL .= "\t<td style=\"background-color:".$hashFinalSortData{$rank}{$variant}{'hashColor'}{$fieldNbr}."\">";
+				}
         
 			}else{
 				$htmlALL .= "\t<td >";
@@ -574,7 +691,13 @@ foreach my $rank (rnatkeysort { "$_-$hashFinalSortData{$_}" } keys %hashFinalSor
 			#if (defined $field){
 			if (defined $hashFinalSortData{$rank}{$variant}{'finalArray'}[$fieldNbr]){
 				#print HTML $field;
-				$htmlALL .= "<div class=\"tooltip\">".$hashFinalSortData{$rank}{$variant}{'finalArray'}[$fieldNbr];
+
+				#Add url to UCSC browser
+				if ($fieldNbr eq $NameColHash{'AnnotSV ID'} - 1){
+					$htmlALL .= "<div class=\"tooltip\"><a href=\"".$hashFinalSortData{$rank}{$variant}{'url2UCSC'}."\">".$hashFinalSortData{$rank}{$variant}{'finalArray'}[$fieldNbr]."</a>";
+				}else{
+					$htmlALL .= "<div class=\"tooltip\">".$hashFinalSortData{$rank}{$variant}{'finalArray'}[$fieldNbr];
+				}
 				$htmlALL .= "<span class=\"tooltiptext tooltip-bottom\"><b>".$OutColHash{$fieldNbr + 1}. " :</b> ".$hashFinalSortData{$rank}{$variant}{'finalArray'}[$fieldNbr];
 			# add comments
 				if (defined $hashFinalSortData{$rank}{$variant}{'hashComments'}{$fieldNbr}){
@@ -608,15 +731,21 @@ foreach my $rank (rnatkeysort { "$_-$hashFinalSortData{$_}" } keys %hashFinalSor
        
 			#assign color	
 			if (defined $hashFinalSortData{$rank}{$variant}{'hashColor'}{$fieldNbr}){
-				$htmlFULL .= "\t<td bgcolor=\"".$hashFinalSortData{$rank}{$variant}{'hashColor'}{$fieldNbr}."\">";    
+				$htmlFULL .= "\t<td style=\"background-color:".$hashFinalSortData{$rank}{$variant}{'hashColor'}{$fieldNbr}."\">";    
 			}else{
 				$htmlFULL .= "\t<td >";
 			}
 
 			#assign values and tooltip value
 			if (defined $hashFinalSortData{$rank}{$variant}{'finalArray'}[$fieldNbr]){
-				$htmlFULL .= "<div class=\"tooltip\">".$hashFinalSortData{$rank}{$variant}{'finalArray'}[$fieldNbr];
-				$htmlFULL .= "<span class=\"tooltiptext tooltip-bottom\">".$hashFinalSortData{$rank}{$variant}{'finalArray'}[$fieldNbr];
+				#Add url to UCSC browser
+				if ($fieldNbr eq $NameColHash{'AnnotSV ID'} - 1){
+					$htmlFULL .= "<div class=\"tooltip\"><a href=\"".$hashFinalSortData{$rank}{$variant}{'url2UCSC'}."\">".$hashFinalSortData{$rank}{$variant}{'finalArray'}[$fieldNbr]."</a>";
+				}else{
+					$htmlFULL .= "<div class=\"tooltip\">".$hashFinalSortData{$rank}{$variant}{'finalArray'}[$fieldNbr];
+				}	
+				$htmlFULL .= "<span class=\"tooltiptext tooltip-bottom\"><b>".$OutColHash{$fieldNbr + 1}. " :</b> ".$hashFinalSortData{$rank}{$variant}{'finalArray'}[$fieldNbr];
+				
 				# add comments
 			    if (defined $hashFinalSortData{$rank}{$variant}{'hashComments'}{$fieldNbr}){
 					$htmlFULL .= $hashFinalSortData{$rank}{$variant}{'hashComments'}{$fieldNbr}."</span></div>";   
@@ -671,7 +800,7 @@ print STDERR "\n\n\nDone!\n\n\n";
 ###################################################################
 ######################### FUNCTIONS ###############################
 # Write in sheets
-sub writeThisSheet {
+sub toto {
 }#END OF SUB
 
 
