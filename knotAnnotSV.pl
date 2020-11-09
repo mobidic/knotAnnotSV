@@ -41,7 +41,6 @@ use Sort::Key::Natural qw(rnatkeysort);
 my $man = "USAGE : \nperl knotAnnotSV.pl 
 \n--configFile <YAML config file for customizing output>
 \n--annotSVfile <annotSV annotated file> 
-\n--annotSVranking <annotSV ranking explanations file>
 \n--outDir <output directory (default = current dir)> 
 \n--outPrefix <output file prefix (default = \"\")> 
 \n--genomeBuild <Genome Assembly reference (default = hg19)> 
@@ -78,6 +77,7 @@ my %dataColorHash;
 
 my $scorePenalty;
 my %SV_ID;
+my $SV_type;
 
 my $url2UCSC="";
 my $url2OMIM="";
@@ -88,7 +88,6 @@ my $genomeBuild="";
 
 GetOptions( "annotSVfile=s"		=> \$incfile,
 			"configFile=s"		=> \$config,
-			"annotSVranking=s"	=> \$annotSVranking,
 			"outDir=s"			=> \$outDir,
 			"outPrefix:s"		=> \$outPrefix,
 			"datatableDir=s"	=> \$datatableDir,
@@ -126,7 +125,8 @@ if($genomeBuild eq ""){
 print STDERR "Parsing config file....\n";
 my %configHash;
 my $configHash;
-
+my $OutColCounter = 0;
+my $outPOSITION = 0; 
 $configHash = LoadFile($config);
 	#print Dumper($configHash);
 
@@ -135,20 +135,40 @@ foreach my $item (keys %{$configHash}){
 		#print $item."\n";
 		my $field = $item;
 		#print $configHash->{$field}->{POSITION}."\n";
-	
+
         if ($configHash->{$field}->{POSITION} != 0 && defined $OutColHash{$configHash->{$field}->{POSITION}}){
             print "\nError in config file: 'POSITION : ".$configHash->{$field}->{POSITION}."' is assigned twice.\nPlease correct config file to avoid 2 identical positions.\n\n";
             exit 1;
         }else {
 		    if ($configHash->{$field}->{POSITION} != 0){
-                $OutColHash{$configHash->{$field}->{POSITION}} = $field;
+				#$OutColHash{$configHash->{$field}->{POSITION}} = $field;
+				$outPOSITION = $configHash->{$field}->{POSITION};
+				$OutColHash{$outPOSITION}{'field'} = $field;
+				#$OutColHash{$configHash->{$field}->{POSITION}}{'field'} = $field;
+				$OutColCounter ++;
+
             }
 		    $NameColHash{$field} = $configHash->{$field}->{POSITION};
+			#TODO $NameColHash{$field}{'POSITION'} = $configHash->{$field}->{POSITION};
+			
+			if (defined $configHash->{$field}->{COMMENTLIST}){
+				$dataCommentHash{$field}{'commentFieldList'}=$configHash->{$field}->{COMMENTLIST} ;
+			}
+			#get custom name for column
+			if (defined $configHash->{$field}->{RENAME}){
+			#$NameColHash{$field}{'RENAME'} = $configHash->{$field}->{RENAME};
+				$OutColHash{$configHash->{$field}->{POSITION}}{'RENAME'} = $configHash->{$field}->{RENAME};
+			}else{
+			#$NameColHash{$field}{'RENAME'} = $field;
+				$OutColHash{$configHash->{$field}->{POSITION}}{'RENAME'} = $field;
+			}
+			#get custom string for column header tooltip
+			if (defined $configHash->{$field}->{HEADERTIPS}){
+				#$NameColHash{$field}{'HEADERTIPS'} = $configHash->{$field}->{HEADERTIPS};
+				$OutColHash{$configHash->{$field}->{POSITION}}{'HEADERTIPS'} = $configHash->{$field}->{HEADERTIPS};
+			}
         }
 		
-		if (defined $configHash->{$field}->{COMMENTLIST}){
-			$dataCommentHash{$field}{'commentFieldList'}=$configHash->{$field}->{COMMENTLIST} ;
-		}
 		#print Dump($field)."\n";
 }
 
@@ -269,11 +289,21 @@ while( <VCF> ){
 
 		#fill printable string
 		for( my $fieldNbr = 0 ; $fieldNbr < scalar @line; $fieldNbr++){
+			
+			if($line[$fieldNbr] ne ""){
+				$dataHash{$InColHash{$fieldNbr}} = $line[$fieldNbr];
+			}else{
+				$dataHash{$InColHash{$fieldNbr}} = ".";
+			}
 
-			$dataHash{$InColHash{$fieldNbr}} = $line[$fieldNbr];
 		}
 
-		
+		#get SVtype
+		$SV_type = $dataHash{'SV type'};
+
+		#hash to avoid duplicated comments for DGV LOSS and GAIN
+		my %commentDuplicate;
+		my $correctFieldCom;
 
 		#get all comments values
 		foreach my $field (keys %dataCommentHash){
@@ -282,36 +312,86 @@ while( <VCF> ){
 			#	foreach my $fieldCom (@{$dataCommentHash{$field}{'commentFieldList'}})
 			if (defined $dataCommentHash{$field}){
                 if (! defined $dataCommentHash{$field}{'values'}){
+					#special treatment for DGV field , adding to comment the switched name
+					if ( $field =~ /^DGV_/){
+						if ($SV_type eq "DEL" ){ 
+							$correctFieldCom = $field =~ s/GAIN/LOSS/r;
+							$commentDuplicate{$correctFieldCom} += 1;	
+						}elsif ($SV_type eq "DUP" ){ 
+							$correctFieldCom = $field =~ s/LOSS/GAIN/r;
+							$commentDuplicate{$correctFieldCom} += 1;	
+						}else{
+							$correctFieldCom = $field;
+						}
+						#add in first line of comment
+               		 	$dataCommentHash{$field}{'values'} .= "<b>".$correctFieldCom . " :</b> ".$dataHash{$correctFieldCom};
+					}
+				
 				    foreach my $fieldCom (@{$dataCommentHash{$field}{'commentFieldList'}}){
 					    if (defined $dataHash{$fieldCom}){
-                            $dataCommentHash{$field}{'values'} .= "<br><br><b>".$fieldCom . " :</b> ".$dataHash{$fieldCom};
+							if ( $fieldCom =~ /^DGV_/){
+								if ($SV_type eq "DEL" ){ 
+									$correctFieldCom = $fieldCom =~ s/GAIN/LOSS/r;
+									$commentDuplicate{$correctFieldCom} += 1;	
+								}elsif ($SV_type eq "DUP" ){ 
+									$correctFieldCom = $fieldCom =~ s/LOSS/GAIN/r;
+									$commentDuplicate{$correctFieldCom} += 1;	
+								}else{
+									$correctFieldCom = $fieldCom;
+								}
+								if (defined $commentDuplicate{$fieldCom} && $commentDuplicate{$fieldCom} > 1){
+									next;
+								}
+								#print $field."_".$correctFieldCom."\n";
+                            	$dataCommentHash{$field}{'values'} .= "<br><b>".$correctFieldCom . " :</b> ".$dataHash{$correctFieldCom};
+							}else{
+                            	$dataCommentHash{$field}{'values'} .= "<br><b>".$fieldCom . " :</b> ".$dataHash{$fieldCom};
+							}
+
                         }else{
                             print $field."\n";
-                            $dataCommentHash{$field}{'values'} .= "<br><br><b>".$fieldCom . " :</b> Absent in file";
+                            $dataCommentHash{$field}{'values'} .= "<br><b>".$fieldCom . " :</b> Absent in file";
                         }
                         #print $field.":\t".$fieldCom.":\t".$dataCommentHash{'Gene name'}{'values'}."\n";
 				    }
 			    }
 				
 				# add ranking decision as comment of AnnotSV ranking field
-				if (defined $dataCommentHash{$field}{'SVrank'}){
-	  				if (defined $SVrankHash{$dataHash{'AnnotSV ID'}."_".$dataHash{'Gene name'}}){
-                		if (! defined $dataCommentHash{$field}{'values'}){
-							$dataCommentHash{$field}{'values'}= "<br><br><b>Ranking :</b> " . $SVrankHash{$dataHash{'AnnotSV ID'}."_".$dataHash{'Gene name'}} ;
-						}else{
-							$dataCommentHash{$field}{'values'} = "<br><br><b>Ranking :</b> " .$SVrankHash{$dataHash{'AnnotSV ID'}."_".$dataHash{'Gene name'}} . $dataCommentHash{$field}{'values'};  	
-						}
-					}
-				}
+				#if (defined $dataCommentHash{$field}{'SVrank'}){
+	  			#	if (defined $SVrankHash{$dataHash{'AnnotSV ID'}."_".$dataHash{'Gene name'}}){
+                #		if (! defined $dataCommentHash{$field}{'values'}){
+				#			$dataCommentHash{$field}{'values'}= "<br><b>Ranking :</b> " . $SVrankHash{$dataHash{'AnnotSV ID'}."_".$dataHash{'Gene name'}} ;
+				#		}else{
+				#			$dataCommentHash{$field}{'values'} = "<br><b>Ranking :</b> " .$SVrankHash{$dataHash{'AnnotSV ID'}."_".$dataHash{'Gene name'}} . $dataCommentHash{$field}{'values'};  	
+				#		}
+				#	}
+				#}
 			}
 		}
 
 
+		my $correctField;
+
 		#fill finalSortData array   (try to invert foreach with NameColHash for external name)
 		foreach my $field (keys %dataHash){
+				
 			if (defined $NameColHash{$field} && $NameColHash{$field} != 0){
-				$finalSortData[$NameColHash{$field} - 1] = $dataHash{$field};
-            }
+				
+				if ( $field =~ /^DGV_/){
+
+					if ($SV_type eq "DEL" ){ 
+						$correctField = $field =~ s/GAIN/LOSS/r;
+						$finalSortData[$NameColHash{$field} - 1] = $dataHash{$correctField};
+					}elsif ($SV_type eq "DUP" ){
+						$correctField = $field =~ s/LOSS/GAIN/r;
+						$finalSortData[$NameColHash{$field} - 1] = $dataHash{$correctField};
+					}else{
+						$finalSortData[$NameColHash{$field} - 1] = $dataHash{$field};
+					}
+				}else{
+					$finalSortData[$NameColHash{$field} - 1] = $dataHash{$field};
+            	}
+			}
 		}
 
 
@@ -319,7 +399,7 @@ while( <VCF> ){
 		foreach my $field (keys %dataHash){
 			if (defined $dataHash{'pLI_ExAC'} ){
                 foreach my $pli (sort {$b <=> $a} keys %pLI_ColorHash){
-                    if ( $dataHash{'pLI_ExAC'} eq ""){
+                    if ( $dataHash{'pLI_ExAC'} eq "."){
                         $pLI_Color = '#FFFFFF';
                         last;
                     }
@@ -341,7 +421,8 @@ while( <VCF> ){
 
 
 		# check if column names and data have the same size
-		if (scalar @finalSortData != keys %OutColHash){
+		#if (scalar @finalSortData != keys %OutColHash){
+		if (scalar @finalSortData != $OutColCounter){
 			print "\nError in config file: it seems that some POSITION are missing.\nPlease correct config file with continuous 'POSITION' number.\n\n"; 
 			exit 1;
 		}
@@ -452,7 +533,10 @@ my $htmlStart = "<!DOCTYPE html>\n<html>
 \n<script type=\"text/javascript\" language=\"javascript\" src='".$path2jsFHDT."dataTables.fixedHeader.min.js'></script>
 \n<script> 
 \$(document).ready(function () {
- 
+
+
+	\$('#tabFULL').append('<caption style=\"caption-side: top\">".$incfile."___".$genomeBuild."</caption>');
+
  	\$('#tabFULL thead tr').clone(true).appendTo( '#tabFULL thead' );
             \$('#tabFULL thead tr:eq(1) th').each( function (i) {
              var title = \$(this).text();
@@ -488,7 +572,7 @@ my $htmlStart = "<!DOCTYPE html>\n<html>
 	var table = \$('#tabFULL').DataTable(        {\"order\": [] ,\"lengthMenu\":[ [ 50, 100, -1 ],[ 50, 100, \"All\" ]], \"fixedHeader\": true, \"orderCellsTop\": true, \"oLanguage\": { \"sLengthMenu\": \"Show _MENU_ lines\",\"sInfo\": \"Showing _START_ to _END_ of _TOTAL_ lines\" } } );
 	var tableFULLSPLIT = \$('#tabFULLSPLIT').DataTable(   {\"order\": [] ,\"lengthMenu\":[ [ 50, 100, -1 ],[ 50, 100, \"All\" ]], \"fixedHeader\": true, \"orderCellsTop\": true, \"oLanguage\": { \"sLengthMenu\": \"Show _MENU_ lines\",\"sInfo\": \"Showing _START_ to _END_ of _TOTAL_ lines\" } } );
 
-	window.onload = document.getElementById('focusFULLfirst').focus();
+	window.onload = document.getElementById('focusFULLfirst').className += \" active\";
 
 });
 
@@ -559,6 +643,9 @@ function openCity(evt, cityName) {
 		background-color: #ccc;
 		}
 
+	td {
+		text-align: center;
+		}
 	thead input {
 		width: 100%;
 		}
@@ -578,6 +665,37 @@ function openCity(evt, cityName) {
 		/*border: 1px solid #ccc;*/
 		border-top: none;
 		}
+
+	.tooltipHeader{
+		position: relative;
+	}		
+	.tooltipHeader .tooltiptext{
+		visibility: hidden;
+		width: auto;
+		min-width: 300px;
+		max-width: 600px;
+		height: auto;
+		background-color: #555;
+		color: #fff;
+		text-align: left;
+		border-radius: 6px;
+		padding: 5px 0;
+		position: absolute;
+		z-index: 1;
+		top: 100%;
+		left: 20%;
+		margin-left: -60px;
+		opacity: 0;
+		transition: opacity 0.3s;
+		overflow: hidden;
+		text-overflow: ellipsis;
+		white-space: normal;
+		overflow-wrap: break-word;
+		}
+	.tooltipHeader:hover .tooltiptext{
+		visibility: visible;
+		opacity: 1;
+	}	
 
 	.tooltip {
 		position: relative;
@@ -627,18 +745,25 @@ function openCity(evt, cityName) {
 
 
 my $htmlALL= "<div id=\"FULL+SPLIT\" class=\"tabcontent\">";
-$htmlALL .= "\n\t<table id='tabFULLSPLIT' class='display' >
+$htmlALL .= "\n\t<table id='tabFULLSPLIT' class='display compact' >
         \n\t\t<thead><tr>";
 
 
 my $htmlFULL="<div id=\"FULL\" class=\"tabcontentFULL\">";
-$htmlFULL .= "\n\t<table id='tabFULL' class='display' >
+$htmlFULL .= "\n\t<table id='tabFULL' class='display compact' >
         \n\t\t<thead><tr>";
 
 foreach my $col (sort {$a <=> $b} keys %OutColHash){
 			#print HTML "\t<th style=\"word-wrap: break-word\"   >";
-			$htmlALL .= "\t<th >".$OutColHash{$col}."\t</th>\n";
-			$htmlFULL .= "\t<th >".$OutColHash{$col}."\t</th>\n";
+	if (defined $OutColHash{$col}{'field'}){
+		if (defined $OutColHash{$col}{'HEADERTIPS'}){
+			$htmlALL .= "\t<th class=\"tooltipHeader\" >".$OutColHash{$col}{'RENAME'}."<span class=\"tooltiptext tooltip-bottom\">".$OutColHash{$col}{'HEADERTIPS'}."</span> \t</th>\n";
+			$htmlFULL .= "\t<th class=\"tooltipHeader\" >".$OutColHash{$col}{'RENAME'}."<span class=\"tooltiptext tooltip-bottom\">".$OutColHash{$col}{'HEADERTIPS'}."</span> \t</th>\n";
+		}else{
+			$htmlALL .= "\t<th >".$OutColHash{$col}{'RENAME'}."\t</th>\n";
+			$htmlFULL .= "\t<th >".$OutColHash{$col}{'RENAME'}."\t</th>\n";
+		}
+	}
 }
 
 
@@ -679,21 +804,13 @@ foreach my $rank (rnatkeysort { "$_-$hashFinalSortData{$_}" } keys %hashFinalSor
 		#increse rank number then change final array
 		#$kindRank++;
 		
-		#print $variant ."___".  $hashFinalSortData{$rank}{$variant}{'finalArray'}[$dicoColumnNbr{'MPA_ranking'}]."\n";
-		#$hashFinalSortData{$rank}{$variant}{'finalArray'}[$dicoColumnNbr{'MPA_ranking'}] = $kindRank; 
-
-		#last finalSortData assignation
-		#$hashFinalSortData{$finalSortData[$dicoColumnNbr{'MPA_ranking'}]}{$variantID}{'finalArray'} = [@finalSortData] ; 
-		
-
-
 
 		#FILL tab 'ALL';
 		# change bgcolor for FULL row
 		if (     $hashFinalSortData{$rank}{$variant}{'finalArray'}[$NameColHash{'AnnotSV type'} - 1] eq "full") {
-			$htmlALL .= "<tr style=\"background-color:teal\">\n";
+			$htmlALL .= "<tr class=\"full\"  style=\"background-color:teal\">\n";
 		}else{
-			$htmlALL .= "<tr>\n";
+			$htmlALL .= "<tr class=\"split\" >\n";
 		}
 
 		#Once for "ALL"  = FULL+SPLIT
@@ -708,10 +825,20 @@ foreach my $rank (rnatkeysort { "$_-$hashFinalSortData{$_}" } keys %hashFinalSor
        
 					
 			if (defined $hashFinalSortData{$rank}{$variant}{'hashColor'}{$fieldNbr}){
-				if ($hashFinalSortData{$rank}{$variant}{'finalArray'}[$NameColHash{'location'} - 1] ne "txStart-txEnd" && $hashFinalSortData{$rank}{$variant}{'finalArray'}[$NameColHash{'location'} - 1] ne "") {
-					$htmlALL .= "\t<td style=\"background: linear-gradient(-45deg,".$hashFinalSortData{$rank}{$variant}{'hashColor'}{$fieldNbr}." 50%, white 50% )\">";
-				}else{
+				if ($hashFinalSortData{$rank}{$variant}{'finalArray'}[$NameColHash{'location'} - 1] eq "txStart-txEnd" || $hashFinalSortData{$rank}{$variant}{'finalArray'}[$NameColHash{'location'} - 1] eq ".") {
 					$htmlALL .= "\t<td style=\"background-color:".$hashFinalSortData{$rank}{$variant}{'hashColor'}{$fieldNbr}."\">";
+
+				}else{
+
+					if ($hashFinalSortData{$rank}{$variant}{'finalArray'}[$NameColHash{'location'} - 1] =~ /^txStart/) {
+						$htmlALL .= "\t<td style=\"background: linear-gradient(-45deg, white 50%, ".$hashFinalSortData{$rank}{$variant}{'hashColor'}{$fieldNbr}." 50% )\">";
+					}else{
+						$htmlALL .= "\t<td style=\"background: linear-gradient(-45deg,".$hashFinalSortData{$rank}{$variant}{'hashColor'}{$fieldNbr}." 50%, white 50% )\">";
+
+					}
+
+
+
 				}
         
 			}else{
@@ -731,10 +858,18 @@ foreach my $rank (rnatkeysort { "$_-$hashFinalSortData{$_}" } keys %hashFinalSor
 				if ($fieldNbr eq $NameColHash{'AnnotSV ID'} - 1){
 					$htmlALL .= "<div class=\"tooltip\"><a href=\"".$hashFinalSortData{$rank}{$variant}{'url2UCSC'}."\">".$hashFinalSortData{$rank}{$variant}{'finalArray'}[$fieldNbr]."</a>";
 				}else{
-					$htmlALL .= "<div class=\"tooltip\">".$hashFinalSortData{$rank}{$variant}{'finalArray'}[$fieldNbr];
+					if( length($hashFinalSortData{$rank}{$variant}{'finalArray'}[$fieldNbr]) > 50 ){
+						$htmlALL .= "<div class=\"tooltip\">".substr($hashFinalSortData{$rank}{$variant}{'finalArray'}[$fieldNbr],0,45)."[...]";
+					}else{
+						$htmlALL .= "<div class=\"tooltip\">".$hashFinalSortData{$rank}{$variant}{'finalArray'}[$fieldNbr];
+					}
 				}
-				$htmlALL .= "<span class=\"tooltiptext tooltip-bottom\"><b>".$OutColHash{$fieldNbr + 1}. " :</b> ".$hashFinalSortData{$rank}{$variant}{'finalArray'}[$fieldNbr];
-			# add comments
+				if ($OutColHash{$fieldNbr + 1}{'field'} =~ /^DGV_/){
+					$htmlALL .= "<span class=\"tooltiptext tooltip-bottom\">";
+				}else{
+					$htmlALL .= "<span class=\"tooltiptext tooltip-bottom\"><b>".$OutColHash{$fieldNbr + 1}{'field'}. " :</b> ".$hashFinalSortData{$rank}{$variant}{'finalArray'}[$fieldNbr];
+				}
+				# add comments
 				if (defined $hashFinalSortData{$rank}{$variant}{'hashComments'}{$fieldNbr}){
 					$htmlALL .= $hashFinalSortData{$rank}{$variant}{'hashComments'}{$fieldNbr}."</span></div>";   
 				}else{
@@ -777,9 +912,13 @@ foreach my $rank (rnatkeysort { "$_-$hashFinalSortData{$_}" } keys %hashFinalSor
 				if ($fieldNbr eq $NameColHash{'AnnotSV ID'} - 1){
 					$htmlFULL .= "<div class=\"tooltip\"><a href=\"".$hashFinalSortData{$rank}{$variant}{'url2UCSC'}."\">".$hashFinalSortData{$rank}{$variant}{'finalArray'}[$fieldNbr]."</a>";
 				}else{
-					$htmlFULL .= "<div class=\"tooltip\">".$hashFinalSortData{$rank}{$variant}{'finalArray'}[$fieldNbr];
+					if( length($hashFinalSortData{$rank}{$variant}{'finalArray'}[$fieldNbr]) > 50 ){
+						$htmlFULL.= "<div class=\"tooltip\">".substr($hashFinalSortData{$rank}{$variant}{'finalArray'}[$fieldNbr],0,45)."[...]";
+					}else{
+						$htmlFULL .= "<div class=\"tooltip\">".$hashFinalSortData{$rank}{$variant}{'finalArray'}[$fieldNbr];
+					}
 				}	
-				$htmlFULL .= "<span class=\"tooltiptext tooltip-bottom\"><b>".$OutColHash{$fieldNbr + 1}. " :</b> ".$hashFinalSortData{$rank}{$variant}{'finalArray'}[$fieldNbr];
+				$htmlFULL .= "<span class=\"tooltiptext tooltip-bottom\"><b>".$OutColHash{$fieldNbr + 1}{'field'}. " :</b> ".$hashFinalSortData{$rank}{$variant}{'finalArray'}[$fieldNbr];
 				
 				# add comments
 			    if (defined $hashFinalSortData{$rank}{$variant}{'hashComments'}{$fieldNbr}){
