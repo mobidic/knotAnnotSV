@@ -540,15 +540,36 @@ my $htmlStart = "<!DOCTYPE html>\n<html>
  	\$('#tabFULL thead tr').clone(true).appendTo( '#tabFULL thead' );
             \$('#tabFULL thead tr:eq(1) th').each( function (i) {
              var title = \$(this).text();
-              \$(this).html( '<input type=\"text\" placeholder=\"Search '+title+'\" />' );
+              \$(this).html( '<input type=\"text\" placeholder=\"Search\" />' );
                                                  
               \$( 'input', this ).on( 'keyup change', function () {
-                  if ( table.column(i).search() !== this.value ) {
-                        table
-                       .column(i)
-                       .search( this.value,true,false )
-                       .draw();
-                  }
+					
+					var expr = this.value;
+					if(/^[!<>=]+\$/.test(expr)){
+						return;
+					}
+					
+					var exprClean = expr.replace(/\\s*/g, '');
+					filterHash[i] = new Object();
+					if (/^[!<>=]/.test(expr)) {
+						var oper = expr.match(/^([!<>=]+)/);
+						var exp = exprClean.match(/^\\W+([-]?\\w+[.]?\\w*)/i);
+						filterHash[i]['operator'] = oper[0];
+						if (exp === null){
+							return;
+						}
+						filterHash[i]['expr'] = exp[1];
+
+					}else{
+						filterHash[i]['operator'] = '==';
+						filterHash[i]['expr'] = new RegExp(`\${exprClean}`,'i');
+					}
+
+					filterByExp(filterHash);  
+					
+					table.draw();	 
+
+
             } );
         } );
 
@@ -573,6 +594,34 @@ my $htmlStart = "<!DOCTYPE html>\n<html>
 	var tableFULLSPLIT = \$('#tabFULLSPLIT').DataTable(   {\"order\": [] ,\"lengthMenu\":[ [ 50, 100, -1 ],[ 50, 100, \"All\" ]], \"fixedHeader\": true, \"orderCellsTop\": true, \"oLanguage\": { \"sLengthMenu\": \"Show _MENU_ lines\",\"sInfo\": \"Showing _START_ to _END_ of _TOTAL_ lines\" } } );
 
 	window.onload = document.getElementById('focusFULLfirst').className += \" active\";
+
+	var filterHash = new Object();
+	var filterByExp = function(filtHash){
+
+		\$.fn.dataTableExt.afnFiltering.push(
+			function( oSettings, aData, iDataIndex ) {
+				var filtBool = true;
+				for (var keys in filtHash){
+					if (filtHash.hasOwnProperty(keys)) {
+					
+						var row_data = aData[keys];
+			
+						switch (filtHash[keys]['operator']){
+							case '>': if(row_data > filtHash[keys]['expr']) {filtBool = true;continue;}else{ return false;}
+							case '<': if(row_data < filtHash[keys]['expr']) {filtBool = true;continue;}else{ return false;}
+							case '>=': if(row_data >= filtHash[keys]['expr']) {filtBool = true;continue;}else{ return false;}
+							case '<=': if(row_data <= filtHash[keys]['expr']) {filtBool = true;continue;}else{ return false;}
+							case '!=': if(row_data != filtHash[keys]['expr']) {filtBool = true;continue;}else{ return false;}
+							case '<>': if(row_data != filtHash[keys]['expr']) {filtBool = true;continue;}else{ return false;}
+							case '=': if(row_data == filtHash[keys]['expr']) {filtBool = true;continue;}else{ return false;}
+							case '==': var m = row_data.match(filtHash[keys]['expr']); if(m === null){return false;}else{filtBool = true;continue;}
+						}
+				}
+			}
+			
+			return filtBool;
+		});
+}
 
 });
 
