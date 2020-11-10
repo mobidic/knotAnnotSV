@@ -690,6 +690,11 @@ function openCity(evt, cityName) {
 		width: 100%;
 		}
 
+	#tabFULLSPLIT.display td.sorting_1{
+		background-color: inherit;
+	}
+
+
 /* Style the tab content */
 	.tabcontent {
 		display: block;
