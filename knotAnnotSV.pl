@@ -576,15 +576,35 @@ my $htmlStart = "<!DOCTYPE html>\n<html>
 	 \$('#tabFULLSPLIT thead tr').clone(true).appendTo( '#tabFULLSPLIT thead' );
             \$('#tabFULLSPLIT thead tr:eq(1) th').each( function (i) {
              var title = \$(this).text();
-              \$(this).html( '<input type=\"text\" placeholder=\"Search '+title+'\" />' );
+              \$(this).html( '<input type=\"text\" placeholder=\"Search\" />' );
                                                  
               \$( 'input', this ).on( 'keyup change', function () {
-                  if ( tableFULLSPLIT.column(i).search() !== this.value ) {
-                        tableFULLSPLIT
-                       .column(i)
-                       .search( this.value,true,false )
-                       .draw();
-                  }
+   
+					var expr = this.value;
+					if(/^[!<>=]+\$/.test(expr)){
+						return;
+					}
+					
+					var exprClean = expr.replace(/\\s*/g, '');
+					filterHash[i] = new Object();
+					if (/^[!<>=]/.test(expr)) {
+						var oper = expr.match(/^([!<>=]+)/);
+						var exp = exprClean.match(/^\\W+([-]?\\w+[.]?\\w*)/i);
+						filterHash[i]['operator'] = oper[0];
+						if (exp === null){
+							return;
+						}
+						filterHash[i]['expr'] = exp[1];
+
+					}else{
+						filterHash[i]['operator'] = '==';
+						filterHash[i]['expr'] = new RegExp(`\${exprClean}`,'i');
+					}
+
+					filterByExp(filterHash);  
+					
+					tableFULLSPLIT.draw();	 
+
             } );
         } );
 
