@@ -535,45 +535,9 @@ my $htmlStart = "<!DOCTYPE html>\n<html>
 \$(document).ready(function () {
 
 
-	\$('#tabFULL').append('<caption style=\"caption-side: top\">".$incfile."___".$genomeBuild."</caption>');
+	\$('#tabFULLSPLIT').append('<caption style=\"caption-side: top\">".$incfile."___".$genomeBuild."</caption>');
 
- 	\$('#tabFULL thead tr').clone(true).appendTo( '#tabFULL thead' );
-            \$('#tabFULL thead tr:eq(1) th').each( function (i) {
-             var title = \$(this).text();
-              \$(this).html( '<input type=\"text\" placeholder=\"Search\" />' );
-                                                 
-              \$( 'input', this ).on( 'keyup change', function () {
-					
-					var expr = this.value;
-					if(/^[!<>=]+\$/.test(expr)){
-						return;
-					}
-					
-					var exprClean = expr.replace(/\\s*/g, '');
-					filterHash[i] = new Object();
-					if (/^[!<>=]/.test(expr)) {
-						var oper = expr.match(/^([!<>=]+)/);
-						var exp = exprClean.match(/^\\W+([-]?\\w+[.]?\\w*)/i);
-						filterHash[i]['operator'] = oper[0];
-						if (exp === null){
-							return;
-						}
-						filterHash[i]['expr'] = exp[1];
-
-					}else{
-						filterHash[i]['operator'] = '==';
-						filterHash[i]['expr'] = new RegExp(`\${exprClean}`,'i');
-					}
-
-					filterByExp(filterHash);  
-					
-					table.draw();	 
-
-
-            } );
-        } );
-
-	 \$('#tabFULLSPLIT thead tr').clone(true).appendTo( '#tabFULLSPLIT thead' );
+	\$('#tabFULLSPLIT thead tr').clone(true).appendTo( '#tabFULLSPLIT thead' );
             \$('#tabFULLSPLIT thead tr:eq(1) th').each( function (i) {
              var title = \$(this).text();
               \$(this).html( '<input type=\"text\" placeholder=\"Search\" />' );
@@ -610,7 +574,6 @@ my $htmlStart = "<!DOCTYPE html>\n<html>
 
 
 
-	var table = \$('#tabFULL').DataTable(        {\"order\": [] ,\"lengthMenu\":[ [ 50, 100, -1 ],[ 50, 100, \"All\" ]], \"fixedHeader\": true, \"orderCellsTop\": true, \"oLanguage\": { \"sLengthMenu\": \"Show _MENU_ lines\",\"sInfo\": \"Showing _START_ to _END_ of _TOTAL_ lines\" } } );
 	var tableFULLSPLIT = \$('#tabFULLSPLIT').DataTable(   {\"order\": [] ,\"lengthMenu\":[ [ 50, 100, -1 ],[ 50, 100, \"All\" ]], \"fixedHeader\": true, \"orderCellsTop\": true, \"oLanguage\": { \"sLengthMenu\": \"Show _MENU_ lines\",\"sInfo\": \"Showing _START_ to _END_ of _TOTAL_ lines\" } } );
 
 	window.onload = document.getElementById('focusFULLfirst').className += \" active\";
@@ -646,28 +609,36 @@ my $htmlStart = "<!DOCTYPE html>\n<html>
 });
 
 function openCity(evt, cityName) {
-	var i, tabcontent, tabcontentFULL, tablinks;
+	var i, tabcontent, tablinks;
 	
-	tabcontentFULL = document.getElementsByClassName(\"tabcontentFULL\");
-	for (i = 0; i < tabcontentFULL.length; i++) {
-  		tabcontentFULL[i].style.display = \"none\";	
-  	}
+	if(cityName === 'full'){
+		var rowselectfull = document.getElementsByClassName(cityName);
+		for (i = 0; i < rowselectfull.length; i++) {
+			rowselectfull[i].style.background = 'inherit';
+		}
 
-	tabcontent = document.getElementsByClassName(\"tabcontent\");
-	for (i = 0; i < tabcontent.length; i++) {
-		tabcontent[i].style.display = \"none\";
+		var rowselect = document.getElementsByClassName('fullsplit');
+		for (i = 0; i < rowselect.length; i++) {
+			rowselect[i].style.visibility = 'collapse';
+		}
+	}else{
+		var rowselectfull = document.getElementsByClassName('full');
+		for (i = 0; i < rowselectfull.length; i++) {
+			rowselectfull[i].style.background = 'teal';
+		}
+		var rowselect = document.getElementsByClassName('fullsplit');
+		for (i = 0; i < rowselect.length; i++) {
+			rowselect[i].style.visibility = 'visible';
+		}
+
 	}
-	tablinks = document.getElementsByClassName(\"tablinks\");
+	tablinks = document.getElementsByClassName('tablinks');
 	for (i = 0; i < tablinks.length; i++) {
-		tablinks[i].className = tablinks[i].className.replace(\" active\", \"\");
+		tablinks[i].className = tablinks[i].className.replace(' active', '');
 	}
-	document.getElementById(cityName).style.display = \"block\";
-	evt.currentTarget.className += \" active\";
 
-	\$('#tabFULLSPLIT').DataTable().fixedHeader.adjust();
+	evt.currentTarget.className += ' active';
 }
-
-
 
 
 
@@ -721,14 +692,6 @@ function openCity(evt, cityName) {
 
 /* Style the tab content */
 	.tabcontent {
-		display: none;
-		padding: 6px 12px;
-		/*border: 1px solid #ccc;*/
-		border-top: none;
-		}
-
-/* Style the tab content FULL */
-	.tabcontentFULL {
 		display: block;
 		padding: 6px 12px;
 		/*border: 1px solid #ccc;*/
@@ -803,6 +766,12 @@ function openCity(evt, cityName) {
 		opacity: 1;
 		}
 
+	.full{
+		visibility: visible;	
+	}
+	.fullsplit{
+		visibility: collapse;	
+	}
 
 
 \n</style>
@@ -818,33 +787,26 @@ $htmlALL .= "\n\t<table id='tabFULLSPLIT' class='display compact' >
         \n\t\t<thead><tr>";
 
 
-my $htmlFULL="<div id=\"FULL\" class=\"tabcontentFULL\">";
-$htmlFULL .= "\n\t<table id='tabFULL' class='display compact' >
-        \n\t\t<thead><tr>";
-
 foreach my $col (sort {$a <=> $b} keys %OutColHash){
 			#print HTML "\t<th style=\"word-wrap: break-word\"   >";
 	if (defined $OutColHash{$col}{'field'}){
 		if (defined $OutColHash{$col}{'HEADERTIPS'}){
 			$htmlALL .= "\t<th class=\"tooltipHeader\" >".$OutColHash{$col}{'RENAME'}."<span class=\"tooltiptext tooltip-bottom\">".$OutColHash{$col}{'HEADERTIPS'}."</span> \t</th>\n";
-			$htmlFULL .= "\t<th class=\"tooltipHeader\" >".$OutColHash{$col}{'RENAME'}."<span class=\"tooltiptext tooltip-bottom\">".$OutColHash{$col}{'HEADERTIPS'}."</span> \t</th>\n";
 		}else{
 			$htmlALL .= "\t<th >".$OutColHash{$col}{'RENAME'}."\t</th>\n";
-			$htmlFULL .= "\t<th >".$OutColHash{$col}{'RENAME'}."\t</th>\n";
 		}
 	}
 }
 
 
 $htmlALL .= "</tr>\n</thead>\n<tbody>\n";
-$htmlFULL .= "</tr>\n</thead>\n<tbody>\n";
 					
 
 my $htmlEndTable = "</tbody>\n</table>\n</div>\n\n\n";
 					
 my $htmlEnd = "<div class=\"tab\">\n
-<button id=\"focusFULLfirst\" class=\"tablinks\" onclick=\"openCity(event, 'FULL')\">FULL</button>\n
-<button class=\"tablinks\" onclick=\"openCity(event, 'FULL+SPLIT')\">FULL+SPLIT</button>\n
+<button id=\"focusFULLfirst\" class=\"tablinks\" onclick=\"openCity(event, 'full')\">FULL</button>\n
+<button class=\"tablinks\" onclick=\"openCity(event, 'fullsplit')\">FULL+SPLIT</button>\n
 </div>";
 
 
@@ -862,7 +824,6 @@ open(HTML, '>', $outDir."/".$outPrefix."annotSV.html") or die $!;
 my $kindRank=0;
 
 # check if last line was "FULL" to finish the raw with </tr>
-my $FULLboolean=0;
 
 
 foreach my $rank (rnatkeysort { "$_-$hashFinalSortData{$_}" } keys %hashFinalSortData){
@@ -877,9 +838,9 @@ foreach my $rank (rnatkeysort { "$_-$hashFinalSortData{$_}" } keys %hashFinalSor
 		#FILL tab 'ALL';
 		# change bgcolor for FULL row
 		if (     $hashFinalSortData{$rank}{$variant}{'finalArray'}[$NameColHash{'AnnotSV type'} - 1] eq "full") {
-			$htmlALL .= "<tr class=\"full\"  style=\"background-color:teal\">\n";
+			$htmlALL .= "<tr class=\"full\" >\n";
 		}else{
-			$htmlALL .= "<tr class=\"split\" >\n";
+			$htmlALL .= "<tr class=\"fullsplit\" >\n";
 		}
 
 		#Once for "ALL"  = FULL+SPLIT
@@ -956,63 +917,8 @@ foreach my $rank (rnatkeysort { "$_-$hashFinalSortData{$_}" } keys %hashFinalSor
 		} #END FOR FULL+SPLIT tab
 
 
-		#Once for "FULL" tab  = FULL only
-		for( my $fieldNbr = 0 ; $fieldNbr < scalar @{$hashFinalSortData{$rank}{$variant}{'finalArray'}} ; $fieldNbr++){
-
-			if ($hashFinalSortData{$rank}{$variant}{'finalArray'}[$NameColHash{'AnnotSV type'} - 1] eq "split") {
-				$FULLboolean = 0;
-				next;
-			}elsif ($FULLboolean != 1){
-				$htmlFULL .= "<tr>\n";
-				$FULLboolean = 1;
-			} 
-
-       
-			#assign color	
-			if (defined $hashFinalSortData{$rank}{$variant}{'hashColor'}{$fieldNbr}){
-				$htmlFULL .= "\t<td style=\"background-color:".$hashFinalSortData{$rank}{$variant}{'hashColor'}{$fieldNbr}."\">";    
-			}else{
-				$htmlFULL .= "\t<td >";
-			}
-
-			#assign values and tooltip value
-			if (defined $hashFinalSortData{$rank}{$variant}{'finalArray'}[$fieldNbr]){
-				#Add url to UCSC browser
-				if ($fieldNbr eq $NameColHash{'AnnotSV ID'} - 1){
-					$htmlFULL .= "<div class=\"tooltip\"><a href=\"".$hashFinalSortData{$rank}{$variant}{'url2UCSC'}."\">".$hashFinalSortData{$rank}{$variant}{'finalArray'}[$fieldNbr]."</a>";
-				}else{
-					if( length($hashFinalSortData{$rank}{$variant}{'finalArray'}[$fieldNbr]) > 50 ){
-						$htmlFULL.= "<div class=\"tooltip\">".substr($hashFinalSortData{$rank}{$variant}{'finalArray'}[$fieldNbr],0,45)."[...]";
-					}else{
-						$htmlFULL .= "<div class=\"tooltip\">".$hashFinalSortData{$rank}{$variant}{'finalArray'}[$fieldNbr];
-					}
-				}	
-				$htmlFULL .= "<span class=\"tooltiptext tooltip-bottom\"><b>".$OutColHash{$fieldNbr + 1}{'field'}. " :</b> ".$hashFinalSortData{$rank}{$variant}{'finalArray'}[$fieldNbr];
-				
-				# add comments
-			    if (defined $hashFinalSortData{$rank}{$variant}{'hashComments'}{$fieldNbr}){
-					$htmlFULL .= $hashFinalSortData{$rank}{$variant}{'hashComments'}{$fieldNbr}."</span></div>";   
-				}else{
-					$htmlFULL .= "</span></div>";
-				}
-
-
-			}else {
-				$htmlFULL .= "."
-			}
-			$htmlFULL .= "\t</td>\n";
-		} #END FULL only tab
-
-
-
-
 		#end of table line
 		$htmlALL .= "</tr>\n";
-		if ($FULLboolean == 1){
-			$htmlFULL .= "</tr>\n";
-			$FULLboolean = 0;
-		}
-	
 	
 	
 	}   # END FOREACH VARIANT
@@ -1026,8 +932,6 @@ close(VCF);
 
 #Write in HTML file
 print HTML $htmlStart;
-print HTML $htmlFULL;
-print HTML $htmlEndTable;
 print HTML $htmlALL;
 print HTML $htmlEndTable;
 print HTML $htmlEnd;
@@ -1040,11 +944,6 @@ close(HTML);
 
 print STDERR "\n\n\nDone!\n\n\n";
 
-###################################################################
-######################### FUNCTIONS ###############################
-# Write in sheets
-sub toto {
-}#END OF SUB
 
 
 
