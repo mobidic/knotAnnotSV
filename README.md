@@ -39,6 +39,10 @@ Use an indented yaml file (config_cyto.yaml) to configure the AnnotSV output fil
 
 - Precise in COMMENTLIST which associated fields you want to display in tooltips (by mousing over)
 
+- Precise in RENAME which the column name to display in the output
+
+- Precise in HEADERTIPS some information about this column that you want to display in the header tooltips (by mousing over)
+
 - Inactivate fields you don't care either with a starting '#' or 'POSITION: 0' or by deleting line.
 
 ```bash
@@ -50,6 +54,8 @@ AnnotSV ID:
         - SV type
 AnnotSV ranking:
     POSITION: 2
+    RENAME: AnnotSV rank      #change the column name in the output 
+    HEADERTIPS: Some explanation about this column
 SV chrom:
     POSITION: 0
 #SV start:
