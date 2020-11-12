@@ -40,7 +40,7 @@ use Sort::Key::Natural qw(rnatkeysort);
 #parameters
 my $man = "USAGE : \nperl knotAnnotSV.pl 
 \n--configFile <YAML config file for customizing output>
-\n--annotSVfile <annotSV annotated file> 
+\n--annotSVfile <AnnotSV annotated file> 
 \n--outDir <output directory (default = current dir)> 
 \n--outPrefix <output file prefix (default = \"\")> 
 \n--genomeBuild <Genome Assembly reference (default = hg19)> 
@@ -101,7 +101,7 @@ GetOptions( "annotSVfile=s"		=> \$incfile,
 
 #check mandatory arguments
 if(defined $help || $incfile eq ""){
-	die("$man");
+	die($man."\n");
 }
 
 #add underscore to output prefix
