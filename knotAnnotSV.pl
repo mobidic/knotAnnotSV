@@ -76,6 +76,8 @@ my %dataCommentHash;
 my %dataColorHash;
 
 my $scorePenalty;
+my $scorePenaltySplit;
+my $fullSplitScore;
 my %SV_ID;
 my $SV_type;
 
@@ -276,9 +278,9 @@ while( <VCF> ){
 
         #fill nbr of SV_ID;
         if (defined $SV_ID{$line[0]} ){
-            $SV_ID{$line[0]}++;
+            $SV_ID{$line[0]}{'nbr'}++;
         }else{
-            $SV_ID{$line[0]} = 1;
+            $SV_ID{$line[0]}{'nbr'} = 1;
         }
         
 		#reinitialize Comment Values
@@ -440,34 +442,48 @@ while( <VCF> ){
 			#
 			#grant full line to be first
 			if ($dataHash{"AnnotSV type"} eq "full"){
-				$scorePenalty = ".1";	
+				#TODO compute CNV penalty
+				#$scorePenalty = ".1";	
+				$scorePenalty = $dataHash{"AnnotSV ranking"};	
+				#if (defined $SV_ID{$dataHash{'AnnotSV ID'}}{'finalScore'}){
+				$SV_ID{$dataHash{'AnnotSV ID'}}{'finalScore'} = $scorePenalty;
+				#$SV_ID{$dataHash{'AnnotSV ID'}}{'splitScore'} = $dataHash{"AnnotSV ranking"} + 1000;
+				$scorePenaltySplit = 1000;	
+				$fullSplitScore = 1000;
 			}else{
-				$scorePenalty = ".0";	
+				#TODO compute gene penalty
+				$scorePenaltySplit = 0;	
+				$fullSplitScore = 0;
 			}
 
+			#finalsortData assigment according to full or split
+			$hashFinalSortData{$SV_ID{$dataHash{'AnnotSV ID'}}{'finalScore'}."_".$variantID}{$dataHash{'AnnotSV ID'}}{$dataHash{"AnnotSV ranking"}+$fullSplitScore}{$count}{'finalArray'} = [@finalSortData] ; 
 
 			#finalsortData assigment
-			$hashFinalSortData{$dataHash{"AnnotSV ranking"}.$scorePenalty."_".$variantID}{$count}{'finalArray'} = [@finalSortData] ; 
+			#$hashFinalSortData{$dataHash{"AnnotSV ranking"}.$scorePenalty."_".$variantID}{$count}{'finalArray'} = [@finalSortData] ; 
+
+
+
 
 			
 			#url to UCSC for SV , highlight in blue and zoomout x3
-			$hashFinalSortData{$dataHash{"AnnotSV ranking"}.$scorePenalty."_".$variantID}{$count}{'url2UCSC'} = "http://genome.ucsc.edu/cgi-bin/hgTracks?db=".$genomeBuild."&position=chr".$dataHash{"SV chrom"}.":".$dataHash{"SV start"}."-".$dataHash{"SV end"}."&hgt.out1=submit&highlight=".$genomeBuild.".chr".$dataHash{"SV chrom"}.":".$dataHash{"SV start"}."-".$dataHash{"SV end"}."#aaedff\" target=\"_blank\" rel=\"noopener noreferrer\"" ; 
+			$hashFinalSortData{$SV_ID{$dataHash{'AnnotSV ID'}}{'finalScore'}."_".$variantID}{$dataHash{'AnnotSV ID'}}{$dataHash{"AnnotSV ranking"}+$fullSplitScore}{$count}{'url2UCSC'} = "http://genome.ucsc.edu/cgi-bin/hgTracks?db=".$genomeBuild."&position=chr".$dataHash{"SV chrom"}.":".$dataHash{"SV start"}."-".$dataHash{"SV end"}."&hgt.out1=submit&highlight=".$genomeBuild.".chr".$dataHash{"SV chrom"}.":".$dataHash{"SV start"}."-".$dataHash{"SV end"}."#aaedff\" target=\"_blank\" rel=\"noopener noreferrer\"" ; 
 
 			#url to OMIM
-			$hashFinalSortData{$dataHash{"AnnotSV ranking"}.$scorePenalty."_".$variantID}{$count}{'url2OMIM'} = "https://www.omim.org/entry/".$dataHash{"Mim Number"}  ; 
+			$hashFinalSortData{$SV_ID{$dataHash{'AnnotSV ID'}}{'finalScore'}."_".$variantID}{$dataHash{'AnnotSV ID'}}{$dataHash{"AnnotSV ranking"}+$fullSplitScore}{$count}{'url2OMIM'} = "https://www.omim.org/entry/".$dataHash{"Mim Number"}  ; 
 
 
 
 			#comment assigment
 			foreach my $fieldCom (keys %dataCommentHash){
-				$hashFinalSortData{$dataHash{"AnnotSV ranking"}.$scorePenalty."_".$variantID}{$count}{'hashComments'}{$NameColHash{$fieldCom} -1} = $dataCommentHash{$fieldCom}{'values'} ; 
+				$hashFinalSortData{$SV_ID{$dataHash{'AnnotSV ID'}}{'finalScore'}."_".$variantID}{$dataHash{'AnnotSV ID'}}{$dataHash{"AnnotSV ranking"}+$fullSplitScore}{$count}{'hashComments'}{$NameColHash{$fieldCom} -1} = $dataCommentHash{$fieldCom}{'values'} ; 
 				#print $dataCommentHash{'Gene name'}{'values'}."\n\n";
 				#TODO check color for gene according to output position of gene field 
 			}
 
 
             #assign color to Gene Name
-			$hashFinalSortData{$dataHash{"AnnotSV ranking"}.$scorePenalty."_".$variantID}{$count}{'hashColor'}{$NameColHash{'Gene name'}-1} = $pLI_Color ;
+			$hashFinalSortData{$SV_ID{$dataHash{'AnnotSV ID'}}{'finalScore'}."_".$variantID}{$dataHash{'AnnotSV ID'}}{$dataHash{"AnnotSV ranking"}+$fullSplitScore}{$count}{'hashColor'}{$NameColHash{'Gene name'}-1} = $pLI_Color ;
 
 			#print $NameColHash{'Gene name'}."\n";
 
@@ -535,8 +551,6 @@ my $htmlStart = "<!DOCTYPE html>\n<html>
 \$(document).ready(function () {
 
 
-	\$('#tabFULLSPLIT').append('<caption style=\"caption-side: top\">".$incfile."___".$genomeBuild."</caption>');
-
 	\$('#tabFULLSPLIT thead tr').clone(true).appendTo( '#tabFULLSPLIT thead' );
             \$('#tabFULLSPLIT thead tr:eq(1) th').each( function (i) {
              var title = \$(this).text();
@@ -572,6 +586,24 @@ my $htmlStart = "<!DOCTYPE html>\n<html>
             } );
         } );
 
+	\$('#tabFULLSPLIT tbody').on('dblclick', 'tr', function () {
+		var rowID = this.id;
+		if (rowID !== ''){
+			if (this.style.backgroundColor === 'teal'){
+				this.style.backgroundColor = 'initial';
+			}else{
+				this.style.backgroundColor = 'teal';
+			}
+			var childSplitRow = document.getElementsByClassName(rowID); 
+			for (i = 0; i < childSplitRow.length; i++) {
+				if (childSplitRow[i].style.visibility === 'visible'){
+					childSplitRow[i].style.visibility = 'collapse';
+				}else{
+					childSplitRow[i].style.visibility = 'visible';
+				}
+			}
+		}
+	} );
 
 
 	var tableFULLSPLIT = \$('#tabFULLSPLIT').DataTable(   {\"order\": [] ,\"lengthMenu\":[ [ 50, 100, -1 ],[ 50, 100, \"All\" ]], \"fixedHeader\": true, \"orderCellsTop\": true, \"oLanguage\": { \"sLengthMenu\": \"Show _MENU_ lines\",\"sInfo\": \"Showing _START_ to _END_ of _TOTAL_ lines\" } } );
@@ -778,18 +810,17 @@ function openCity(evt, cityName) {
 		visibility: collapse;	
 	}
 
-
 \n</style>
 
 \n</head>
-\n<body>\n\n";
+\n\t<body>\n\n";
 
 #table and columns names
 
 
 my $htmlALL= "<div id=\"FULL+SPLIT\" class=\"tabcontent\">";
 $htmlALL .= "\n\t<table id='tabFULLSPLIT' class='display compact' >
-        \n\t\t<thead><tr>";
+        \n\t\t<thead>\n\t\t\t<tr>";
 
 
 foreach my $col (sort {$a <=> $b} keys %OutColHash){
@@ -804,7 +835,7 @@ foreach my $col (sort {$a <=> $b} keys %OutColHash){
 }
 
 
-$htmlALL .= "</tr>\n</thead>\n<tbody>\n";
+$htmlALL .= "\n\t\t\t</tr>\n\t\t</thead>\n\t<tbody>\n";
 					
 
 my $htmlEndTable = "</tbody>\n</table>\n</div>\n\n\n";
@@ -812,10 +843,8 @@ my $htmlEndTable = "</tbody>\n</table>\n</div>\n\n\n";
 my $htmlEnd = "<div class=\"tab\">\n
 <button id=\"focusFULLfirst\" class=\"tablinks\" onclick=\"openCity(event, 'full')\">FULL</button>\n
 <button class=\"tablinks\" onclick=\"openCity(event, 'fullsplit')\">FULL+SPLIT</button>\n
-</div>";
-
-
-$htmlEnd .= "\n</body>\n</html>";
+<p>      ".$incfile."___".$genomeBuild."</p>\n
+</div>\n\t</body>\n</html>";
 
 
 
@@ -834,99 +863,103 @@ my $kindRank=0;
 foreach my $rank (rnatkeysort { "$_-$hashFinalSortData{$_}" } keys %hashFinalSortData){
 	print $rank."\n";
 	
-	foreach my $variant ( keys %{$hashFinalSortData{$rank}}){
-
-		#increse rank number then change final array
-		#$kindRank++;
+	foreach my $ID ( keys %{$hashFinalSortData{$rank}}){
+		
+		#foreach my $rankSplit (sort {$hashFinalSortData{$rank}{$ID}{$b} <=> $hashFinalSortData{$rank}{$ID}{$a} } ( keys %{$hashFinalSortData{$rank}{$ID}})){
+		foreach my $rankSplit (rnatkeysort { "$_-$hashFinalSortData{$rank}{$ID}{$_}" }  keys %{$hashFinalSortData{$rank}{$ID}}){
+	
+			foreach my $variant ( keys %{$hashFinalSortData{$rank}{$ID}{$rankSplit}}){
+			
+			#increse rank number then change final array
+			$kindRank++;
 		
 
-		#FILL tab 'ALL';
-		# change bgcolor for FULL row
-		if (     $hashFinalSortData{$rank}{$variant}{'finalArray'}[$NameColHash{'AnnotSV type'} - 1] eq "full") {
-			$htmlALL .= "<tr class=\"full\" >\n";
-		}else{
-			$htmlALL .= "<tr class=\"fullsplit\" >\n";
-		}
+			#FILL tab 'ALL';
+			if (    $hashFinalSortData{$rank}{$ID}{$rankSplit}{$variant}{'finalArray'}[$NameColHash{'AnnotSV type'} - 1] eq "full") {
+				$htmlALL .= "<tr id=\"".$ID."\" class=\"full\" >\n";
+			}else{
+				$htmlALL .= "<tr class=\"fullsplit ".$ID."\" >\n";
+			}
 
-		#Once for "ALL"  = FULL+SPLIT
-		for( my $fieldNbr = 0 ; $fieldNbr < scalar @{$hashFinalSortData{$rank}{$variant}{'finalArray'}} ; $fieldNbr++){
-			#print $fieldNbr."\n";
+			#Once for "ALL"  = FULL+SPLIT
+			for( my $fieldNbr = 0 ; $fieldNbr < scalar @{$hashFinalSortData{$rank}{$ID}{$rankSplit}{$variant}{'finalArray'}} ; $fieldNbr++){
+				#print $fieldNbr."\n";
 				#print $hashFinalSortData{$rank}{$variant}{'finalArray'}[$fieldNbr]."\n";
 
 	
-			  #implementing rowspan only if line is "full" type
-			# TODO loop on finalArray with counter to skip first td SVID for split line
-			#if (     $hashFinalSortData{$rank}{$variant}{'finalArray'}[$NameColHash{'AnnotSV type'} - 1] eq "full") {
+				#implementing rowspan only if line is "full" type
+				# TODO loop on finalArray with counter to skip first td SVID for split line
+				#if (     $hashFinalSortData{$rank}{$variant}{'finalArray'}[$NameColHash{'AnnotSV type'} - 1] eq "full") {
        
 					
-			if (defined $hashFinalSortData{$rank}{$variant}{'hashColor'}{$fieldNbr}){
-				if ($hashFinalSortData{$rank}{$variant}{'finalArray'}[$NameColHash{'location'} - 1] eq "txStart-txEnd" || $hashFinalSortData{$rank}{$variant}{'finalArray'}[$NameColHash{'location'} - 1] eq ".") {
-					$htmlALL .= "\t<td style=\"background-color:".$hashFinalSortData{$rank}{$variant}{'hashColor'}{$fieldNbr}."\">";
+				if (defined $hashFinalSortData{$rank}{$ID}{$rankSplit}{$variant}{'hashColor'}{$fieldNbr}){
+					if ($hashFinalSortData{$rank}{$ID}{$rankSplit}{$variant}{'finalArray'}[$NameColHash{'location'} - 1] eq "txStart-txEnd" || $hashFinalSortData{$rank}{$ID}{$rankSplit}{$variant}{'finalArray'}[$NameColHash{'location'} - 1] eq ".") {
+						$htmlALL .= "\t<td style=\"background-color:".$hashFinalSortData{$rank}{$ID}{$rankSplit}{$variant}{'hashColor'}{$fieldNbr}."\">";
 
-				}else{
-
-					if ($hashFinalSortData{$rank}{$variant}{'finalArray'}[$NameColHash{'location'} - 1] =~ /^txStart/) {
-						$htmlALL .= "\t<td style=\"background: linear-gradient(-45deg, white 50%, ".$hashFinalSortData{$rank}{$variant}{'hashColor'}{$fieldNbr}." 50% )\">";
 					}else{
-						$htmlALL .= "\t<td style=\"background: linear-gradient(-45deg,".$hashFinalSortData{$rank}{$variant}{'hashColor'}{$fieldNbr}." 50%, white 50% )\">";
 
+						if ($hashFinalSortData{$rank}{$ID}{$rankSplit}{$variant}{'finalArray'}[$NameColHash{'location'} - 1] =~ /^txStart/) {
+							$htmlALL .= "\t<td style=\"background: linear-gradient(-45deg, white 50%, ".$hashFinalSortData{$rank}{$ID}{$rankSplit}{$variant}{'hashColor'}{$fieldNbr}." 50% )\">";
+						}else{
+							$htmlALL .= "\t<td style=\"background: linear-gradient(-45deg,".$hashFinalSortData{$rank}{$ID}{$rankSplit}{$variant}{'hashColor'}{$fieldNbr}." 50%, white 50% )\">";
+
+						}
 					}
 
-
-
-				}
-        
-			}else{
-				$htmlALL .= "\t<td >";
-			}
-				#$htmlALL .= "\t<td rowspan=\".$hashFinalSortData{$rank}{$variant}{SVIDNbr}."\">";
-			#}
-
-
-
-
-			#if (defined $field){
-			if (defined $hashFinalSortData{$rank}{$variant}{'finalArray'}[$fieldNbr]){
-				#print HTML $field;
-
-				#Add url to UCSC browser
-				if ($fieldNbr eq $NameColHash{'AnnotSV ID'} - 1){
-					$htmlALL .= "<div class=\"tooltip\"><a href=\"".$hashFinalSortData{$rank}{$variant}{'url2UCSC'}."\">".$hashFinalSortData{$rank}{$variant}{'finalArray'}[$fieldNbr]."</a>";
 				}else{
-					if( length($hashFinalSortData{$rank}{$variant}{'finalArray'}[$fieldNbr]) > 50 ){
-						$htmlALL .= "<div class=\"tooltip\">".substr($hashFinalSortData{$rank}{$variant}{'finalArray'}[$fieldNbr],0,45)."[...]";
+					if ($fieldNbr eq $NameColHash{'AnnotSV ID'} - 1){
+						$htmlALL .= "\t<td data-order=\"".$kindRank."\">";	
 					}else{
-						$htmlALL .= "<div class=\"tooltip\">".$hashFinalSortData{$rank}{$variant}{'finalArray'}[$fieldNbr];
+						$htmlALL .= "\t<td >";
 					}
 				}
-				if ($OutColHash{$fieldNbr + 1}{'field'} =~ /^DGV_/){
-					$htmlALL .= "<span class=\"tooltiptext tooltip-bottom\">";
-				}else{
-					$htmlALL .= "<span class=\"tooltiptext tooltip-bottom\"><b>".$OutColHash{$fieldNbr + 1}{'field'}. " :</b> ".$hashFinalSortData{$rank}{$variant}{'finalArray'}[$fieldNbr];
-				}
-				# add comments
-				if (defined $hashFinalSortData{$rank}{$variant}{'hashComments'}{$fieldNbr}){
-					$htmlALL .= $hashFinalSortData{$rank}{$variant}{'hashComments'}{$fieldNbr}."</span></div>";   
-				}else{
+					#$htmlALL .= "\t<td rowspan=\".$hashFinalSortData{$rank}{$variant}{SVIDNbr}."\">";
+					#}
+
+				#if (defined $field){
+				if (defined $hashFinalSortData{$rank}{$ID}{$rankSplit}{$variant}{'finalArray'}[$fieldNbr]){
+					#print HTML $field;
+
+					#Add url to UCSC browser
+					if ($fieldNbr eq $NameColHash{'AnnotSV ID'} - 1){
+						$htmlALL .= "<div class=\"tooltip\"><a href=\"".$hashFinalSortData{$rank}{$ID}{$rankSplit}{$variant}{'url2UCSC'}."\">".$hashFinalSortData{$rank}{$ID}{$rankSplit}{$variant}{'finalArray'}[$fieldNbr]."</a>";
+					}else{
+						if( length($hashFinalSortData{$rank}{$ID}{$rankSplit}{$variant}{'finalArray'}[$fieldNbr]) > 50 ){
+							$htmlALL .= "<div class=\"tooltip\">".substr($hashFinalSortData{$rank}{$ID}{$rankSplit}{$variant}{'finalArray'}[$fieldNbr],0,45)."[...]";
+						}else{
+							$htmlALL .= "<div class=\"tooltip\">".$hashFinalSortData{$rank}{$ID}{$rankSplit}{$variant}{'finalArray'}[$fieldNbr];
+						}
+					}
+					if ($OutColHash{$fieldNbr + 1}{'field'} =~ /^DGV_/){
+						$htmlALL .= "<span class=\"tooltiptext tooltip-bottom\">";
+					}else{
+						$htmlALL .= "<span class=\"tooltiptext tooltip-bottom\"><b>".$OutColHash{$fieldNbr + 1}{'field'}. " :</b> ".$hashFinalSortData{$rank}{$ID}{$rankSplit}{$variant}{'finalArray'}[$fieldNbr];
+					}
+					# add comments
+					if (defined $hashFinalSortData{$rank}{$ID}{$rankSplit}{$variant}{'hashComments'}{$fieldNbr}){
+						$htmlALL .= $hashFinalSortData{$rank}{$ID}{$rankSplit}{$variant}{'hashComments'}{$fieldNbr}."</span></div>";   
+					}else{
 					$htmlALL .= "</span></div>";
+					}
+
+				#	$hashFinalSortData{$rank}{$variant}{'hashComments'}{$NameColHash{$fieldCom}} 
+
+				}else {
+					#print HTML "."
+					$htmlALL .= "."
 				}
-
-			 #	$hashFinalSortData{$rank}{$variant}{'hashComments'}{$NameColHash{$fieldCom}} 
-
-			}else {
-				#print HTML "."
-				$htmlALL .= "."
-			}
-			#print HTML "\t</td>\n";
-			$htmlALL .= "\t</td>\n";
-		} #END FOR FULL+SPLIT tab
+				#print HTML "\t</td>\n";
+				$htmlALL .= "\t</td>\n";
+			} #END FOR FULL+SPLIT tab
 
 
-		#end of table line
-		$htmlALL .= "</tr>\n";
+			#end of table line
+			$htmlALL .= "</tr>\n";
 	
 	
-	}   # END FOREACH VARIANT
+			}   # END FOREACH VARIANT
+		}   # END FOREACH RANKSPLIT
+	}   # END FOREACH ID
 }	#END FOREACH RANK
 
 
