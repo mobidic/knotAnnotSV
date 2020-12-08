@@ -720,10 +720,6 @@ var openTab;
 							</div>`;
 			\$('#tabFULLSPLIT_wrapper').prepend(tabs);
 			
-			//FULL view on load	
-			window.onload =	\$('#tabFULLSPLIT_wrapper .dataTables_scrollHead thead tr:eq(1) th:eq('+keyType+') input', \$('.tooltipHeader td')[keyType] ).val('full' ).change();
-
-
 
 				//double click expand
 				\$('#tabFULLSPLIT tbody').on('dblclick', 'tr', function () {
@@ -839,6 +835,11 @@ var openTab;
 				
 				\$('#tabFULLSPLIT').DataTable().draw();
 			}
+
+
+			//FULL view on load	
+			window.onload =	\$('#tabFULLSPLIT_wrapper .dataTables_scrollHead thead tr:eq(1) th:eq('+keyType+') input', \$('.tooltipHeader td')[keyType] ).val('full' ).change();
+
 
 
 
