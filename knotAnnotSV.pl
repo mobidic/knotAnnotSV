@@ -32,10 +32,10 @@ use warnings;
 use Getopt::Long; 
 use YAML::XS 'LoadFile';
 use Sort::Key::Natural qw(rnatkeysort);
+use File::Basename;
 
 #use Switch;
 #use Data::Dumper;
-#use Sort::Naturally;
 
 #parameters
 my $man = "USAGE : \nperl knotAnnotSV.pl 
@@ -44,6 +44,7 @@ my $man = "USAGE : \nperl knotAnnotSV.pl
 \n--outDir <output directory (default = current dir)> 
 \n--outPrefix <output file prefix (default = \"\")> 
 \n--genomeBuild <Genome Assembly reference (default = hg19)> 
+\n--LOEUFcolorRange <Number to define which color to use for LOEUF bin:  1(red-to-green), 2(red-shades-only)  (default = 1)> 
 \n--datatableDir <Local Path to dataTables directory containing css and js files (default = \"\", requires web connection)>"; 
 
 
@@ -56,7 +57,7 @@ my $outDir = ".";
 my $outPrefix = "";
 my $annotSVranking = "";
 my $datatableDir = "";
-
+my $LOEUFcolorRange = "";
 
 #vcf parsing and output
 my @line;
@@ -80,6 +81,7 @@ my $scorePenaltySplit;
 my $fullSplitScore;
 my %SV_ID;
 my $SV_type;
+my $fullRowColor;
 
 my $url2UCSC="";
 my $url2OMIM="";
@@ -87,6 +89,8 @@ my $url2DECIPHER="";
 my $url2ensembl="";
 
 my $genomeBuild="";
+#style alignment for tooltiptext
+my $alignTooltiptext="";
 
 GetOptions( "annotSVfile=s"		=> \$incfile,
 			"configFile=s"		=> \$config,
@@ -94,6 +98,7 @@ GetOptions( "annotSVfile=s"		=> \$incfile,
 			"outPrefix:s"		=> \$outPrefix,
 			"datatableDir=s"	=> \$datatableDir,
 			"genomeBuild=s"		=> \$genomeBuild,
+			"LOEUFcolorRange=s"	=> \$LOEUFcolorRange,
 			"help|h"			=> \$help);
 				
 				
@@ -180,7 +185,7 @@ my @SVrankLine;
 my %SVrankHash;
 
 if ($annotSVranking ne ""){
-	open( SVRANK , "<$annotSVranking" )or die("Cannot open ranking file ".$annotSVranking) ;
+	open( SVRANK , "<$annotSVranking" )or die("Cannot open ranking file ".$annotSVranking."\n") ;
 	
 	
 	while( <SVRANK> ){
@@ -211,29 +216,59 @@ my %ACMGgene = ("ACTA2" =>1,"ACTC1" =>1,"APC" =>1,"APOB" =>1,"ATP7B" =>1,"BMPR1A
 
 
 #initialize gene colore according to pLI/LOEUF
-my %pLI_ColorHash;
-my $pLI_Color;
+#my %pLI_ColorHash;
+#my $pLI_Color;
 
-$pLI_ColorHash{'0.9'} = '#FF0000';
-$pLI_ColorHash{'0.8'} = '#FF3300';
-$pLI_ColorHash{'0.7'} = '#FF6600';
-$pLI_ColorHash{'0.6'} = '#FF9900';
-$pLI_ColorHash{'0.5'} = '#FFCC00';
-$pLI_ColorHash{'0.4'} = '#FFFF00';
-$pLI_ColorHash{'0.3'} = '#BFFF00';
-$pLI_ColorHash{'0.2'} = '#7FFF00';
-$pLI_ColorHash{'0.1'} = '#3FFF00';
-$pLI_ColorHash{'0.0'} = '#00FF00';
-#$pLI_ColorHash{'.'} = '#FFFFFF';
+#$pLI_ColorHash{'0.9'} = '#FF0000';
+#$pLI_ColorHash{'0.8'} = '#FF3300';
+#$pLI_ColorHash{'0.7'} = '#FF6600';
+#$pLI_ColorHash{'0.6'} = '#FF9900';
+#$pLI_ColorHash{'0.5'} = '#FFCC00';
+#$pLI_ColorHash{'0.4'} = '#FFFF00';
+#$pLI_ColorHash{'0.3'} = '#BFFF00';
+#$pLI_ColorHash{'0.2'} = '#7FFF00';
+#$pLI_ColorHash{'0.1'} = '#3FFF00';
+#$pLI_ColorHash{'0.0'} = '#00FF00';
 
 
+#Select and initialize color Range for LOEUF bin
+my %LOEUF_ColorHash;
+my $LOEUF_Color;
+if($LOEUFcolorRange eq "" ||$LOEUFcolorRange == 1 ){
+	$LOEUF_ColorHash{'0.0'} = '#FF0000';
+	$LOEUF_ColorHash{'1.0'} = '#FF3300';
+	$LOEUF_ColorHash{'2.0'} = '#FF6600';
+	$LOEUF_ColorHash{'3.0'} = '#FF9900';
+	$LOEUF_ColorHash{'4.0'} = '#FFCC00';
+	$LOEUF_ColorHash{'5.0'} = '#FFFF00';
+	$LOEUF_ColorHash{'6.0'} = '#BFFF00';
+	$LOEUF_ColorHash{'7.0'} = '#7FFF00';
+	$LOEUF_ColorHash{'8.0'} = '#3FFF00';
+	$LOEUF_ColorHash{'9.0'} = '#00FF00';
+
+}elsif($LOEUFcolorRange == 2){
+	$LOEUF_ColorHash{'0.0'} = '#FF0606';
+	$LOEUF_ColorHash{'1.0'} = '#FF3737';
+	$LOEUF_ColorHash{'2.0'} = '#FF5050';
+	$LOEUF_ColorHash{'3.0'} = '#FF6363';
+	$LOEUF_ColorHash{'4.0'} = '#FF6F6F';
+	$LOEUF_ColorHash{'5.0'} = '#FF8888';
+	$LOEUF_ColorHash{'6.0'} = '#FF9B9B';
+	$LOEUF_ColorHash{'7.0'} = '#FFB4B4';
+	$LOEUF_ColorHash{'8.0'} = '#FFD9D9';
+	$LOEUF_ColorHash{'9.0'} = '#FFF2F2';
+
+}else{
+	die("LOEUFcolorRange argument is unacceptable: ".$LOEUFcolorRange."\n") ;
+}
 
 ####################################################################
 #############################################
 ##################   Start parsing VCF
 
-open( VCF , "<$incfile" )or die("Cannot open annotSV file ".$incfile) ;
+open( VCF , "<$incfile" )or die("Cannot open annotSV file ".$incfile."\n") ;
 
+my ($outBasename,$dir,$ext) = fileparse($incfile,'\.tsv$');
 
 
 while( <VCF> ){
@@ -273,8 +308,8 @@ while( <VCF> ){
 
 		#initialise final printable string
 		@finalSortData = ("");
-        $pLI_Color=".";
-
+		#$pLI_Color=".";
+		$LOEUF_Color=".";
 
         #fill nbr of SV_ID;
         if (defined $SV_ID{$line[0]} ){
@@ -293,7 +328,11 @@ while( <VCF> ){
 		for( my $fieldNbr = 0 ; $fieldNbr < scalar @line; $fieldNbr++){
 			
 			if($line[$fieldNbr] ne ""){
-				$dataHash{$InColHash{$fieldNbr}} = $line[$fieldNbr];
+				$line[$fieldNbr] =~ s/;/; /g ;  
+				$line[$fieldNbr] =~ s/\//\/ /g ;  
+				$dataHash{$InColHash{$fieldNbr}} = $line[$fieldNbr] ; 
+				
+
 			}else{
 				$dataHash{$InColHash{$fieldNbr}} = ".";
 			}
@@ -302,6 +341,25 @@ while( <VCF> ){
 
 		#get SVtype
 		$SV_type = $dataHash{'SV type'};
+
+		#check what type among different writting allowed
+		if ($SV_type =~ /DUP|GAIN|CN[3-9]/i){
+			$SV_type = "DUP";
+			$fullRowColor = "#DFE9FF";
+		}elsif ($SV_type =~ /DEL|LOSS|CN[0-1]/i){
+			$SV_type = "DEL";
+			$fullRowColor = "#F7D8DD";
+		}elsif ($SV_type =~ /INV/i){
+			$SV_type = "INV";
+			$fullRowColor = "#FFFFCD";
+		}elsif ($SV_type =~ /BND/i){
+			$SV_type = "BND";
+			$fullRowColor = "#D2F8E3";
+		}else{
+			$fullRowColor = "#ffffff";
+		}
+
+		
 
 		#hash to avoid duplicated comments for DGV LOSS and GAIN
 		my %commentDuplicate;
@@ -326,7 +384,7 @@ while( <VCF> ){
 							$correctFieldCom = $field;
 						}
 						#add in first line of comment
-               		 	$dataCommentHash{$field}{'values'} .= "<b>".$correctFieldCom . " :</b> ".$dataHash{$correctFieldCom};
+               		 	$dataCommentHash{$field}{'values'} .= "<span class=\"commentTitle\">".$correctFieldCom . " :</span> ".$dataHash{$correctFieldCom};
 					}
 				
 				    foreach my $fieldCom (@{$dataCommentHash{$field}{'commentFieldList'}}){
@@ -345,14 +403,14 @@ while( <VCF> ){
 									next;
 								}
 								#print $field."_".$correctFieldCom."\n";
-                            	$dataCommentHash{$field}{'values'} .= "<br><b>".$correctFieldCom . " :</b> ".$dataHash{$correctFieldCom};
+                            	$dataCommentHash{$field}{'values'} .= "<br><span class=\"commentTitle\">".$correctFieldCom . " :</span> ".$dataHash{$correctFieldCom};
 							}else{
-                            	$dataCommentHash{$field}{'values'} .= "<br><b>".$fieldCom . " :</b> ".$dataHash{$fieldCom};
+                            	$dataCommentHash{$field}{'values'} .= "<br><span class=\"commentTitle\">".$fieldCom . " :</span> ".$dataHash{$fieldCom};
 							}
 
                         }else{
                             print $field."\n";
-                            $dataCommentHash{$field}{'values'} .= "<br><b>".$fieldCom . " :</b> Absent in file";
+                            $dataCommentHash{$field}{'values'} .= "<br><span class=\"commentTitle\">".$fieldCom . " :</span> Absent in file";
                         }
                         #print $field.":\t".$fieldCom.":\t".$dataCommentHash{'Gene name'}{'values'}."\n";
 				    }
@@ -397,27 +455,28 @@ while( <VCF> ){
 		}
 
 
-		#fill color pLI 
+		#fill color LOEUF bin (old=pLI) 
 		foreach my $field (keys %dataHash){
-			if (defined $dataHash{'pLI_ExAC'} ){
-                foreach my $pli (sort {$b <=> $a} keys %pLI_ColorHash){
-                    if ( $dataHash{'pLI_ExAC'} eq "."){
-                        $pLI_Color = '#FFFFFF';
+			#if (defined $dataHash{'pLI_ExAC'} ){
+			if (defined $dataHash{'LOEUF_bin'} ){
+                foreach my $bin (sort {$b <=> $a} keys %LOEUF_ColorHash){
+                    if ( $dataHash{'LOEUF_bin'} eq "."){
+                        $LOEUF_Color = '#FFFFFF';
                         last;
                     }
-                    if ( $dataHash{'pLI_ExAC'}  >= $pli){
-                        $pLI_Color = $pLI_ColorHash{$pli};
+                    if ( $dataHash{'LOEUF_bin'}  >= $bin){
+                        $LOEUF_Color = $LOEUF_ColorHash{$bin};
                         last;
                     }
                 }
 			}else{
-                $pLI_Color = '#FFFFFF';            
+                $LOEUF_Color = '#FFFFFF';            
             }
 		}
         
-		#change pli color if ACMG gene
+		#change LOEUF color if ACMG gene
 		if (defined $ACMGgene{$dataHash{'Gene name'}}){
-			$pLI_Color = '#808080';
+			$LOEUF_Color = '#808080';
 		}
 
 
@@ -466,7 +525,7 @@ while( <VCF> ){
 
 
 			
-			#url to UCSC for SV , highlight in blue and zoomout x3
+			#url to UCSC for SV , highlight in blue and zoomout x1.5
 			$hashFinalSortData{$SV_ID{$dataHash{'AnnotSV ID'}}{'finalScore'}."_".$variantID}{$dataHash{'AnnotSV ID'}}{$dataHash{"AnnotSV ranking"}+$fullSplitScore}{$count}{'url2UCSC'} = "http://genome.ucsc.edu/cgi-bin/hgTracks?db=".$genomeBuild."&position=chr".$dataHash{"SV chrom"}.":".$dataHash{"SV start"}."-".$dataHash{"SV end"}."&hgt.out1=submit&highlight=".$genomeBuild.".chr".$dataHash{"SV chrom"}.":".$dataHash{"SV start"}."-".$dataHash{"SV end"}."#aaedff\" target=\"_blank\" rel=\"noopener noreferrer\"" ; 
 
 			#url to OMIM
@@ -483,15 +542,14 @@ while( <VCF> ){
 
 
             #assign color to Gene Name
-			$hashFinalSortData{$SV_ID{$dataHash{'AnnotSV ID'}}{'finalScore'}."_".$variantID}{$dataHash{'AnnotSV ID'}}{$dataHash{"AnnotSV ranking"}+$fullSplitScore}{$count}{'hashColor'}{$NameColHash{'Gene name'}-1} = $pLI_Color ;
+			$hashFinalSortData{$SV_ID{$dataHash{'AnnotSV ID'}}{'finalScore'}."_".$variantID}{$dataHash{'AnnotSV ID'}}{$dataHash{"AnnotSV ranking"}+$fullSplitScore}{$count}{'hashColor'}{$NameColHash{'Gene name'}-1} = $LOEUF_Color ;
 
-			#print $NameColHash{'Gene name'}."\n";
 
-				#ACMG
-				#if(defined $ACMGgene{$finalSortData[$dicoColumnNbr{'Gene.refGene'}]} )
-#				if(defined $ACMGgene{$geneName} ){
-#					$hashFinalSortData{$finalSortData[$dicoColumnNbr{'MPA_ranking'}]}{$variantID}{'worksheet'} .= "#ACMG";
-#				}
+
+            #assign color to Gene Name
+			$hashFinalSortData{$SV_ID{$dataHash{'AnnotSV ID'}}{'finalScore'}."_".$variantID}{$dataHash{'AnnotSV ID'}}{$dataHash{"AnnotSV ranking"}+$fullSplitScore}{$count}{'fullRowColor'} = $fullRowColor ;
+
+
 
 
 	} #END of IF-ELSE(#CHROM)	
@@ -506,17 +564,21 @@ while( <VCF> ){
 #'https://code.jquery.com/jquery-3.5.1.js'
 #'https://cdn.datatables.net/1.10.22/js/jquery.dataTables.min.js'
 #'https://cdn.datatables.net/fixedheader/3.1.7/js/dataTables.fixedHeader.min.js'
+#'https://cdn.datatables.net/fixedcolumns/3.3.2/js/dataTables.fixedColumns.min.js'
+
 #'https://cdn.datatables.net/1.10.22/css/jquery.dataTables.min.css'
 #'https://cdn.datatables.net/fixedheader/3.1.7/css/fixedHeader.dataTables.min.css'
-
+#'https://cdn.datatables.net/fixedcolumns/3.3.2/css/fixedColumns.dataTables.min.css'
 
 
 my $path2jquery = "https://code.jquery.com/";
 my $path2jqueryDT = "https://cdn.datatables.net/1.10.22/js/";
 my $path2jsFHDT = "https://cdn.datatables.net/fixedheader/3.1.7/js/";
+my $path2jsFCDT = "https://cdn.datatables.net/fixedcolumns/3.3.2/js/";
 
 my $path2css = "https://cdn.datatables.net/1.10.22/css/"; 
 my $path2FHcss = "https://cdn.datatables.net/fixedheader/3.1.7/css/";
+my $path2FCcss = "https://cdn.datatables.net/fixedcolumns/3.3.2/css/";
 
 if ($datatableDir ne ""){
 
@@ -529,6 +591,7 @@ if ($datatableDir ne ""){
 
 	$path2css = $datatableDir."/css/"; 
 	$path2FHcss = $datatableDir."/css/";
+	$path2FCcss = $datatableDir."/css/";
 }
 
 
@@ -543,82 +606,183 @@ if ($datatableDir ne ""){
 my $htmlStart = "<!DOCTYPE html>\n<html>
 \n<head>
 \n<meta charset=\"utf-8\">
-\n<title>".$outPrefix." knotAnnotSV</title>\n
+\n<title>".$outPrefix.$outBasename."</title>\n
 \n<script type=\"text/javascript\" language=\"javascript\" src='".$path2jquery."jquery-3.5.1.js'></script>
 \n<script type=\"text/javascript\" language=\"javascript\" src='".$path2jqueryDT."jquery.dataTables.min.js'></script>
+\n<script type=\"text/javascript\" language=\"javascript\" src='".$path2jsFCDT."dataTables.fixedColumns.min.js'></script>
 \n<script type=\"text/javascript\" language=\"javascript\" src='".$path2jsFHDT."dataTables.fixedHeader.min.js'></script>
-\n<script> 
-\$(document).ready(function () {
+\n<script type=\"text/javascript\" > 
 
 
-	\$('#tabFULLSPLIT thead tr').clone(true).appendTo( '#tabFULLSPLIT thead' );
-            \$('#tabFULLSPLIT thead tr:eq(1) th').each( function (i) {
-             var title = \$(this).text();
-              \$(this).html( '<input type=\"text\" placeholder=\"Search\" />' );
-                                                 
-              \$( 'input', this ).on( 'keyup change', function () {
-   
-					var expr = this.value;
-					if(/^[!<>=]+\$/.test(expr)){
-						return;
+var openTab;
+
+//document ready
+\$(document).ready(function() {
+				var height = \$(window).height();
+				var h = Math.floor(height - 250);
+				var filterHash = new Object();
+				var keyType = \"".($NameColHash{'AnnotSV type'} - 1)."\";
+				var keyAnnotID = \"".($NameColHash{'AnnotSV ID'} - 1)."\";
+				var fullMode = 'full';	
+				var dblClickMode = 'off';	
+
+				//input FILTER
+				var head = '#tabFULLSPLIT thead';
+				\$(head+' tr').clone(true).appendTo(head);
+	
+				\$(head+' tr:eq(1) th').each( function (i) {
+					\$(this).removeClass('sorting').removeClass('sorting_asc').removeClass('sorting_desc');
+					\$(this).unbind();
+					let title = \$(this).text();
+					\$(this).html( '<input id=\"col'+i+'\" type=\"text\" placeholder=\"Search\" data-index=\"'+i+'\" />' );
+				}); //END FILTER
+
+
+
+				//INITIALISATION
+				var tabFULLSPLIT = \$('#tabFULLSPLIT').DataTable({
+					stateSave: true,
+					stateDuration: 0,
+					order: [],
+					paging: true,
+					fixedHeader: true,
+					orderCellsTop: true,
+					scrollX: true,
+					scrollY: h,
+					scrollCollapse: true,
+					oLanguage: { sLengthMenu: 'Show _MENU_ lines',sInfo: 'Showing _START_ to _END_ of _TOTAL_ lines' },
+					lengthMenu: [
+							[50, 100, -1],
+							[50, 100, 'All']
+						],
+					fixedColumns:   {
+						leftColumns: 1,
+						heightMatch: 'auto',
+					 },
+					stateLoadParams: function( settings, data ) {
+						filterHash = data.filter;
+						fullMode = data.fullMode ;	
+						dblClickMode = data.dblClickMode ;	
+						//console.log('load__');
+					},
+					stateSaveParams: function( settings, data ) {
+						data.filter = filterHash;	
+						data.fullMode = fullMode;	
+						data.dblClickMode = dblClickMode;	
+						//console.log('save__');
+					},
+					drawCallback: function( settings ) {
+						\$('#tabFULLSPLIT').DataTable().fixedHeader.adjust();
 					}
-					
-					var exprClean = expr.replace(/\\s*/g, '');
-					filterHash[i] = new Object();
-					if (/^[!<>=]/.test(expr)) {
-						var oper = expr.match(/^([!<>=]+)/);
-						var exp = exprClean.match(/^\\W+([-]?\\w+[.]?\\w*)/i);
-						filterHash[i]['operator'] = oper[0];
-						if (exp === null){
+			});  //END initialisation
+
+			//FILTER FUNCTION
+			\$(tabFULLSPLIT.table().container() ).on( 'keyup change', 'thead input', function (){ 
+
+						//console.log('toto1');
+						var expr = this.value;
+						var i = \$(this).data('index');
+						if(/^[!<>=]+\$/.test(expr)){
 							return;
 						}
-						filterHash[i]['expr'] = exp[1];
+						
+						if(expr === ''){
+							delete filterHash[i] ;
+						}else{
 
-					}else{
-						filterHash[i]['operator'] = '==';
-						filterHash[i]['expr'] = new RegExp(`\${exprClean}`,'i');
-					}
+							var exprClean = expr.replace(/\\s*/g, '');
+							filterHash[i] = new Object();
+							filterHash[i]['raw'] = exprClean;
+							if (/^[!<>=]/.test(expr)) {
+								var oper = expr.match(/^([!<>=]+)/);
+								var exp = exprClean.match(/^\\W+([-]?\\w+[.]?\\w*)/i);
+								filterHash[i]['operator'] = oper[0];
+								if (exp === null){
+									return;
+								}
+								filterHash[i]['expr'] = exp[1];
 
-					filterByExp(filterHash);  
+							}else{
+								filterHash[i]['operator'] = '==';
+								filterHash[i]['expr'] = new RegExp(`\${exprClean}`,'i');
+							}
+						}
+
+						tabFULLSPLIT.draw();
 					
-					tableFULLSPLIT.draw();	 
+					});
+					
 
-            } );
-        } );
-
-	\$('#tabFULLSPLIT tbody').on('dblclick', 'tr', function () {
-		var rowID = this.id;
-		if (rowID !== ''){
-			if (this.style.backgroundColor === 'teal'){
-				this.style.backgroundColor = 'initial';
-			}else{
-				this.style.backgroundColor = 'teal';
-			}
-			var childSplitRow = document.getElementsByClassName(rowID); 
-			for (i = 0; i < childSplitRow.length; i++) {
-				if (childSplitRow[i].style.visibility === 'visible'){
-					childSplitRow[i].style.visibility = 'collapse';
-				}else{
-					childSplitRow[i].style.visibility = 'visible';
-				}
-			}
-		}
-	} );
+			//button tab		
+			var tabs = `<div class=\"tab\" style=\"float: left;\">
+								<button id=\"FULLbutton\" class=\"tablinks active\" onclick=\"openTab(event, 'full')\">COMPACT</button>
+								<button id=\"FULLSPLITbutton\" class=\"tablinks\" onclick=\"openTab(event, 'fullsplit')\">EXPANDED</button>
+							</div>`;
+			\$('#tabFULLSPLIT_wrapper').prepend(tabs);
+			
+			//FULL view on load	
+			window.onload =	\$('#tabFULLSPLIT_wrapper .dataTables_scrollHead thead tr:eq(1) th:eq('+keyType+') input', \$('.tooltipHeader td')[keyType] ).val('full' ).change();
 
 
-	var tableFULLSPLIT = \$('#tabFULLSPLIT').DataTable(   {\"order\": [] ,\"lengthMenu\":[ [ 50, 100, -1 ],[ 50, 100, \"All\" ]], \"fixedHeader\": true, \"orderCellsTop\": true, \"oLanguage\": { \"sLengthMenu\": \"Show _MENU_ lines\",\"sInfo\": \"Showing _START_ to _END_ of _TOTAL_ lines\" } } );
 
-	window.onload = document.getElementById('focusFULLfirst').className += \" active\";
+				//double click expand
+				\$('#tabFULLSPLIT tbody').on('dblclick', 'tr', function () {
+					var rowID = this.id;			
+					var fm = fullMode;
+					if (rowID !== '' && fullMode === 'full'){
 
-	var filterHash = new Object();
-	var filterByExp = function(filtHash){
+						if (dblClickMode == 'off'){
+							dblClickMode = 'on';
+							\$('#tabFULLSPLIT_wrapper .DTFC_LeftWrapper thead tr:eq(1) th:eq('+keyAnnotID+') input', \$('.tooltipHeader td')[keyAnnotID] ).val(rowID);
+							\$('#tabFULLSPLIT_wrapper .dataTables_scrollHead thead tr:eq(1) th:eq('+keyType+') input', \$('.tooltipHeader td')[keyType] ).val('' );
+							filterHash[keyAnnotID] = new Object();
+							filterHash[keyAnnotID]['raw'] = rowID;
+							filterHash[keyAnnotID]['operator'] = '==';
+							filterHash[keyAnnotID]['expr'] = new RegExp(`\${filterHash[keyAnnotID]['raw']}`,'i');
+							delete filterHash[keyType] ;
 
+						}else{
+							dblClickMode = 'off';
+							\$('#tabFULLSPLIT_wrapper .dataTables_scrollHead thead tr:eq(1) th:eq('+keyType+') input', \$('.tooltipHeader td')[keyType] ).val('full' );
+							\$('#tabFULLSPLIT_wrapper .DTFC_LeftWrapper thead tr:eq(1) th:eq('+keyAnnotID+') input', \$('.tooltipHeader td')[keyAnnotID] ).val('');
+							filterHash[keyType] = new Object();
+							filterHash[keyType]['raw'] = 'full';
+							filterHash[keyType]['operator'] = '==';
+							filterHash[keyType]['expr'] = new RegExp(`\${filterHash[keyType]['raw']}`,'i');
+							delete filterHash[keyAnnotID] ;
+
+						}
+						
+						tabFULLSPLIT.draw();
+
+					}
+				} ); //END DOUBLE CLICK
+
+
+
+				//Restore state				
+				var state = tabFULLSPLIT.state.loaded();						 
+				if ( state  ) {
+					//console.log('state__');
+					for (var keys in filterHash){
+						if (filterHash.hasOwnProperty(keys)) {
+							\$('#tabFULLSPLIT_wrapper .dataTables_scrollHead thead tr:eq(1) th:eq('+keys+') input', \$('.tooltipHeader td')[keys] ).val( filterHash[keys]['raw'] );
+							if (filterHash[keys]['operator'] == '=='){
+								filterHash[keys]['expr'] = new RegExp(`\${filterHash[keys]['raw']}`,'i');
+							}
+						}
+					}
+					tabFULLSPLIT.draw();
+				}  //END restore
+
+
+		//FILTERING FUNCTION PUSH AT INITIALISATION
 		\$.fn.dataTableExt.afnFiltering.push(
 			function( oSettings, aData, iDataIndex ) {
+				var filtHash = filterHash;
 				var filtBool = true;
 				for (var keys in filtHash){
 					if (filtHash.hasOwnProperty(keys)) {
-					
 						var row_data = aData[keys];
 			
 						switch (filtHash[keys]['operator']){
@@ -635,47 +799,57 @@ my $htmlStart = "<!DOCTYPE html>\n<html>
 			}
 			
 			return filtBool;
-		});
-}
+		}); //END function filterByExp
 
-});
 
-function openCity(evt, cityName) {
-	var i, tabcontent, tablinks;
+	//fulll split button
+	openTab =	function(evt, cityName) {
+				
+				if(cityName === 'full'){
+				
+					fullMode = 'full';
+
+					filterHash[keyType] = new Object();
+					filterHash[keyType]['raw'] = cityName;
+					filterHash[keyType]['operator'] = '==';
+					filterHash[keyType]['expr'] = new RegExp(`\${filterHash[keyType]['raw']}`,'i');
+					
+					\$('#FULLSPLITbutton').removeClass('active');
+					\$('#FULLbutton').addClass('active');
+					
+					\$('#tabFULLSPLIT_wrapper .dataTables_scrollHead thead tr:eq(1) th:eq('+keyType+') input', \$('.tooltipHeader td')[keyType] ).val(cityName );
+					
+				}else{
+					
+					fullMode = 'fullsplit';
+
+					delete filterHash[keyType] ;
+					\$('#FULLbutton').removeClass('active');
+					\$('#FULLSPLITbutton').addClass('active');
+					\$('#tabFULLSPLIT_wrapper .dataTables_scrollHead thead tr:eq(1) th:eq('+keyType+') input', \$('.tooltipHeader td')[keyType] ).val('');
+
+				}
+				
+				if (dblClickMode == 'on'){
+					dblClickMode = 'off';
+					\$('#tabFULLSPLIT_wrapper .DTFC_LeftWrapper thead tr:eq(1) th:eq('+keyAnnotID+') input', \$('.tooltipHeader td')[keyAnnotID] ).val('');
+					delete filterHash[keyAnnotID] ;
+				}
 	
-	if(cityName === 'full'){
-		var rowselectfull = document.getElementsByClassName(cityName);
-		for (i = 0; i < rowselectfull.length; i++) {
-			rowselectfull[i].style.background = 'inherit';
-		}
+				
+				\$('#tabFULLSPLIT').DataTable().draw();
+			}
 
-		var rowselect = document.getElementsByClassName('fullsplit');
-		for (i = 0; i < rowselect.length; i++) {
-			rowselect[i].style.visibility = 'collapse';
-		}
-	}else{
-		var rowselectfull = document.getElementsByClassName('full');
-		for (i = 0; i < rowselectfull.length; i++) {
-			rowselectfull[i].style.background = 'teal';
-		}
-		var rowselect = document.getElementsByClassName('fullsplit');
-		for (i = 0; i < rowselect.length; i++) {
-			rowselect[i].style.visibility = 'visible';
-		}
 
-	}
-	tablinks = document.getElementsByClassName('tablinks');
-	for (i = 0; i < tablinks.length; i++) {
-		tablinks[i].className = tablinks[i].className.replace(' active', '');
-	}
 
-	evt.currentTarget.className += ' active';
-}
+});  //END document ready
+
 
 
 
 </script>
 \n<link rel=\"stylesheet\" type=\"text/css\" href='".$path2css."jquery.dataTables.min.css'>
+\n<link rel=\"stylesheet\" type=\"text/css\" href='".$path2FCcss."fixedColumns.dataTables.min.css'>
 \n<link rel=\"stylesheet\" type=\"text/css\" href='".$path2FHcss."fixedHeader.dataTables.min.css'>
 
 \n<style>
@@ -686,9 +860,11 @@ function openCity(evt, cityName) {
 		background-color: #f1f1f1;
 		left: 0;
 		bottom: 0;
+		height: 27px;
 		position: fixed;
 		position: -webkit-sticky;
 		position: sticky;
+		margin-right: 10px;
 		}
 
 /* Style the buttons inside the tab */
@@ -698,9 +874,9 @@ function openCity(evt, cityName) {
 		border: none;
 		outline: none;
 		cursor: pointer;
-		padding: 14px 16px;
 		transition: 0.3s;
 		font-size: 17px;
+		height: 27px;
 		}
 /* Change background color of buttons on hover */
 	.tab button:hover {
@@ -726,6 +902,14 @@ function openCity(evt, cityName) {
 		background-color: inherit;
 	}
 
+	table.dataTable.display tbody tr.odd > .sorting_1, table.dataTable.order-column.stripe tbody tr.odd > .sorting_1{
+		background-color: inherit; 
+	}
+	table.dataTable.display tbody tr.even > .sorting_1, table.dataTable.order-column.stripe tbody tr.even > .sorting_1{
+		background-color: inherit; 
+	}
+
+
 
 /* Style the tab content */
 	.tabcontent {
@@ -737,26 +921,25 @@ function openCity(evt, cityName) {
 
 	.tooltipHeader{
 		position: relative;
+		font-size: 90%;
+		cursor: help;
 	}		
 	.tooltipHeader .tooltiptext{
 		visibility: hidden;
 		width: auto;
-		min-width: 300px;
-		max-width: 600px;
+		min-width: 250px;
+		max-width: 290px;
 		height: auto;
-		background-color: #555;
+		background-color: #1e1e1e;
 		color: #fff;
 		text-align: left;
 		border-radius: 6px;
-		padding: 5px 0;
+		padding: 5px 5px;
 		position: absolute;
 		z-index: 1;
 		top: 100%;
-		left: 20%;
-		margin-left: -60px;
 		opacity: 0;
 		transition: opacity 0.3s;
-		overflow: hidden;
 		text-overflow: ellipsis;
 		white-space: normal;
 		overflow-wrap: break-word;
@@ -769,51 +952,61 @@ function openCity(evt, cityName) {
 	.tooltip {
 		position: relative;
 		display: inline-block;
-		border-bottom: 1px dotted black;
+		/*border-bottom: 1px dotted black;*/
+		min-width: 100px;
 		max-width: 300px;
-		word-wrap: break-word;
+		overflow-wrap: break-word;
+		font-size: 70%;
 		}
 	
 	.tooltip .tooltiptext {
 		visibility: hidden;
 		width: auto;
-		min-width: 300px;
-		max-width: 600px;
-		height: auto;
-		background-color: #555;
+		min-width: 250px;
+		max-width: 290px;
+		max-height: 469px;
+		background-color: #1e1e1e;
 		color: #fff;
 		text-align: left;
 		border-radius: 6px;
-		padding: 5px 0;
+		padding: 5px 5px;
 		position: absolute;
 		z-index: 1;
 		top: 100%;
-		left: 20%;
-		margin-left: -60px;
 		opacity: 0;
 		transition: opacity 0.3s;
-		overflow: hidden;
 		text-overflow: ellipsis;
 		white-space: normal;
 		overflow-wrap: break-word;
+		font-size: 100%;
+		overflow-y: scroll;
 		}
 
 	.tooltip:hover .tooltiptext {
 		visibility: visible;
 		opacity: 1;
 		}
+		
+	.commentTitle {
+		color: #FF69B4; 
+		font-weight: bold;
+	}
 
-	.full{
-		visibility: visible;	
+
+	div.dataTables_wrapper {
+		width: 100%;
+	/*	margin: 0 auto;*/
 	}
-	.fullsplit{
-		visibility: collapse;	
-	}
+	.DTFC_LeftBodyLiner { overflow-x: hidden; }
+	.DTFC_RightBodyLiner { overflow-x: hidden; }
+
+
+
 
 \n</style>
 
 \n</head>
-\n\t<body>\n\n";
+\n\t<body>\n\n<div> <h2>".$outPrefix.$outBasename."___".$genomeBuild."</h2></div>";
 
 #table and columns names
 
@@ -827,9 +1020,21 @@ foreach my $col (sort {$a <=> $b} keys %OutColHash){
 			#print HTML "\t<th style=\"word-wrap: break-word\"   >";
 	if (defined $OutColHash{$col}{'field'}){
 		if (defined $OutColHash{$col}{'HEADERTIPS'}){
-			$htmlALL .= "\t<th class=\"tooltipHeader\" >".$OutColHash{$col}{'RENAME'}."<span class=\"tooltiptext tooltip-bottom\">".$OutColHash{$col}{'HEADERTIPS'}."</span> \t</th>\n";
+			#adjust tooltip position relativelly to column number
+			if ($col <= ($OutColCounter/2)){
+				
+				if($col == 1){
+					$alignTooltiptext = "style=\"left: 1%;max-width:250px\"";
+				}else{
+					$alignTooltiptext = "style=\"left: ".int(($OutColCounter-($col*2))*100/$OutColCounter)."%\"";
+				}
+			}else{
+				$alignTooltiptext = "style=\"right: ".int(($col*2-$OutColCounter)*100/$OutColCounter)."%\"";
+			}
+
+			$htmlALL .= "\t<th class=\"tooltipHeader\" >".$OutColHash{$col}{'RENAME'}."<span ".$alignTooltiptext." class=\"tooltiptext tooltip-bottom\">".$OutColHash{$col}{'HEADERTIPS'}."</span> \t</th>\n";
 		}else{
-			$htmlALL .= "\t<th >".$OutColHash{$col}{'RENAME'}."\t</th>\n";
+			$htmlALL .= "\t<th class=\"tooltipHeader\">".$OutColHash{$col}{'RENAME'}."\t</th>\n";
 		}
 	}
 }
@@ -838,17 +1043,13 @@ foreach my $col (sort {$a <=> $b} keys %OutColHash){
 $htmlALL .= "\n\t\t\t</tr>\n\t\t</thead>\n\t<tbody>\n";
 					
 
-my $htmlEndTable = "</tbody>\n</table>\n</div>\n\n\n";
+my $htmlEndTable = "\t</tbody>\n\t</table>\n\t\t</div>\n\n\n";
 					
-my $htmlEnd = "<div class=\"tab\">\n
-<button id=\"focusFULLfirst\" class=\"tablinks\" onclick=\"openCity(event, 'full')\">FULL</button>\n
-<button class=\"tablinks\" onclick=\"openCity(event, 'fullsplit')\">FULL+SPLIT</button>\n
-<p>      ".$incfile."___".$genomeBuild."</p>\n
-</div>\n\t</body>\n</html>";
+my $htmlEnd = "\n\t</body>\n</html>";
 
 
 
-open(HTML, '>', $outDir."/".$outPrefix."annotSV.html") or die $!;
+open(HTML, '>', $outDir."/".$outPrefix.$outBasename.".html") or die $!;
 
 
 #########################################################################
@@ -856,6 +1057,7 @@ open(HTML, '>', $outDir."/".$outPrefix."annotSV.html") or die $!;
 
 #create user friendly ranking score
 my $kindRank=0;
+
 
 # check if last line was "FULL" to finish the raw with </tr>
 
@@ -876,7 +1078,7 @@ foreach my $rank (rnatkeysort { "$_-$hashFinalSortData{$_}" } keys %hashFinalSor
 
 			#FILL tab 'ALL';
 			if (    $hashFinalSortData{$rank}{$ID}{$rankSplit}{$variant}{'finalArray'}[$NameColHash{'AnnotSV type'} - 1] eq "full") {
-				$htmlALL .= "<tr id=\"".$ID."\" class=\"full\" >\n";
+				$htmlALL .= "<tr id=\"".$ID."\" class=\"full\" style=\"background-color:".$hashFinalSortData{$rank}{$ID}{$rankSplit}{$variant}{'fullRowColor'}."\" >\n";
 			}else{
 				$htmlALL .= "<tr class=\"fullsplit ".$ID."\" >\n";
 			}
@@ -894,27 +1096,31 @@ foreach my $rank (rnatkeysort { "$_-$hashFinalSortData{$_}" } keys %hashFinalSor
 					
 				if (defined $hashFinalSortData{$rank}{$ID}{$rankSplit}{$variant}{'hashColor'}{$fieldNbr}){
 					if ($hashFinalSortData{$rank}{$ID}{$rankSplit}{$variant}{'finalArray'}[$NameColHash{'location'} - 1] eq "txStart-txEnd" || $hashFinalSortData{$rank}{$ID}{$rankSplit}{$variant}{'finalArray'}[$NameColHash{'location'} - 1] eq ".") {
-						$htmlALL .= "\t<td style=\"background-color:".$hashFinalSortData{$rank}{$ID}{$rankSplit}{$variant}{'hashColor'}{$fieldNbr}."\">";
+						$htmlALL .= "\t<td style=\"background-color:".$hashFinalSortData{$rank}{$ID}{$rankSplit}{$variant}{'hashColor'}{$fieldNbr}."\" ";
 
 					}else{
 
 						if ($hashFinalSortData{$rank}{$ID}{$rankSplit}{$variant}{'finalArray'}[$NameColHash{'location'} - 1] =~ /^txStart/) {
-							$htmlALL .= "\t<td style=\"background: linear-gradient(-45deg, white 50%, ".$hashFinalSortData{$rank}{$ID}{$rankSplit}{$variant}{'hashColor'}{$fieldNbr}." 50% )\">";
+							$htmlALL .= "\t<td style=\"background: linear-gradient(-45deg, white 50%, ".$hashFinalSortData{$rank}{$ID}{$rankSplit}{$variant}{'hashColor'}{$fieldNbr}." 50% )\" ";
 						}else{
-							$htmlALL .= "\t<td style=\"background: linear-gradient(-45deg,".$hashFinalSortData{$rank}{$ID}{$rankSplit}{$variant}{'hashColor'}{$fieldNbr}." 50%, white 50% )\">";
+							$htmlALL .= "\t<td style=\"background: linear-gradient(-45deg,".$hashFinalSortData{$rank}{$ID}{$rankSplit}{$variant}{'hashColor'}{$fieldNbr}." 50%, white 50% )\" ";
 
 						}
 					}
 
 				}else{
 					if ($fieldNbr eq $NameColHash{'AnnotSV ID'} - 1){
-						$htmlALL .= "\t<td data-order=\"".$kindRank."\">";	
+						$htmlALL .= "\t<td data-order=\"".$kindRank."\" ";	
 					}else{
-						$htmlALL .= "\t<td >";
+						$htmlALL .= "\t<td ";
 					}
 				}
 					#$htmlALL .= "\t<td rowspan=\".$hashFinalSortData{$rank}{$variant}{SVIDNbr}."\">";
 					#}
+
+
+				#define search field
+				$htmlALL .= "data-search=\"".$hashFinalSortData{$rank}{$ID}{$rankSplit}{$variant}{'finalArray'}[$fieldNbr] ."\">";
 
 				#if (defined $field){
 				if (defined $hashFinalSortData{$rank}{$ID}{$rankSplit}{$variant}{'finalArray'}[$fieldNbr]){
@@ -924,16 +1130,30 @@ foreach my $rank (rnatkeysort { "$_-$hashFinalSortData{$_}" } keys %hashFinalSor
 					if ($fieldNbr eq $NameColHash{'AnnotSV ID'} - 1){
 						$htmlALL .= "<div class=\"tooltip\"><a href=\"".$hashFinalSortData{$rank}{$ID}{$rankSplit}{$variant}{'url2UCSC'}."\">".$hashFinalSortData{$rank}{$ID}{$rankSplit}{$variant}{'finalArray'}[$fieldNbr]."</a>";
 					}else{
-						if( length($hashFinalSortData{$rank}{$ID}{$rankSplit}{$variant}{'finalArray'}[$fieldNbr]) > 50 ){
-							$htmlALL .= "<div class=\"tooltip\">".substr($hashFinalSortData{$rank}{$ID}{$rankSplit}{$variant}{'finalArray'}[$fieldNbr],0,45)."[...]";
-						}else{
-							$htmlALL .= "<div class=\"tooltip\">".$hashFinalSortData{$rank}{$ID}{$rankSplit}{$variant}{'finalArray'}[$fieldNbr];
-						}
+							if( length($hashFinalSortData{$rank}{$ID}{$rankSplit}{$variant}{'finalArray'}[$fieldNbr]) > 50 ){
+								$htmlALL .= "<div class=\"tooltip\">".substr($hashFinalSortData{$rank}{$ID}{$rankSplit}{$variant}{'finalArray'}[$fieldNbr],0,45)."[...]";
+							}else{
+								$htmlALL .= "<div class=\"tooltip\">".$hashFinalSortData{$rank}{$ID}{$rankSplit}{$variant}{'finalArray'}[$fieldNbr];
+							}	
+
 					}
-					if ($OutColHash{$fieldNbr + 1}{'field'} =~ /^DGV_/){
-						$htmlALL .= "<span class=\"tooltiptext tooltip-bottom\">";
+
+					#adjust tooltip position relativelly to column number
+					if (($fieldNbr+1) <= ($OutColCounter/2)){
+						if (($fieldNbr+1) == 1){
+							$alignTooltiptext = "style=\"height: 469px; left: 1%\"";
+						}else{
+							$alignTooltiptext = "style=\"left: ".int(($OutColCounter-($fieldNbr+1)*2)*100/$OutColCounter)."%\"";
+						}
 					}else{
-						$htmlALL .= "<span class=\"tooltiptext tooltip-bottom\"><b>".$OutColHash{$fieldNbr + 1}{'field'}. " :</b> ".$hashFinalSortData{$rank}{$ID}{$rankSplit}{$variant}{'finalArray'}[$fieldNbr];
+						$alignTooltiptext = "style=\"right: ".int((($fieldNbr+1)*2-$OutColCounter)*100/$OutColCounter)."%\"";
+					}
+
+
+					if ($OutColHash{$fieldNbr + 1}{'field'} =~ /^DGV_/){
+						$htmlALL .= "<span ".$alignTooltiptext." class=\"tooltiptext tooltip-bottom\">";
+					}else{
+						$htmlALL .= "<span ".$alignTooltiptext." class=\"tooltiptext tooltip-bottom\"><span class=\"commentTitle\">".$OutColHash{$fieldNbr + 1}{'field'}. " :</span> ".$hashFinalSortData{$rank}{$ID}{$rankSplit}{$variant}{'finalArray'}[$fieldNbr];
 					}
 					# add comments
 					if (defined $hashFinalSortData{$rank}{$ID}{$rankSplit}{$variant}{'hashComments'}{$fieldNbr}){
