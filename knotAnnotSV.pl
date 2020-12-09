@@ -645,7 +645,7 @@ var openTab;
 					stateDuration: 0,
 					order: [],
 					paging: true,
-					fixedHeader: true,
+	//duplicate header bug		fixedHeader: true,
 					orderCellsTop: true,
 					scrollX: true,
 					scrollY: h,
@@ -754,6 +754,32 @@ var openTab;
 					}
 				} ); //END DOUBLE CLICK
 
+				//FILTERING FUNCTION PUSH AT INITIALISATION
+				\$.fn.dataTableExt.afnFiltering.push(
+					function( oSettings, aData, iDataIndex ) {
+						var filtHash = filterHash;
+						var filtBool = true;
+						for (var keys in filtHash){
+							if (filtHash.hasOwnProperty(keys)) {
+								var row_data = aData[keys];
+			
+								switch (filtHash[keys]['operator']){
+									case '>': if(row_data > filtHash[keys]['expr']) {filtBool = true;continue;}else{ return false;}
+									case '<': if(row_data < filtHash[keys]['expr']) {filtBool = true;continue;}else{ return false;}
+									case '>=': if(row_data >= filtHash[keys]['expr']) {filtBool = true;continue;}else{ return false;}
+									case '<=': if(row_data <= filtHash[keys]['expr']) {filtBool = true;continue;}else{ return false;}
+									case '!=': if(row_data != filtHash[keys]['expr']) {filtBool = true;continue;}else{ return false;}
+									case '<>': if(row_data != filtHash[keys]['expr']) {filtBool = true;continue;}else{ return false;}
+									case '=': if(row_data == filtHash[keys]['expr']) {filtBool = true;continue;}else{ return false;}
+									case '==': var m = row_data.match(filtHash[keys]['expr']); if(m === null){return false;}else{filtBool = true;continue;}
+								}
+							}
+						}
+			
+						return filtBool;
+					}); //END function filterByExp
+
+
 
 
 				//Restore state				
@@ -768,37 +794,28 @@ var openTab;
 							}
 						}
 					}
+					if (fullMode = 'fullsplit'){
+						\$('#FULLbutton').removeClass('active');
+						\$('#FULLSPLITbutton').addClass('active');
+                                        }
+					if (dblClickMode == 'on'){
+						\$('#tabFULLSPLIT_wrapper .DTFC_LeftWrapper thead tr:eq(1) th:eq('+keyAnnotID+') input', $('.tooltipHeader td')[keyAnnotID] ).val(filterHash[keyAnnotID]['raw']);
+					}
+
+					
+					
 					tabFULLSPLIT.draw();
-				}  //END restore
-
-
-		//FILTERING FUNCTION PUSH AT INITIALISATION
-		\$.fn.dataTableExt.afnFiltering.push(
-			function( oSettings, aData, iDataIndex ) {
-				var filtHash = filterHash;
-				var filtBool = true;
-				for (var keys in filtHash){
-					if (filtHash.hasOwnProperty(keys)) {
-						var row_data = aData[keys];
-			
-						switch (filtHash[keys]['operator']){
-							case '>': if(row_data > filtHash[keys]['expr']) {filtBool = true;continue;}else{ return false;}
-							case '<': if(row_data < filtHash[keys]['expr']) {filtBool = true;continue;}else{ return false;}
-							case '>=': if(row_data >= filtHash[keys]['expr']) {filtBool = true;continue;}else{ return false;}
-							case '<=': if(row_data <= filtHash[keys]['expr']) {filtBool = true;continue;}else{ return false;}
-							case '!=': if(row_data != filtHash[keys]['expr']) {filtBool = true;continue;}else{ return false;}
-							case '<>': if(row_data != filtHash[keys]['expr']) {filtBool = true;continue;}else{ return false;}
-							case '=': if(row_data == filtHash[keys]['expr']) {filtBool = true;continue;}else{ return false;}
-							case '==': var m = row_data.match(filtHash[keys]['expr']); if(m === null){return false;}else{filtBool = true;continue;}
-						}
+				}else{  //END restore
+					
+					//FULL view on load	
+					window.onload =	\$('#tabFULLSPLIT_wrapper .dataTables_scrollHead thead tr:eq(1) th:eq('+keyType+') input', \$('.tooltipHeader td')[keyType] ).val('full' ).change();			
 				}
-			}
-			
-			return filtBool;
-		}); //END function filterByExp
 
 
-	//fulll split button
+		
+
+
+	//click full split button
 	openTab =	function(evt, cityName) {
 				
 				if(cityName === 'full'){
@@ -837,9 +854,7 @@ var openTab;
 			}
 
 
-			//FULL view on load	
-			window.onload =	\$('#tabFULLSPLIT_wrapper .dataTables_scrollHead thead tr:eq(1) th:eq('+keyType+') input', \$('.tooltipHeader td')[keyType] ).val('full' ).change();
-
+			
 
 
 
@@ -929,7 +944,7 @@ var openTab;
 		visibility: hidden;
 		width: auto;
 		min-width: 250px;
-		max-width: 290px;
+		max-width: 800px;
 		height: auto;
 		background-color: #1e1e1e;
 		color: #fff;
@@ -938,7 +953,7 @@ var openTab;
 		padding: 5px 5px;
 		position: absolute;
 		z-index: 1;
-		top: 100%;
+		top: -5px;
 		opacity: 0;
 		transition: opacity 0.3s;
 		text-overflow: ellipsis;
