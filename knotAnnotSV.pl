@@ -610,7 +610,6 @@ my $htmlStart = "<!DOCTYPE html>\n<html>
 \n<script type=\"text/javascript\" language=\"javascript\" src='".$path2jquery."jquery-3.5.1.js'></script>
 \n<script type=\"text/javascript\" language=\"javascript\" src='".$path2jqueryDT."jquery.dataTables.min.js'></script>
 \n<script type=\"text/javascript\" language=\"javascript\" src='".$path2jsFCDT."dataTables.fixedColumns.min.js'></script>
-\n<script type=\"text/javascript\" language=\"javascript\" src='".$path2jsFHDT."dataTables.fixedHeader.min.js'></script>
 \n<script type=\"text/javascript\" > 
 
 
@@ -645,7 +644,6 @@ var openTab;
 					stateDuration: 0,
 					order: [],
 					paging: true,
-	//duplicate header bug		fixedHeader: true,
 					orderCellsTop: true,
 					scrollX: true,
 					scrollY: h,
@@ -671,9 +669,7 @@ var openTab;
 						data.dblClickMode = dblClickMode;	
 						//console.log('save__');
 					},
-					drawCallback: function( settings ) {
-						\$('#tabFULLSPLIT').DataTable().fixedHeader.adjust();
-					}
+
 			});  //END initialisation
 
 			//FILTER FUNCTION
@@ -794,7 +790,7 @@ var openTab;
 							}
 						}
 					}
-					if (fullMode = 'fullsplit'){
+					if (fullMode == 'fullsplit'){
 						\$('#FULLbutton').removeClass('active');
 						\$('#FULLSPLITbutton').addClass('active');
                                         }
@@ -866,7 +862,6 @@ var openTab;
 </script>
 \n<link rel=\"stylesheet\" type=\"text/css\" href='".$path2css."jquery.dataTables.min.css'>
 \n<link rel=\"stylesheet\" type=\"text/css\" href='".$path2FCcss."fixedColumns.dataTables.min.css'>
-\n<link rel=\"stylesheet\" type=\"text/css\" href='".$path2FHcss."fixedHeader.dataTables.min.css'>
 
 \n<style>
 /* Style the tab */
