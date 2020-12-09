@@ -573,11 +573,9 @@ while( <VCF> ){
 
 my $path2jquery = "https://code.jquery.com/";
 my $path2jqueryDT = "https://cdn.datatables.net/1.10.22/js/";
-my $path2jsFHDT = "https://cdn.datatables.net/fixedheader/3.1.7/js/";
 my $path2jsFCDT = "https://cdn.datatables.net/fixedcolumns/3.3.2/js/";
 
 my $path2css = "https://cdn.datatables.net/1.10.22/css/"; 
-my $path2FHcss = "https://cdn.datatables.net/fixedheader/3.1.7/css/";
 my $path2FCcss = "https://cdn.datatables.net/fixedcolumns/3.3.2/css/";
 
 if ($datatableDir ne ""){
@@ -587,10 +585,8 @@ if ($datatableDir ne ""){
 
 	$path2jquery = $datatableDir."/js/";
 	$path2jqueryDT = $datatableDir."/js/";
-	$path2jsFHDT = $datatableDir."/js/";
 
 	$path2css = $datatableDir."/css/"; 
-	$path2FHcss = $datatableDir."/css/";
 	$path2FCcss = $datatableDir."/css/";
 }
 
@@ -624,6 +620,7 @@ var openTab;
 				var keyAnnotID = \"".($NameColHash{'AnnotSV ID'} - 1)."\";
 				var fullMode = 'full';	
 				var dblClickMode = 'off';	
+				var oldStart = 0;
 
 				//input FILTER
 				var head = '#tabFULLSPLIT thead';
@@ -669,7 +666,13 @@ var openTab;
 						data.dblClickMode = dblClickMode;	
 						//console.log('save__');
 					},
-
+					drawCallback: function (o) {
+						var newStart = this.api().page.info().start;
+						if ( newStart != oldStart ) {
+							\$('.dataTables_scrollBody').scrollTop(0);
+							oldStart = newStart;
+						}
+					},
 			});  //END initialisation
 
 			//FILTER FUNCTION
