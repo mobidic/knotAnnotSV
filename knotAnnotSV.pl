@@ -798,7 +798,7 @@ var openTab;
 						\$('#FULLSPLITbutton').addClass('active');
                                         }
 					if (dblClickMode == 'on'){
-						\$('#tabFULLSPLIT_wrapper .DTFC_LeftWrapper thead tr:eq(1) th:eq('+keyAnnotID+') input', $('.tooltipHeader td')[keyAnnotID] ).val(filterHash[keyAnnotID]['raw']);
+						\$('#tabFULLSPLIT_wrapper .DTFC_LeftWrapper thead tr:eq(1) th:eq('+keyAnnotID+') input', \$('.tooltipHeader td')[keyAnnotID] ).val(filterHash[keyAnnotID]['raw']);
 					}
 
 					
