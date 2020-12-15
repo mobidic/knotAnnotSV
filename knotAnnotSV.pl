@@ -204,8 +204,8 @@ if ($annotSVranking ne ""){
 	}
 
 	#add comment with rank to AnnotSV ranking column
-	if (! defined $dataCommentHash{'AnnotSV ranking'}{'commentFieldList'}){
-		$dataCommentHash{'AnnotSV ranking'}{'SVrank'} = "OK";
+	if (! defined $dataCommentHash{'ACMG_class'}{'commentFieldList'}){
+		$dataCommentHash{'ACMG_class'}{'SVrank'} = "OK";
 	}
 
 }
@@ -641,7 +641,7 @@ while( <VCF> ){
 			if ($dataHash{"Annotation_mode"} eq "full"){
 				#TODO compute CNV penalty
 				#$scorePenalty = ".1";	
-				$scorePenalty = $dataHash{"AnnotSV ranking"};	
+				$scorePenalty = $dataHash{"ACMG_class"};	
 				#if (defined $SV_ID{$dataHash{'AnnotSV ID'}}{'finalScore'}){
 				$SV_ID{$dataHash{'AnnotSV_ID'}}{'finalScore'} = $scorePenalty;
 				#$SV_ID{$dataHash{'AnnotSV ID'}}{'splitScore'} = $dataHash{"AnnotSV ranking"} + 1000;
@@ -654,7 +654,7 @@ while( <VCF> ){
 			}
 
 			#finalsortData assigment according to full or split
-			$hashFinalSortData{$SV_ID{$dataHash{'AnnotSV_ID'}}{'finalScore'}."_".$variantID}{$dataHash{'AnnotSV_ID'}}{$dataHash{"AnnotSV ranking"}+$fullSplitScore}{$count}{'finalArray'} = [@finalSortData] ; 
+			$hashFinalSortData{$SV_ID{$dataHash{'AnnotSV_ID'}}{'finalScore'}."_".$variantID}{$dataHash{'AnnotSV_ID'}}{$dataHash{"ACMG_class"}+$fullSplitScore}{$count}{'finalArray'} = [@finalSortData] ; 
 
 			#finalsortData assigment
 			#$hashFinalSortData{$dataHash{"AnnotSV ranking"}.$scorePenalty."_".$variantID}{$count}{'finalArray'} = [@finalSortData] ; 
@@ -664,28 +664,28 @@ while( <VCF> ){
 
 			
 			#url to UCSC for SV , highlight in blue and zoomout x1.5
-			$hashFinalSortData{$SV_ID{$dataHash{'AnnotSV_ID'}}{'finalScore'}."_".$variantID}{$dataHash{'AnnotSV_ID'}}{$dataHash{"AnnotSV ranking"}+$fullSplitScore}{$count}{'url2UCSC'} = "http://genome.ucsc.edu/cgi-bin/hgTracks?db=".$genomeBuild."&position=chr".$dataHash{"SV_chrom"}.":".$dataHash{"SV_start"}."-".$dataHash{"SV_end"}."&hgt.out1=submit&highlight=".$genomeBuild.".chr".$dataHash{"SV_chrom"}.":".$dataHash{"SV_start"}."-".$dataHash{"SV_end"}."#aaedff\" target=\"_blank\" rel=\"noopener noreferrer\"" ; 
+			$hashFinalSortData{$SV_ID{$dataHash{'AnnotSV_ID'}}{'finalScore'}."_".$variantID}{$dataHash{'AnnotSV_ID'}}{$dataHash{"ACMG_class"}+$fullSplitScore}{$count}{'url2UCSC'} = "http://genome.ucsc.edu/cgi-bin/hgTracks?db=".$genomeBuild."&position=chr".$dataHash{"SV_chrom"}.":".$dataHash{"SV_start"}."-".$dataHash{"SV_end"}."&hgt.out1=submit&highlight=".$genomeBuild.".chr".$dataHash{"SV_chrom"}.":".$dataHash{"SV_start"}."-".$dataHash{"SV_end"}."#aaedff\" target=\"_blank\" rel=\"noopener noreferrer\"" ; 
 
 			#url to OMIM
-			$hashFinalSortData{$SV_ID{$dataHash{'AnnotSV_ID'}}{'finalScore'}."_".$variantID}{$dataHash{'AnnotSV_ID'}}{$dataHash{"AnnotSV ranking"}+$fullSplitScore}{$count}{'url2OMIM'} = "https://www.omim.org/entry/".$dataHash{"OMIM_number"}  ; 
+			$hashFinalSortData{$SV_ID{$dataHash{'AnnotSV_ID'}}{'finalScore'}."_".$variantID}{$dataHash{'AnnotSV_ID'}}{$dataHash{"ACMG_class"}+$fullSplitScore}{$count}{'url2OMIM'} = "https://www.omim.org/entry/".$dataHash{"OMIM_number"}  ; 
 
 
 
 			#comment assigment
 			foreach my $fieldCom (keys %dataCommentHash){
-				$hashFinalSortData{$SV_ID{$dataHash{'AnnotSV_ID'}}{'finalScore'}."_".$variantID}{$dataHash{'AnnotSV_ID'}}{$dataHash{"AnnotSV ranking"}+$fullSplitScore}{$count}{'hashComments'}{$NameColHash{$fieldCom} -1} = $dataCommentHash{$fieldCom}{'values'} ; 
+				$hashFinalSortData{$SV_ID{$dataHash{'AnnotSV_ID'}}{'finalScore'}."_".$variantID}{$dataHash{'AnnotSV_ID'}}{$dataHash{"ACMG_class"}+$fullSplitScore}{$count}{'hashComments'}{$NameColHash{$fieldCom} -1} = $dataCommentHash{$fieldCom}{'values'} ; 
 				#print $dataCommentHash{'Gene name'}{'values'}."\n\n";
 				#TODO check color for gene according to output position of gene field 
 			}
 
 
             #assign color to Gene Name
-			$hashFinalSortData{$SV_ID{$dataHash{'AnnotSV_ID'}}{'finalScore'}."_".$variantID}{$dataHash{'AnnotSV_ID'}}{$dataHash{"AnnotSV ranking"}+$fullSplitScore}{$count}{'hashColor'}{$NameColHash{'Gene_name'}-1} = $LOEUF_Color ;
+			$hashFinalSortData{$SV_ID{$dataHash{'AnnotSV_ID'}}{'finalScore'}."_".$variantID}{$dataHash{'AnnotSV_ID'}}{$dataHash{"ACMG_class"}+$fullSplitScore}{$count}{'hashColor'}{$NameColHash{'Gene_name'}-1} = $LOEUF_Color ;
 
 
 
             #assign color to Gene Name
-			$hashFinalSortData{$SV_ID{$dataHash{'AnnotSV_ID'}}{'finalScore'}."_".$variantID}{$dataHash{'AnnotSV_ID'}}{$dataHash{"AnnotSV ranking"}+$fullSplitScore}{$count}{'fullRowColor'} = $fullRowColor ;
+			$hashFinalSortData{$SV_ID{$dataHash{'AnnotSV_ID'}}{'finalScore'}."_".$variantID}{$dataHash{'AnnotSV_ID'}}{$dataHash{"ACMG_class"}+$fullSplitScore}{$count}{'fullRowColor'} = $fullRowColor ;
 
 
 
