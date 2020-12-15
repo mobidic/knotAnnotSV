@@ -35,7 +35,7 @@ use Sort::Key::Natural qw(rnatkeysort);
 use File::Basename;
 
 #use Switch;
-#use Data::Dumper;
+use Data::Dumper;
 
 #parameters
 my $man = "USAGE : \nperl knotAnnotSV.pl 
@@ -76,9 +76,6 @@ my %dataHash;
 my %dataCommentHash;
 my %dataColorHash;
 
-my %colNameMode;
-my %rankCriteria;
-
 my $scorePenalty;
 my $scorePenaltySplit;
 my $fullSplitScore;
@@ -90,6 +87,8 @@ my $url2UCSC="";
 my $url2OMIM="";
 my $url2DECIPHER="";
 my $url2ensembl="";
+						
+my @criteria;	
 
 my $genomeBuild="";
 #style alignment for tooltiptext
@@ -138,7 +137,7 @@ my $configHash;
 my $OutColCounter = 0;
 my $outPOSITION = 0; 
 $configHash = LoadFile($config);
-	#print Dumper($configHash);
+	print Dumper($configHash);
 
 
 foreach my $item (keys %{$configHash}){
@@ -268,7 +267,7 @@ if($LOEUFcolorRange eq "" ||$LOEUFcolorRange == 1 ){
 
 ### Initialize column Name Mode Hash
 
-%colNameMode = (
+my %colNameMode = (
 "AnnotSV_ID"=>"fullsplit",
 "SV_chrom"=>"fullsplit",
 "SV_start"=>"fullsplit",
@@ -355,7 +354,7 @@ if($LOEUFcolorRange eq "" ||$LOEUFcolorRange == 1 ){
 "ExAC_pLI"=>"fullsplit",
 "OMIM_morbid"=>"fullsplit",
 "OMIM_morbid_candidate"=>"fullsplit",
-"OMIM_number"=>"fullsplit",
+"OMIM_ID"=>"fullsplit",
 "OMIM_phenotype"=>"split",
 "OMIM_inheritance"=>"split",
 "Exomiser_gene_pheno_score"=>"fullsplit",
@@ -372,10 +371,56 @@ if($LOEUFcolorRange eq "" ||$LOEUFcolorRange == 1 ){
 "AnnotSV_ranking_criteria"=>"full",
 "ACMG_class"=>"full");
 
+# Initialisation of ACMG criteria
+my %gainRankCriteria = (
+"1A"=>"Contains protein-coding or other known functionally important elements. ",
+"1B"=>"Does NOT contain protein-coding or any known functionally important elements.",
+"2A"=>"Complete overlap; the known pathogenic gain SV is fully contained within the observed copy-number gain.",
+"2B"=>"Partial overlap of a known pathogenic gain SV. The observed CNV does NOT contain the TS gene or critical region for this known pathogenic Gain SV OR Unclear if the known causative gene or critical region is affected OR No specific causative gene or critical region has been established for this known pathogenic SV.",
+"2C"=>"Identical in gene content to the established benign copy-number gain.",
+"2D"=>"Smaller than established benign copy-number gain, breakpoint(s) does not interrupt protein-coding genes.",
+"2E"=>"Smaller than established benign copy-number gain, breakpoint(s) potentially interrupts protein-coding gene.",
+"2F"=>"Larger than known benign copy-number gain, does not include additional protein-coding genes.",
+"2G"=>"Overlaps a benign copy-number gain but includes additional genomic material.",
+"2H"=>"HI gene fully contained within observed copy-number gain.",
+"2I"=>"Both breakpoints are within the same HI gene / morbid gene (gene-level sequence variant, possibly resulting in loss of function [LOF]) and disrupts the reading frame.",
+"2J"=>"One breakpoint is within an established HI gene / morbid gene, patient’s phenotype is either inconsistent with what is expected for LOF of that gene OR unknown.",
+"2K"=>"One breakpoint is within an established HI gene / morbid gene, patient’s phenotype is highly specific and consistent with what is expected for LOF of that gene (EXOMISER_GENE_PHENO_SCORE > 0.7).",
+"2L"=>"One or both breakpoints are within gene(s) of no established clinical significance.",
+"3A"=>"0–34 genes wholly or partially included",
+"3B"=>"35–49 genes wholly or partially included",
+"3C"=>"50 or more genes wholly or partially included",
+"5F"=>"Inheritance information is unavailable or uninformative.",
+"5G"=>"The patient phenotype is nonspecific, but is consistent with what has been described in similar cases (EXOMISER_GENE_PHENO_SCORE > 0.5).Inheritance information is unavailable or uninformative.",
+"5H"=>"The patient phenotype is highly specific and consistent with what has been described in similar cases (EXOMISER_GENE_PHENO_SCORE > 0.7).Inheritance information is unavailable or uninformative.");
 
 
-
-
+my %lossRankCriteria = (
+"1A"=>"Contains protein-coding or other known functionally important elements. ",
+"1B"=>"Does NOT contain protein-coding or any known functionally important elements.",
+"2A"=>"Complete overlap of a known pathogenic Loss SV.",
+"2B"=>"Partial overlap of a known pathogenic Loss SV. The observed CNV does NOT contain a HI gene OR Unclear if known causative gene or critical region is affected OR No specific causative gene or critical region has been established for this known pathogenic Loss SV",
+"2C-1"=>"Partial overlap with the 5’ end of an established HI gene / morbid gene (3’ end of the gene not involved) and coding sequence is involved",
+"2C-2"=>"Partial overlap with the 5’ end of an established HI gene / morbid gene (3’ end of the gene not involved) and only the 5’ UTR is involved",
+"2D"=>"Partial overlap with the 3’ end of an established HI gene / morbid gene (5’ end of the gene not involved)...",
+"2D-1"=>"Partial overlap with the 3’ end of an established HI gene / morbid gene (5’ end of the gene not involved) and only the 3’ untranslated region is involved.",
+"2D-2"=>"Partial overlap with the 3’ end of an established HI gene / morbid gene (5’ end of the gene not involved) and only the last exon is involved. Other established pathogenic snv/indel have been reported in the observed CNV",
+"2D-3"=>"Partial overlap with the 3’ end of an established HI gene / morbid gene (5’ end of the gene not involved) and only the last exon is involved. No other established pathogenic variants have been reported in the observed CNV.",
+"2D-4"=>"Partial overlap with the 3’ end of an established HI gene / morbid gene (5’ end of the gene not involved) and it includes other exons in addition to the last exon. Nonsense-mediated decay is expected to occur.",
+"2E"=>"Both breakpoints are within the same HI gene / morbid gene (intragenic CNV; gene-level sequence variant)...",
+"2E-1"=>"Both breakpoints are within the same HI gene / morbid gene (intragenic CNV; gene-level sequence variant) and disrupts the reading frame",
+"2E-2"=>"Both breakpoints are within the same HI gene / morbid gene (intragenic CNV; gene-level sequence variant) and >=1 exon deleted AND other established pathogenic snv/indel have been reported in the observed CNV AND variant removes >= 10% of protein",
+"2E-3"=>"Both breakpoints are within the same HI gene / morbid gene (intragenic CNV; gene-level sequence variant) and >=1 exon deleted AND other established pathogenic snv/indel have been reported in the observed CNV AND variant removes < 10% of protein",
+"2E-4"=>"Both breakpoints are within the same HI gene / morbid gene (intragenic CNV; gene-level sequence variant) and >=1 exon deleted AND no established pathogenic snv/indel have been reported in the observed CNV AND variant removes > 10% of protein",
+"2F"=>"Completely contained within an established benign CNV region.",
+"2G"=>"Overlaps an established benign CNV, but includes additional genomic material.",
+"2H"=>"Two or more HI predictors suggest that AT LEAST ONE gene in the interval is HI (gnomAD pLI >=0.9 and DECIPHER HI index <=10%)",
+"3A"=>"0–24 genes wholly or partially included",
+"3B"=>"25–34 genes wholly or partially included",
+"3C"=>"35+ genes wholly or partially included",
+"5F"=>"Inheritance information is unavailable or uninformative.",
+"5G"=>"The patient phenotype is nonspecific, but is consistent with what has been described in similar cases (EXOMISER_GENE_PHENO_SCORE > 0.5).Inheritance information is unavailable or uninformative.",
+"5H"=>"The patient phenotype is highly specific and consistent with what has been described in similar cases (EXOMISER_GENE_PHENO_SCORE > 0.7).Inheritance information is unavailable or uninformative.");
 
 
 
@@ -543,11 +588,38 @@ while( <VCF> ){
 								#print $field."_".$correctFieldCom."\n";
                             	$dataCommentHash{$field}{'values'} .= "<br><span class=\"commentTitle\">".$correctFieldCom . " :</span> ".$dataHash{$correctFieldCom};
 							}else{
-                            	$dataCommentHash{$field}{'values'} .= "<br><span class=\"commentTitle\">".$fieldCom . " :</span> ".$dataHash{$fieldCom};
+								
+								
+								if($fieldCom eq "AnnotSV_ranking_criteria"){
+                            		$dataCommentHash{$field}{'values'} .= "<br><span class=\"commentTitle\">".$fieldCom . " :</span>\n";
+									
+									@criteria = split( /;/, $dataHash{$fieldCom} );
+									
+									foreach my $crit (@criteria){
+										$crit =~ /^([1-5].+?)\s\(?/;
+									
+										if ($SV_type eq "DEL" ){ 
+											if(defined $lossRankCriteria{$1}){
+												$dataCommentHash{$field}{'values'} .= $crit.": ".$lossRankCriteria{$1}."\n";  	
+											}
+										}elsif ($SV_type eq "DUP" ){ 
+											if(defined $gainRankCriteria{$1}){
+												$dataCommentHash{$field}{'values'} .= $crit.": ".$gainRankCriteria{$1}."\n";   	
+											}
+										}else{
+											$dataCommentHash{$field}{'values'} .= $dataHash{$fieldCom};
+										}
+									}
+								
+
+								}else{
+                            		$dataCommentHash{$field}{'values'} .= "<br><span class=\"commentTitle\">".$fieldCom . " :</span> ".$dataHash{$fieldCom};
+								}
 							}
 
                         }else{
                             print $field."\n";
+
                             $dataCommentHash{$field}{'values'} .= "<br><span class=\"commentTitle\">".$fieldCom . " :</span> Absent in file";
                         }
                         #print $field.":\t".$fieldCom.":\t".$dataCommentHash{'Gene name'}{'values'}."\n";
@@ -640,17 +712,36 @@ while( <VCF> ){
 			#grant full line to be first
 			if ($dataHash{"Annotation_mode"} eq "full"){
 				#TODO compute CNV penalty
-				#$scorePenalty = ".1";	
-				$scorePenalty = $dataHash{"ACMG_class"};	
+				$scorePenalty = 0;	
+				if(defined $dataHash{"ACMG_class"}){
+					
+					print "\n\ntoto\n\n";
+				
+					if($dataHash{"ACMG_class"} ne "."){
+						$scorePenalty = $dataHash{"ACMG_class"} + $dataHash{"AnnotSV_ranking_score"};
+					}else {
+						$scorePenalty = $dataHash{"SV_end"} - $dataHash{"SV_start"};
+					}
+				}
 				#if (defined $SV_ID{$dataHash{'AnnotSV ID'}}{'finalScore'}){
 				$SV_ID{$dataHash{'AnnotSV_ID'}}{'finalScore'} = $scorePenalty;
 				#$SV_ID{$dataHash{'AnnotSV ID'}}{'splitScore'} = $dataHash{"AnnotSV ranking"} + 1000;
 				$scorePenaltySplit = 1000;	
 				$fullSplitScore = 1000;
 			}else{
-				#TODO compute gene penalty
-				$scorePenaltySplit = 0;	
+				#TODO compute gene penalty exomiser > OMIM_morbid > LOEUF_bin
 				$fullSplitScore = 0;
+				$scorePenaltySplit = 0;
+				if (defined $dataHash{"Exomiser_gene_pheno_score"} && $dataHash{"Exomiser_gene_pheno_score"} ne "-1"){
+					$fullSplitScore += $dataHash{"Exomiser_gene_pheno_score"};	
+				}	
+				if(defined $dataHash{"OMIM_morbid"} eq "yes"){
+					$fullSplitScore += 1;
+				}
+				if(defined $dataHash{"LOEUF_bin"} && $dataHash{"LOEUF_bin"} ne "."){
+					$fullSplitScore += (9 - $dataHash{"LOEUF_bin"}) / 90 ; 		
+				}
+
 			}
 
 			#finalsortData assigment according to full or split
@@ -667,7 +758,7 @@ while( <VCF> ){
 			$hashFinalSortData{$SV_ID{$dataHash{'AnnotSV_ID'}}{'finalScore'}."_".$variantID}{$dataHash{'AnnotSV_ID'}}{$dataHash{"ACMG_class"}+$fullSplitScore}{$count}{'url2UCSC'} = "http://genome.ucsc.edu/cgi-bin/hgTracks?db=".$genomeBuild."&position=chr".$dataHash{"SV_chrom"}.":".$dataHash{"SV_start"}."-".$dataHash{"SV_end"}."&hgt.out1=submit&highlight=".$genomeBuild.".chr".$dataHash{"SV_chrom"}.":".$dataHash{"SV_start"}."-".$dataHash{"SV_end"}."#aaedff\" target=\"_blank\" rel=\"noopener noreferrer\"" ; 
 
 			#url to OMIM
-			$hashFinalSortData{$SV_ID{$dataHash{'AnnotSV_ID'}}{'finalScore'}."_".$variantID}{$dataHash{'AnnotSV_ID'}}{$dataHash{"ACMG_class"}+$fullSplitScore}{$count}{'url2OMIM'} = "https://www.omim.org/entry/".$dataHash{"OMIM_number"}  ; 
+			$hashFinalSortData{$SV_ID{$dataHash{'AnnotSV_ID'}}{'finalScore'}."_".$variantID}{$dataHash{'AnnotSV_ID'}}{$dataHash{"ACMG_class"}+$fullSplitScore}{$count}{'url2OMIM'} = "https://www.omim.org/entry/".$dataHash{"OMIM_ID"}  ; 
 
 
 
