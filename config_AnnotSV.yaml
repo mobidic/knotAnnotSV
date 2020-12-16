@@ -115,28 +115,18 @@ RE_gene:
     POSITION: 9
     RENAME: "Regulatory elements"
     HEADERTIPS: "Name of the genes regulated by a regulatory element overlapped with the SV to annotate."
-
-### Annotations done with benign SV
-###################################
-B_gain_source:
-    POSITION: 10
-    RENAME: "Benign SV sources"
-    COMMENTLIST:
-        - B_gain_coord
-        - B_loss_source
-        - B_loss_coord
         
 ### Annotations done with pathogenic SV
 #######################################
-P_gain_coord:
+P_gain_source:
     POSITION: 11
     RENAME: "Pathogenic SV sources"
     COMMENTLIST:
-        - P_gain_source
+        - P_gain_coord
         - P_gain_phen
         - P_gain_hpo
-        - P_loss_coord
         - P_loss_source
+        - P_loss_coord
         - P_loss_phen
         - P_loss_hpo
 
@@ -148,6 +138,15 @@ P_snvindel_nb:
     COMMENTLIST:
         - P_snvindel_phen
 
+### Annotations done with benign SV
+###################################
+B_gain_source:
+    POSITION: 10
+    RENAME: "Benign SV sources"
+    COMMENTLIST:
+        - B_gain_coord
+        - B_loss_source
+        - B_loss_coord
 
 ### Annotations of the breakpoints
 ##################################

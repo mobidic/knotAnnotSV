@@ -284,8 +284,8 @@ my %colNameMode = (
 "Tx"=>"split",
 "Tx_start"=>"split",
 "Tx_end"=>"split",
-"Overlapped_tx_length "=>"split",
-"Overlapped_CDS_length "=>"split",
+"Overlapped_tx_length"=>"split",
+"Overlapped_CDS_length"=>"split",
 "Overlapped_CDS_percent"=>"split",
 "Frameshift"=>"split",
 "Exon_count"=>"split",
@@ -400,13 +400,13 @@ my %lossRankCriteria = (
 "1B"=>"Does NOT contain protein-coding or any known functionally important elements.",
 "2A"=>"Complete overlap of a known pathogenic Loss SV.",
 "2B"=>"Partial overlap of a known pathogenic Loss SV. The observed CNV does NOT contain a HI gene OR Unclear if known causative gene or critical region is affected OR No specific causative gene or critical region has been established for this known pathogenic Loss SV",
-"2C-1"=>"Partial overlap with the 5’ end of an established HI gene / morbid gene (3’ end of the gene not involved) and coding sequence is involved",
-"2C-2"=>"Partial overlap with the 5’ end of an established HI gene / morbid gene (3’ end of the gene not involved) and only the 5’ UTR is involved",
-"2D"=>"Partial overlap with the 3’ end of an established HI gene / morbid gene (5’ end of the gene not involved)...",
-"2D-1"=>"Partial overlap with the 3’ end of an established HI gene / morbid gene (5’ end of the gene not involved) and only the 3’ untranslated region is involved.",
-"2D-2"=>"Partial overlap with the 3’ end of an established HI gene / morbid gene (5’ end of the gene not involved) and only the last exon is involved. Other established pathogenic snv/indel have been reported in the observed CNV",
-"2D-3"=>"Partial overlap with the 3’ end of an established HI gene / morbid gene (5’ end of the gene not involved) and only the last exon is involved. No other established pathogenic variants have been reported in the observed CNV.",
-"2D-4"=>"Partial overlap with the 3’ end of an established HI gene / morbid gene (5’ end of the gene not involved) and it includes other exons in addition to the last exon. Nonsense-mediated decay is expected to occur.",
+"2C-1"=>"Partial overlap with the 5' end of an established HI gene / morbid gene (3' end of the gene not involved) and coding sequence is involved",
+"2C-2"=>"Partial overlap with the 5' end of an established HI gene / morbid gene (3' end of the gene not involved) and only the 5' UTR is involved",
+"2D"=>"Partial overlap with the 3' end of an established HI gene / morbid gene (5' end of the gene not involved)...",
+"2D-1"=>"Partial overlap with the 3' end of an established HI gene / morbid gene (5' end of the gene not involved) and only the 3' untranslated region is involved.",
+"2D-2"=>"Partial overlap with the 3' end of an established HI gene / morbid gene (5' end of the gene not involved) and only the last exon is involved. Other established pathogenic snv/indel have been reported in the observed CNV",
+"2D-3"=>"Partial overlap with the 3' end of an established HI gene / morbid gene (5' end of the gene not involved) and only the last exon is involved. No other established pathogenic variants have been reported in the observed CNV.",
+"2D-4"=>"Partial overlap with the 3' end of an established HI gene / morbid gene (5' end of the gene not involved) and it includes other exons in addition to the last exon. Nonsense-mediated decay is expected to occur.",
 "2E"=>"Both breakpoints are within the same HI gene / morbid gene (intragenic CNV; gene-level sequence variant)...",
 "2E-1"=>"Both breakpoints are within the same HI gene / morbid gene (intragenic CNV; gene-level sequence variant) and disrupts the reading frame",
 "2E-2"=>"Both breakpoints are within the same HI gene / morbid gene (intragenic CNV; gene-level sequence variant) and >=1 exon deleted AND other established pathogenic snv/indel have been reported in the observed CNV AND variant removes >= 10% of protein",
@@ -558,13 +558,12 @@ while( <VCF> ){
 					if ( $field =~ /^[BP]_/){
 						if ($SV_type eq "DEL" ){ 
 							$correctFieldCom = $field =~ s/gain|ins|inv/loss/r;
-							$commentDuplicate{$correctFieldCom} += 1;	
 						}elsif ($SV_type eq "DUP" ){ 
 							$correctFieldCom = $field =~ s/loss|ins|inv/gain/r;
-							$commentDuplicate{$correctFieldCom} += 1;	
 						}else{
 							$correctFieldCom = $field;
 						}
+						$commentDuplicate{$correctFieldCom} += 1;	
 						#add in first line of comment
                		 	$dataCommentHash{$field}{'values'} .= "<span class=\"commentTitle\">".$correctFieldCom . " :</span> ".$dataHash{$correctFieldCom};
 					}
@@ -590,14 +589,13 @@ while( <VCF> ){
 							if ( $fieldCom =~ /^[BP]_/){
 								if ($SV_type eq "DEL" ){ 
 									$correctFieldCom = $fieldCom =~ s/gain|ins|inv/loss/r;
-									$commentDuplicate{$correctFieldCom} += 1;	
 								}elsif ($SV_type eq "DUP" ){ 
 									$correctFieldCom = $fieldCom =~ s/loss|ins|inv/gain/r;
-									$commentDuplicate{$correctFieldCom} += 1;	
 								}else{
 									$correctFieldCom = $fieldCom;
 								}
-								if (defined $commentDuplicate{$fieldCom} && $commentDuplicate{$fieldCom} > 1){
+								$commentDuplicate{$correctFieldCom} += 1;	
+								if (defined $commentDuplicate{$correctFieldCom} && $commentDuplicate{$correctFieldCom} > 1){
 									next;
 								}
 								#print $field."_".$correctFieldCom."\n";
@@ -618,10 +616,14 @@ while( <VCF> ){
 										if ($SV_type eq "DEL" ){ 
 											if(defined $lossRankCriteria{$1}){
 												$dataCommentHash{$field}{'values'} .= $crit.": ".$lossRankCriteria{$1}."<br>";  	
+											}else{
+												$dataCommentHash{$field}{'values'} .= $crit.": NA<br>";  	
 											}
 										}elsif ($SV_type eq "DUP" ){ 
 											if(defined $gainRankCriteria{$1}){
 												$dataCommentHash{$field}{'values'} .= $crit.": ".$gainRankCriteria{$1}."<br>";   	
+											}else{
+												$dataCommentHash{$field}{'values'} .= $crit.": NA<br>";   	
 											}
 										}else{
 											$dataCommentHash{$field}{'values'} .= $dataHash{$fieldCom};
@@ -637,7 +639,7 @@ while( <VCF> ){
                         }else{
                             print "Undefined field (typo error in config file or absent in annotation file (ex: exomiser):  ".$field."\n";
 
-                            $dataCommentHash{$field}{'values'} .= "<br><span class=\"commentTitle\">".$fieldCom . " :</span> Absent in file";
+                            $dataCommentHash{$field}{'values'} .= "<br><span class=\"commentTitle\">".$fieldCom . " :</span> NA";
                         }
                         #print $field.":\t".$fieldCom.":\t".$dataCommentHash{'Gene name'}{'values'}."\n";
 				    }
@@ -685,7 +687,7 @@ while( <VCF> ){
 		foreach my $field (keys %NameColHash){
 				
 			if (! defined $dataHash{$field}){
-				$finalSortData[$NameColHash{$field} - 1] = "Absent in file";
+				$finalSortData[$NameColHash{$field} - 1] = "NA";
 			}
 		}
 
@@ -1032,7 +1034,7 @@ var openTab;
 									case '>=': if(row_data >= filtHash[keys]['expr']) {filtBool = true;continue;}else{ return false;}
 									case '<=': if(row_data <= filtHash[keys]['expr']) {filtBool = true;continue;}else{ return false;}
 									case '!=': if(row_data != filtHash[keys]['expr']) {filtBool = true;continue;}else{ return false;}
-									case '<>': if(row_data != filtHash[keys]['expr']) {filtBool = true;continue;}else{ return false;}
+									case '!': var m = row_data.match(filtHash[keys]['expr']); if(m === null){return true;}else{filtBool = false;continue;}
 									case '=': if(row_data == filtHash[keys]['expr']) {filtBool = true;continue;}else{ return false;}
 									case '==': var m = row_data.match(filtHash[keys]['expr']); if(m === null){return false;}else{filtBool = true;continue;}
 								}
@@ -1259,6 +1261,7 @@ var openTab;
 		overflow-wrap: break-word;
 		font-size: 100%;
 		overflow-y: scroll;
+		box-shadow: 10px 10px 5px grey;
 		}
 
 	.tooltip:hover .tooltiptext {
@@ -1429,7 +1432,7 @@ foreach my $rank (rnatkeysort { "$_-$hashFinalSortData{$_}" } keys %hashFinalSor
 					#adjust tooltip position relativelly to column number
 					if (($fieldNbr+1) <= ($OutColCounter/2)){
 						if (($fieldNbr+1) == 1){
-							$alignTooltiptext = "style=\"height: 469px; left: 1%\"";
+							$alignTooltiptext = "style=\"height: 469px; left: 1% ;background: linear-gradient( #1e1e1e 50%, rgba(0,0,0,0) 50% )\"";
 						}else{
 							$alignTooltiptext = "style=\"left: ".int(($OutColCounter-($fieldNbr+1)*2)*100/$OutColCounter)."%\"";
 						}
