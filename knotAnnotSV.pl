@@ -35,7 +35,7 @@ use Sort::Key::Natural qw(rnatkeysort);
 use File::Basename;
 
 #use Switch;
-use Data::Dumper;
+#use Data::Dumper;
 
 #parameters
 my $man = "USAGE : \nperl knotAnnotSV.pl 
@@ -137,7 +137,7 @@ my $configHash;
 my $OutColCounter = 0;
 my $outPOSITION = 0; 
 $configHash = LoadFile($config);
-	print Dumper($configHash);
+#print Dumper($configHash);
 
 
 foreach my $item (keys %{$configHash}){
@@ -484,6 +484,11 @@ while( <VCF> ){
 		foreach my $field (keys %dataCommentHash){
 			delete $dataCommentHash{$field}{'values'};
 		}
+		
+		#reinitialize dataHash Values
+		foreach my $field (keys %dataHash){
+			$dataHash{$field} = ".";
+		}
 
 
 		#fill printable string
@@ -491,16 +496,25 @@ while( <VCF> ){
 			
 			if($line[$fieldNbr] ne ""){
 				$line[$fieldNbr] =~ s/;/; /g ;  
-				$line[$fieldNbr] =~ s/\//\/ /g ;  
+				#$line[$fieldNbr] =~ s/\//\/ /g ;  	
+
 				$dataHash{$InColHash{$fieldNbr}} = $line[$fieldNbr] ; 
 				
-
 			}else{
 				$dataHash{$InColHash{$fieldNbr}} = ".";
 			}
-
 		}
-
+				
+		#add url to OMIM_ID
+		if ($dataHash{"Annotation_mode"} eq "split"){
+			if ($dataHash{"OMIM_ID"} ne "."){
+				$dataHash{"OMIM_ID"} =    "<a href=\"https://www.omim.org/entry/".$dataHash{"OMIM_ID"}."\" target=\"_blank\" rel=\"noopener noreferrer\" style=\"color:white\">".$dataHash{"OMIM_ID"}."</a>";
+			}
+			if ($dataHash{"OMIM_phenotype"} ne "."){
+				$dataHash{"OMIM_phenotype"} =~ s/; /;<br>/g ;
+			}
+		}
+		
 		#get SVtype
 		$SV_type = $dataHash{'SV_type'};
 
@@ -529,7 +543,7 @@ while( <VCF> ){
 
 		
 
-		#hash to avoid duplicated comments for DGV LOSS and GAIN
+		#hash to avoid duplicated comments for P_ and B_ loss and gain
 		my %commentDuplicate;
 		my $correctFieldCom;
 
@@ -554,7 +568,8 @@ while( <VCF> ){
 						#add in first line of comment
                		 	$dataCommentHash{$field}{'values'} .= "<span class=\"commentTitle\">".$correctFieldCom . " :</span> ".$dataHash{$correctFieldCom};
 					}
-				
+
+
 				    foreach my $fieldCom (@{$dataCommentHash{$field}{'commentFieldList'}}){
 					    
 						#skip this field if it doesn't belong to annotation mode
@@ -590,21 +605,23 @@ while( <VCF> ){
 							}else{
 								
 								
-								if($fieldCom eq "AnnotSV_ranking_criteria"){
-                            		$dataCommentHash{$field}{'values'} .= "<br><span class=\"commentTitle\">".$fieldCom . " :</span>\n";
+								if($fieldCom eq "AnnotSV_ranking_criteria" && $dataHash{$fieldCom} ne "." ){
+                            		$dataCommentHash{$field}{'values'} .= "<br><span class=\"commentTitle\">".$fieldCom . " :</span><br>";
 									
-									@criteria = split( /;/, $dataHash{$fieldCom} );
+									@criteria = split( /; /, $dataHash{$fieldCom} );
 									
 									foreach my $crit (@criteria){
-										$crit =~ /^([1-5].+?)\s\(?/;
-									
+										$crit =~ /^([1-5].+?)\s?\(?/;
+								
+										#print "DEBUG2  :  ".$crit."_____".$1."\n";
+
 										if ($SV_type eq "DEL" ){ 
 											if(defined $lossRankCriteria{$1}){
-												$dataCommentHash{$field}{'values'} .= $crit.": ".$lossRankCriteria{$1}."\n";  	
+												$dataCommentHash{$field}{'values'} .= $crit.": ".$lossRankCriteria{$1}."<br>";  	
 											}
 										}elsif ($SV_type eq "DUP" ){ 
 											if(defined $gainRankCriteria{$1}){
-												$dataCommentHash{$field}{'values'} .= $crit.": ".$gainRankCriteria{$1}."\n";   	
+												$dataCommentHash{$field}{'values'} .= $crit.": ".$gainRankCriteria{$1}."<br>";   	
 											}
 										}else{
 											$dataCommentHash{$field}{'values'} .= $dataHash{$fieldCom};
@@ -618,7 +635,7 @@ while( <VCF> ){
 							}
 
                         }else{
-                            print $field."\n";
+                            print "Undefined field (typo error in config file or absent in annotation file (ex: exomiser):  ".$field."\n";
 
                             $dataCommentHash{$field}{'values'} .= "<br><span class=\"commentTitle\">".$fieldCom . " :</span> Absent in file";
                         }
@@ -663,6 +680,15 @@ while( <VCF> ){
             	}
 			}
 		}
+
+		#check missing fields (typo or error) and fill finalSortData array
+		foreach my $field (keys %NameColHash){
+				
+			if (! defined $dataHash{$field}){
+				$finalSortData[$NameColHash{$field} - 1] = "Absent in file";
+			}
+		}
+
 
 
 		#fill color LOEUF bin (old=pLI) 
@@ -715,8 +741,6 @@ while( <VCF> ){
 				$scorePenalty = 0;	
 				if(defined $dataHash{"ACMG_class"}){
 					
-					print "\n\ntoto\n\n";
-				
 					if($dataHash{"ACMG_class"} ne "."){
 						$scorePenalty = $dataHash{"ACMG_class"} + $dataHash{"AnnotSV_ranking_score"};
 					}else {
@@ -730,22 +754,23 @@ while( <VCF> ){
 				$fullSplitScore = 1000;
 			}else{
 				#TODO compute gene penalty exomiser > OMIM_morbid > LOEUF_bin
-				$fullSplitScore = 0;
+				$fullSplitScore = 100.0001;
 				$scorePenaltySplit = 0;
 				if (defined $dataHash{"Exomiser_gene_pheno_score"} && $dataHash{"Exomiser_gene_pheno_score"} ne "-1"){
-					$fullSplitScore += $dataHash{"Exomiser_gene_pheno_score"};	
+					$fullSplitScore = $fullSplitScore + $dataHash{"Exomiser_gene_pheno_score"};	
 				}	
 				if(defined $dataHash{"OMIM_morbid"} eq "yes"){
-					$fullSplitScore += 1;
+					$fullSplitScore = $fullSplitScore + 1.0;
 				}
 				if(defined $dataHash{"LOEUF_bin"} && $dataHash{"LOEUF_bin"} ne "."){
-					$fullSplitScore += (9 - $dataHash{"LOEUF_bin"}) / 90 ; 		
+					$fullSplitScore =  $fullSplitScore + (9 - $dataHash{"LOEUF_bin"}) / 90 ; 		
 				}
 
 			}
 
 			#finalsortData assigment according to full or split
-			$hashFinalSortData{$SV_ID{$dataHash{'AnnotSV_ID'}}{'finalScore'}."_".$variantID}{$dataHash{'AnnotSV_ID'}}{$dataHash{"ACMG_class"}+$fullSplitScore}{$count}{'finalArray'} = [@finalSortData] ; 
+			#$hashFinalSortData{$SV_ID{$dataHash{'AnnotSV_ID'}}{'finalScore'}."_".$variantID}{$dataHash{'AnnotSV_ID'}}{$dataHash{"ACMG_class"}+$fullSplitScore}{$count}{'finalArray'} = [@finalSortData] ; 
+			$hashFinalSortData{$SV_ID{$dataHash{'AnnotSV_ID'}}{'finalScore'}."_".$variantID}{$dataHash{'AnnotSV_ID'}}{$fullSplitScore}{$count}{'finalArray'} = [@finalSortData] ; 
 
 			#finalsortData assigment
 			#$hashFinalSortData{$dataHash{"AnnotSV ranking"}.$scorePenalty."_".$variantID}{$count}{'finalArray'} = [@finalSortData] ; 
@@ -755,28 +780,38 @@ while( <VCF> ){
 
 			
 			#url to UCSC for SV , highlight in blue and zoomout x1.5
-			$hashFinalSortData{$SV_ID{$dataHash{'AnnotSV_ID'}}{'finalScore'}."_".$variantID}{$dataHash{'AnnotSV_ID'}}{$dataHash{"ACMG_class"}+$fullSplitScore}{$count}{'url2UCSC'} = "http://genome.ucsc.edu/cgi-bin/hgTracks?db=".$genomeBuild."&position=chr".$dataHash{"SV_chrom"}.":".$dataHash{"SV_start"}."-".$dataHash{"SV_end"}."&hgt.out1=submit&highlight=".$genomeBuild.".chr".$dataHash{"SV_chrom"}.":".$dataHash{"SV_start"}."-".$dataHash{"SV_end"}."#aaedff\" target=\"_blank\" rel=\"noopener noreferrer\"" ; 
+			#$hashFinalSortData{$SV_ID{$dataHash{'AnnotSV_ID'}}{'finalScore'}."_".$variantID}{$dataHash{'AnnotSV_ID'}}{$dataHash{"ACMG_class"}+$fullSplitScore}{$count}{'url2UCSC'} = "http://genome.ucsc.edu/cgi-bin/hgTracks?db=".$genomeBuild."&position=chr".$dataHash{"SV_chrom"}.":".$dataHash{"SV_start"}."-".$dataHash{"SV_end"}."&hgt.out1=submit&highlight=".$genomeBuild.".chr".$dataHash{"SV_chrom"}.":".$dataHash{"SV_start"}."-".$dataHash{"SV_end"}."#aaedff\" target=\"_blank\" rel=\"noopener noreferrer\"" ; 
+			$hashFinalSortData{$SV_ID{$dataHash{'AnnotSV_ID'}}{'finalScore'}."_".$variantID}{$dataHash{'AnnotSV_ID'}}{$fullSplitScore}{$count}{'url2UCSC'} = "http://genome.ucsc.edu/cgi-bin/hgTracks?db=".$genomeBuild."&position=chr".$dataHash{"SV_chrom"}.":".$dataHash{"SV_start"}."-".$dataHash{"SV_end"}."&hgt.out1=submit&highlight=".$genomeBuild.".chr".$dataHash{"SV_chrom"}.":".$dataHash{"SV_start"}."-".$dataHash{"SV_end"}."#aaedff\" target=\"_blank\" rel=\"noopener noreferrer\"" ; 
+
+			#URL to HUGO HGNC for split line only
+			$hashFinalSortData{$SV_ID{$dataHash{'AnnotSV_ID'}}{'finalScore'}."_".$variantID}{$dataHash{'AnnotSV_ID'}}{$fullSplitScore}{$count}{'url2HGNC'} = "https://www.genenames.org/tools/search/#!/all?query=".$dataHash{"Gene_name"}."\" target=\"_blank\" rel=\"noopener noreferrer\"" ; 
+
+
 
 			#url to OMIM
-			$hashFinalSortData{$SV_ID{$dataHash{'AnnotSV_ID'}}{'finalScore'}."_".$variantID}{$dataHash{'AnnotSV_ID'}}{$dataHash{"ACMG_class"}+$fullSplitScore}{$count}{'url2OMIM'} = "https://www.omim.org/entry/".$dataHash{"OMIM_ID"}  ; 
+			#$hashFinalSortData{$SV_ID{$dataHash{'AnnotSV_ID'}}{'finalScore'}."_".$variantID}{$dataHash{'AnnotSV_ID'}}{$dataHash{"ACMG_class"}+$fullSplitScore}{$count}{'url2OMIM'} = "https://www.omim.org/entry/".$dataHash{"OMIM_ID"}  ; 
+			$hashFinalSortData{$SV_ID{$dataHash{'AnnotSV_ID'}}{'finalScore'}."_".$variantID}{$dataHash{'AnnotSV_ID'}}{$fullSplitScore}{$count}{'url2OMIM'} = "https://www.omim.org/entry/".$dataHash{"OMIM_ID"}  ; 
 
 
 
 			#comment assigment
 			foreach my $fieldCom (keys %dataCommentHash){
-				$hashFinalSortData{$SV_ID{$dataHash{'AnnotSV_ID'}}{'finalScore'}."_".$variantID}{$dataHash{'AnnotSV_ID'}}{$dataHash{"ACMG_class"}+$fullSplitScore}{$count}{'hashComments'}{$NameColHash{$fieldCom} -1} = $dataCommentHash{$fieldCom}{'values'} ; 
+				#$hashFinalSortData{$SV_ID{$dataHash{'AnnotSV_ID'}}{'finalScore'}."_".$variantID}{$dataHash{'AnnotSV_ID'}}{$dataHash{"ACMG_class"}+$fullSplitScore}{$count}{'hashComments'}{$NameColHash{$fieldCom} -1} = $dataCommentHash{$fieldCom}{'values'} ; 
+				$hashFinalSortData{$SV_ID{$dataHash{'AnnotSV_ID'}}{'finalScore'}."_".$variantID}{$dataHash{'AnnotSV_ID'}}{$fullSplitScore}{$count}{'hashComments'}{$NameColHash{$fieldCom} -1} = $dataCommentHash{$fieldCom}{'values'} ; 
 				#print $dataCommentHash{'Gene name'}{'values'}."\n\n";
 				#TODO check color for gene according to output position of gene field 
 			}
 
 
             #assign color to Gene Name
-			$hashFinalSortData{$SV_ID{$dataHash{'AnnotSV_ID'}}{'finalScore'}."_".$variantID}{$dataHash{'AnnotSV_ID'}}{$dataHash{"ACMG_class"}+$fullSplitScore}{$count}{'hashColor'}{$NameColHash{'Gene_name'}-1} = $LOEUF_Color ;
+			#$hashFinalSortData{$SV_ID{$dataHash{'AnnotSV_ID'}}{'finalScore'}."_".$variantID}{$dataHash{'AnnotSV_ID'}}{$dataHash{"ACMG_class"}+$fullSplitScore}{$count}{'hashColor'}{$NameColHash{'Gene_name'}-1} = $LOEUF_Color ;
+			$hashFinalSortData{$SV_ID{$dataHash{'AnnotSV_ID'}}{'finalScore'}."_".$variantID}{$dataHash{'AnnotSV_ID'}}{$fullSplitScore}{$count}{'hashColor'}{$NameColHash{'Gene_name'}-1} = $LOEUF_Color ;
 
 
 
             #assign color to Gene Name
-			$hashFinalSortData{$SV_ID{$dataHash{'AnnotSV_ID'}}{'finalScore'}."_".$variantID}{$dataHash{'AnnotSV_ID'}}{$dataHash{"ACMG_class"}+$fullSplitScore}{$count}{'fullRowColor'} = $fullRowColor ;
+			#$hashFinalSortData{$SV_ID{$dataHash{'AnnotSV_ID'}}{'finalScore'}."_".$variantID}{$dataHash{'AnnotSV_ID'}}{$dataHash{"ACMG_class"}+$fullSplitScore}{$count}{'fullRowColor'} = $fullRowColor ;
+			$hashFinalSortData{$SV_ID{$dataHash{'AnnotSV_ID'}}{'finalScore'}."_".$variantID}{$dataHash{'AnnotSV_ID'}}{$fullSplitScore}{$count}{'fullRowColor'} = $fullRowColor ;
 
 
 
@@ -873,7 +908,7 @@ var openTab;
 					orderCellsTop: true,
 					scrollX: true,
 					scrollY: h,
-					scrollCollapse: true,
+					//scrollCollapse: true,
 					oLanguage: { sLengthMenu: 'Show _MENU_ lines',sInfo: 'Showing _START_ to _END_ of _TOTAL_ lines' },
 					lengthMenu: [
 							[50, 100, -1],
@@ -1206,7 +1241,8 @@ var openTab;
 		visibility: hidden;
 		width: auto;
 		min-width: 250px;
-		max-width: 290px;
+		/*max-width: 290px;*/
+		max-width: 600px;
 		max-height: 469px;
 		background-color: #1e1e1e;
 		color: #fff;
@@ -1313,6 +1349,8 @@ foreach my $rank (rnatkeysort { "$_-$hashFinalSortData{$_}" } keys %hashFinalSor
 		#foreach my $rankSplit (sort {$hashFinalSortData{$rank}{$ID}{$b} <=> $hashFinalSortData{$rank}{$ID}{$a} } ( keys %{$hashFinalSortData{$rank}{$ID}})){
 		foreach my $rankSplit (rnatkeysort { "$_-$hashFinalSortData{$rank}{$ID}{$_}" }  keys %{$hashFinalSortData{$rank}{$ID}}){
 	
+			print "DEBUG ranksplit:  ".$rankSplit."\n";
+
 			foreach my $variant ( keys %{$hashFinalSortData{$rank}{$ID}{$rankSplit}}){
 			
 			#increse rank number then change final array
@@ -1363,15 +1401,22 @@ foreach my $rank (rnatkeysort { "$_-$hashFinalSortData{$_}" } keys %hashFinalSor
 
 
 				#define search field
-				$htmlALL .= "data-search=\"".$hashFinalSortData{$rank}{$ID}{$rankSplit}{$variant}{'finalArray'}[$fieldNbr] ."\">";
+				if ($OutColHash{$fieldNbr + 1}{'field'} =~ /^OMIM_|^P_/){
+					$htmlALL .= ">";
+				}else{
+					$htmlALL .= "data-search=\"".$hashFinalSortData{$rank}{$ID}{$rankSplit}{$variant}{'finalArray'}[$fieldNbr] ."\">";
+				}
 
 				#if (defined $field){
 				if (defined $hashFinalSortData{$rank}{$ID}{$rankSplit}{$variant}{'finalArray'}[$fieldNbr]){
 					#print HTML $field;
 
-					#Add url to UCSC browser
+					#Add url to UCSC browser or HGNC with gene name
 					if ($fieldNbr eq $NameColHash{'AnnotSV_ID'} - 1){
 						$htmlALL .= "<div class=\"tooltip\"><a href=\"".$hashFinalSortData{$rank}{$ID}{$rankSplit}{$variant}{'url2UCSC'}."\">".$hashFinalSortData{$rank}{$ID}{$rankSplit}{$variant}{'finalArray'}[$fieldNbr]."</a>";
+					
+					}elsif ($fieldNbr eq $NameColHash{'Gene_name'} - 1  &&  $hashFinalSortData{$rank}{$ID}{$rankSplit}{$variant}{'finalArray'}[$NameColHash{'Annotation_mode'} - 1] eq "split" ){
+						$htmlALL .= "<div class=\"tooltip\"><a href=\"".$hashFinalSortData{$rank}{$ID}{$rankSplit}{$variant}{'url2HGNC'}."\">".$hashFinalSortData{$rank}{$ID}{$rankSplit}{$variant}{'finalArray'}[$fieldNbr]."</a>";
 					}else{
 							if( length($hashFinalSortData{$rank}{$ID}{$rankSplit}{$variant}{'finalArray'}[$fieldNbr]) > 50 ){
 								$htmlALL .= "<div class=\"tooltip\">".substr($hashFinalSortData{$rank}{$ID}{$rankSplit}{$variant}{'finalArray'}[$fieldNbr],0,45)."[...]";
@@ -1392,11 +1437,16 @@ foreach my $rank (rnatkeysort { "$_-$hashFinalSortData{$_}" } keys %hashFinalSor
 						$alignTooltiptext = "style=\"right: ".int((($fieldNbr+1)*2-$OutColCounter)*100/$OutColCounter)."%\"";
 					}
 
-
-					if ($OutColHash{$fieldNbr + 1}{'field'} =~ /^DGV_/){
+					# add filed value in the tooltip (except for special benign and patho fields
+					if ($OutColHash{$fieldNbr + 1}{'field'} =~ /^[BP]_/){
 						$htmlALL .= "<span ".$alignTooltiptext." class=\"tooltiptext tooltip-bottom\">";
 					}else{
-						$htmlALL .= "<span ".$alignTooltiptext." class=\"tooltiptext tooltip-bottom\"><span class=\"commentTitle\">".$OutColHash{$fieldNbr + 1}{'field'}. " :</span> ".$hashFinalSortData{$rank}{$ID}{$rankSplit}{$variant}{'finalArray'}[$fieldNbr];
+						#add <br> before AnnotSV ID
+						if($fieldNbr eq $NameColHash{'AnnotSV_ID'} - 1){
+							$htmlALL .= "<span ".$alignTooltiptext." class=\"tooltiptext tooltip-bottom\"><span class=\"commentTitle\">".$OutColHash{$fieldNbr + 1}{'field'}. " :<br></span> ".$hashFinalSortData{$rank}{$ID}{$rankSplit}{$variant}{'finalArray'}[$fieldNbr];
+						}else{
+							$htmlALL .= "<span ".$alignTooltiptext." class=\"tooltiptext tooltip-bottom\"><span class=\"commentTitle\">".$OutColHash{$fieldNbr + 1}{'field'}. " :</span> ".$hashFinalSortData{$rank}{$ID}{$rankSplit}{$variant}{'finalArray'}[$fieldNbr];
+						}
 					}
 					# add comments
 					if (defined $hashFinalSortData{$rank}{$ID}{$rankSplit}{$variant}{'hashComments'}{$fieldNbr}){

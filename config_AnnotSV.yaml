@@ -1,5 +1,5 @@
 ##############################################################################################
-# knotAnnotSV 1.0                                                                            #	
+# knotAnnotSV 1.0                                                                            #
 #                                                                                            #
 # knotAnnotSV: Creation of a customizable html file to visualize, filter                     # 
 #                   and analyze an AnnotSV output                                            #
@@ -32,7 +32,7 @@ AnnotSV_ID:    #mandatory
     COMMENTLIST:
         - SV_length
         - Gene_count
-ACMG_class:  # mandatory   ### Adapter le code car on a maintenant un autre nom de colonne et un réel (au lieu d'un entier de 1 à 5)
+ACMG_class:  # mandatory   
     POSITION: 2
     HEADERTIPS: "SV ranking class (from 1 to 5) following the 2020 joint consensus recommendation of ACMG and ClinGen"
     COMMENTLIST:
@@ -41,8 +41,8 @@ ACMG_class:  # mandatory   ### Adapter le code car on a maintenant un autre nom 
 SV_type:
     POSITION: 3
     HEADERTIPS: "Type of the SV (DEL, DUP...)"
-Annotation_mode:
-    POSITION: 4 #should be kept  //// specify mandatory fields for good computing
+Annotation_mode: #mandatory
+    POSITION: 4 
     HEADERTIPS: "Type of annotation generated:<br>
 - annotation on the SV full length (full)<br>
 - annotation on each gene overlapped by the SV (split)"
@@ -74,9 +74,9 @@ Gene_name:     # mandatory
 Location:
     POSITION: 6
     RENAME: "Location"
-    HEADERTIPS: "SV location in the gene’s<br>
-Values: txStart, txEnd, exon’i’, intron’i’ <br>
-e.g. « txStart-exon3 »"
+    HEADERTIPS: "SV location in the gene<br>
+Values: txStart, txEnd, exon#, intron# <br>
+e.g. txStart-exon3"
     COMMENTLIST:
         - Location2
         - Tx
@@ -85,10 +85,10 @@ e.g. « txStart-exon3 »"
         - Overlapped_CDS_length
         - Overlapped_CDS_percent
         - Frameshift
-        - Dist_nearest_SS
+        - Dist_Nearest_SS
         - Nearest_SS_type
-        - Intersect_start
-        - Intersect_end
+        - Intersect_Start
+        - Intersect_End
 OMIM_phenotype:
     POSITION: 7
     RENAME: "OMIM phenotype"
@@ -97,7 +97,7 @@ OMIM_phenotype:
         - OMIM_ID
         - OMIM_inheritance
         - OMIM_morbid
-        - OMIM_morbid_candidate
+        - OMIM_morbid_candidates
 Exomiser_gene_pheno_score:
     POSITION: 8
     RENAME: "Exomiser score"
@@ -123,25 +123,19 @@ B_gain_source:
     RENAME: "Benign SV sources"
     COMMENTLIST:
         - B_gain_coord
-B_loss_source:
-    POSITION: 11
-    RENAME: "Benign SV sources"
-    COMMENTLIST:
+        - B_loss_source
         - B_loss_coord
-
+        
 ### Annotations done with pathogenic SV
 #######################################
 P_gain_coord:
-    POSITION: 12
+    POSITION: 11
     RENAME: "Pathogenic SV sources"
     COMMENTLIST:
         - P_gain_source
         - P_gain_phen
         - P_gain_hpo
-P_loss_coord:
-    POSITION: 13
-    RENAME: "Pathogenic SV sources"
-    COMMENTLIST:
+        - P_loss_coord
         - P_loss_source
         - P_loss_phen
         - P_loss_hpo
@@ -149,7 +143,7 @@ P_loss_coord:
 ### Annotations done with pathogenic snv/indel
 ##############################################
 P_snvindel_nb:
-    POSITION: 14
+    POSITION: 12
     RENAME: "Number of pathogenic SNV/indel overlapped"
     COMMENTLIST:
         - P_snvindel_phen
@@ -158,7 +152,7 @@ P_snvindel_nb:
 ### Annotations of the breakpoints
 ##################################
 ENCODE_blacklist_characteristics_left:
-    POSITION: 15
+    POSITION: 13
     RENAME: "ENCODE blacklist characteristics left"
     HEADERTIPS: "ENCODE blacklist regions characteristics around the left SV breakpoint (+/- 100bp)"
     COMMENTLIST:
@@ -169,7 +163,7 @@ ENCODE_blacklist_characteristics_left:
         - Gap_left
         - GC_content_left
 ENCODE_blacklist_characteristics_right:
-    POSITION: 16
+    POSITION: 14
     RENAME: "ENCODE blacklist characteristics right"
     HEADERTIPS: "ENCODE blacklist regions characteristics around the right SV breakpoint (+/- 100bp)"
     COMMENTLIST:
@@ -179,7 +173,6 @@ ENCODE_blacklist_characteristics_right:
         - Repeat_type_right
         - Gap_right
         - GC_content_right
-
 SV_chrom:
     POSITION: 0
 SV_start:
