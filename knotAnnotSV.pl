@@ -381,10 +381,11 @@ my %gainRankCriteria = (
 "2E"=>"Smaller than established benign copy-number gain, breakpoint(s) potentially interrupts protein-coding gene.",
 "2F"=>"Larger than known benign copy-number gain, does not include additional protein-coding genes.",
 "2G"=>"Overlaps a benign copy-number gain but includes additional genomic material.",
-"2H"=>"HI gene fully contained within observed copy-number gain.",
+"2H-1"=>"HI gene / morbid gene fully contained within observed copy-number gain and patient's phenotype is highly specific and consistent with what is expected for LOF of that gene (Exomiser_gene_pheno_score >= 0.7).",
+"2H-2"=>"HI gene / morbid gene fully contained within observed copy-number gain and patient's phenotype is nonspecific with what is expected for LOF of that gene (Exomiser_gene_pheno_score < 0.7).",
 "2I"=>"Both breakpoints are within the same HI gene / morbid gene (gene-level sequence variant, possibly resulting in loss of function [LOF]) and disrupts the reading frame.",
 "2J"=>"One breakpoint is within an established HI gene / morbid gene, patient’s phenotype is either inconsistent with what is expected for LOF of that gene OR unknown.",
-"2K"=>"One breakpoint is within an established HI gene / morbid gene, patient’s phenotype is highly specific and consistent with what is expected for LOF of that gene (EXOMISER_GENE_PHENO_SCORE > 0.7).",
+"2K"=>"One breakpoint is within an established HI gene / morbid gene, patient’s phenotype is highly specific and consistent with what is expected for LOF of that gene (Exomiser_gene_pheno_score > 0.7).",
 "2L"=>"One or both breakpoints are within gene(s) of no established clinical significance.",
 "3A"=>"0–34 genes wholly or partially included",
 "3B"=>"35–49 genes wholly or partially included",
@@ -533,18 +534,18 @@ while( <VCF> ){
 			$fullRowColor = "#F7D8DD";
 		}elsif ($SV_type =~ /INV/i){
 			$SV_type = "INV";
-			$fullRowColor = "#FA931E";
+			$fullRowColor = "#FEE7CD";
 		}elsif ($SV_type =~ /INS/i){
 			$SV_type = "INS";
-			$fullRowColor = "#D474E0";
+			$fullRowColor = "#F1D6F5";
 		}elsif ($SV_type =~ /CPX/i){
 			$SV_type = "CPX";
-			$fullRowColor = "#71E38C";
+			$fullRowColor = "#D4F7DC";
 		}elsif ($SV_type =~ /BND/i){
 			$SV_type = "BND";
 			$fullRowColor = "#D2F8E3";
 		}else{
-			$fullRowColor = "#397246";
+			$fullRowColor = "#E0CCFF";
 		}
 
 		
@@ -615,7 +616,7 @@ while( <VCF> ){
 									@criteria = split( /; /, $dataHash{$fieldCom} );
 									
 									foreach my $crit (@criteria){
-										$crit =~ /^([1-5].+?)\s?\(?/;
+										$crit =~ /^([1-5]\w\-?\d?\d?)\s?\(?/;
 								
 										#print "DEBUG2  :  ".$crit."_____".$1."\n";
 
