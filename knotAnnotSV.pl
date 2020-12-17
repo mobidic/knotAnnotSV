@@ -1253,7 +1253,7 @@ var openTab;
 		min-width: 250px;
 		/*max-width: 290px;*/
 		max-width: 600px;
-		max-height: 469px;
+		max-height: 300px;
 		background-color: #1e1e1e;
 		color: #fff;
 		text-align: left;
@@ -1440,7 +1440,7 @@ foreach my $rank (rnatkeysort { "$_-$hashFinalSortData{$_}" } keys %hashFinalSor
 					#adjust tooltip position relativelly to column number
 					if (($fieldNbr+1) <= ($OutColCounter/2)){
 						if (($fieldNbr+1) == 1){
-							$alignTooltiptext = "style=\"height: 469px; left: 1% ;background: linear-gradient( #1e1e1e 50%, rgba(0,0,0,0) 50% )\"";
+							$alignTooltiptext = "style=\"visibility: hidden; min-width: 1px; max-width: 1px;height: 300px; left: 1% ;background-color: rgba(0,0,0,0); \"";
 						}else{
 							$alignTooltiptext = "style=\"left: ".int(($OutColCounter-($fieldNbr+1)*2)*100/$OutColCounter)."%\"";
 						}
@@ -1454,7 +1454,8 @@ foreach my $rank (rnatkeysort { "$_-$hashFinalSortData{$_}" } keys %hashFinalSor
 					}else{
 						#add <br> before AnnotSV ID
 						if($fieldNbr eq $NameColHash{'AnnotSV_ID'} - 1){
-							$htmlALL .= "<span ".$alignTooltiptext." class=\"tooltiptext tooltip-bottom\"><span class=\"commentTitle\">".$OutColHash{$fieldNbr + 1}{'field'}. " :<br></span> ".$hashFinalSortData{$rank}{$ID}{$rankSplit}{$variant}{'finalArray'}[$fieldNbr];
+							$htmlALL .= "<span ".$alignTooltiptext." class=\"tooltiptext tooltip-bottom\"></span></div>\t</td>\n";
+							next;
 						}else{
 							$htmlALL .= "<span ".$alignTooltiptext." class=\"tooltiptext tooltip-bottom\"><span class=\"commentTitle\">".$OutColHash{$fieldNbr + 1}{'field'}. " :</span> ".$hashFinalSortData{$rank}{$ID}{$rankSplit}{$variant}{'finalArray'}[$fieldNbr];
 						}
