@@ -504,6 +504,8 @@ while( <VCF> ){
 			if($line[$fieldNbr] ne ""){
 				$line[$fieldNbr] =~ s/;/; /g ;  
 				#$line[$fieldNbr] =~ s/\//\/ /g ;  	
+				$line[$fieldNbr] =~ s/</&lt;/g ;  
+				$line[$fieldNbr] =~ s/>/&gt;/g ;  
 
 				$dataHash{$InColHash{$fieldNbr}} = $line[$fieldNbr] ; 
 				
@@ -515,7 +517,7 @@ while( <VCF> ){
 		#add url to OMIM_ID
 		if ($dataHash{"Annotation_mode"} eq "split"){
 			if ($dataHash{"OMIM_ID"} ne "."){
-				$dataHash{"OMIM_ID"} =    "<a href=\"https://www.omim.org/entry/".$dataHash{"OMIM_ID"}."\" target=\"_blank\" rel=\"noopener noreferrer\" style=\"color:white\">".$dataHash{"OMIM_ID"}."</a>";
+				$dataHash{"OMIM_ID"} =    "<a href=\"https://www.omim.org/entry/".$dataHash{"OMIM_ID"}."\" target=\"_blank\" rel=\"noopener noreferrer\" style=\"color:#00FFFF\">".$dataHash{"OMIM_ID"}."</a>";
 			}
 			if ($dataHash{"OMIM_phenotype"} ne "."){
 				$dataHash{"OMIM_phenotype"} =~ s/; /;<br>/g ;
@@ -537,7 +539,7 @@ while( <VCF> ){
 			$fullRowColor = "#FEE7CD";
 		}elsif ($SV_type =~ /INS/i){
 			$SV_type = "INS";
-			$fullRowColor = "#F1D6F5";
+			$fullRowColor = "#FFFF99";
 		}elsif ($SV_type =~ /CPX/i){
 			$SV_type = "CPX";
 			$fullRowColor = "#D4F7DC";
