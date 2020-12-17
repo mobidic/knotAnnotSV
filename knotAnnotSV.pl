@@ -77,7 +77,6 @@ my %dataCommentHash;
 my %dataColorHash;
 
 my $scorePenalty;
-my $scorePenaltySplit;
 my $fullSplitScore;
 my %SV_ID;
 my $SV_type;
@@ -759,20 +758,18 @@ while( <VCF> ){
 				#if (defined $SV_ID{$dataHash{'AnnotSV ID'}}{'finalScore'}){
 				$SV_ID{$dataHash{'AnnotSV_ID'}}{'finalScore'} = $scorePenalty;
 				#$SV_ID{$dataHash{'AnnotSV ID'}}{'splitScore'} = $dataHash{"AnnotSV ranking"} + 1000;
-				$scorePenaltySplit = 1000;	
 				$fullSplitScore = 1000;
 			}else{
 				#TODO compute gene penalty exomiser > OMIM_morbid > LOEUF_bin
-				$fullSplitScore = 100.0001;
-				$scorePenaltySplit = 0;
+				$fullSplitScore = 10;
 				if (defined $dataHash{"Exomiser_gene_pheno_score"} && $dataHash{"Exomiser_gene_pheno_score"} ne "-1" && $dataHash{"Exomiser_gene_pheno_score"} ne "NA"){
-					$fullSplitScore = $fullSplitScore + $dataHash{"Exomiser_gene_pheno_score"};	
+					$fullSplitScore += (10 * $dataHash{"Exomiser_gene_pheno_score"});	
 				}	
-				if(defined $dataHash{"OMIM_morbid"} eq "yes"){
-					$fullSplitScore = $fullSplitScore + 1.0;
+				if(defined $dataHash{"OMIM_morbid"} && $dataHash{"OMIM_morbid"} eq "yes"){
+					$fullSplitScore += 10;
 				}
 				if(defined $dataHash{"LOEUF_bin"} && $dataHash{"LOEUF_bin"} ne "."){
-					$fullSplitScore =  $fullSplitScore + (9 - $dataHash{"LOEUF_bin"}) / 90 ; 		
+					$fullSplitScore +=  (9 - $dataHash{"LOEUF_bin"}) ; 		
 				}
 
 			}
@@ -1127,7 +1124,7 @@ var openTab;
 			}
 
 
-			
+			//hide slow loading div
 			var alertLoading = document.getElementById('alert');
 			alertLoading.style.display='none';
 
@@ -1330,10 +1327,10 @@ foreach my $col (sort {$a <=> $b} keys %OutColHash){
 				if($col == 1){
 					$alignTooltiptext = "style=\"left: 1%;max-width:250px\"";
 				}else{
-					$alignTooltiptext = "style=\"left: ".int(($OutColCounter-($col*2))*100/$OutColCounter)."%\"";
+					$alignTooltiptext = "style=\"left: 75%\"";
 				}
 			}else{
-				$alignTooltiptext = "style=\"right: ".int(($col*2-$OutColCounter)*100/$OutColCounter)."%\"";
+				$alignTooltiptext = "style=\"right: 75%\"";
 			}
 
 			$htmlALL .= "\t<th class=\"tooltipHeader\" >".$OutColHash{$col}{'RENAME'}."<span ".$alignTooltiptext." class=\"tooltiptext tooltip-bottom\">".$OutColHash{$col}{'HEADERTIPS'}."</span> \t</th>\n";
@@ -1456,10 +1453,10 @@ foreach my $rank (rnatkeysort { "$_-$hashFinalSortData{$_}" } keys %hashFinalSor
 						if (($fieldNbr+1) == 1){
 							$alignTooltiptext = "style=\"visibility: hidden; min-width: 1px; max-width: 1px;height: 300px; left: 1% ;background-color: rgba(0,0,0,0); \"";
 						}else{
-							$alignTooltiptext = "style=\"left: ".int(($OutColCounter-($fieldNbr+1)*2)*100/$OutColCounter)."%\"";
+							$alignTooltiptext = "style=\"left: 75%\"";
 						}
 					}else{
-						$alignTooltiptext = "style=\"right: ".int((($fieldNbr+1)*2-$OutColCounter)*100/$OutColCounter)."%\"";
+						$alignTooltiptext = "style=\"right: 75%\"";
 					}
 
 					# add filed value in the tooltip (except for special benign and patho fields
