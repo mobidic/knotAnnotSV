@@ -929,15 +929,15 @@ var openTab;
 						heightMatch: 'auto',
 					 },
 					stateLoadParams: function( settings, data ) {
-						filterHash = data.filter;
-						fullMode = data.fullMode ;	
-						dblClickMode = data.dblClickMode ;	
+						filterHash = data.filter".$outBasename.";
+						fullMode = data.fullMode".$outBasename.";	
+						dblClickMode = data.dblClickMode".$outBasename." ;	
 						//console.log('load__');
 					},
 					stateSaveParams: function( settings, data ) {
-						data.filter = filterHash;	
-						data.fullMode = fullMode;	
-						data.dblClickMode = dblClickMode;	
+						data.filter".$outBasename." = filterHash;	
+						data.fullMode".$outBasename." = fullMode;	
+						data.dblClickMode".$outBasename." = dblClickMode;	
 						//console.log('save__');
 					},
 					drawCallback: function (o) {
@@ -1311,7 +1311,7 @@ var openTab;
 #table and columns names
 
 
-my $htmlALL= "<div id='alert'><strong><br><br><br><br><br><br>Knotting happens!</strong> Please hang on few seconds...<br><br><br><br><br><br></div>
+my $htmlALL= "<div id='alert'><strong><br><br><br><br><br><br>Knotting happens!</strong> Please hang on a few seconds...<br><br><br><br><br><br></div>
 
 
 			<div id=\"FULL+SPLIT\" class=\"tabcontent\">";
