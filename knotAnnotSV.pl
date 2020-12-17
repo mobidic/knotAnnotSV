@@ -459,6 +459,13 @@ while( <VCF> ){
 			$dataHash{$line[$fieldNbr]} = ".";
 			
 		}
+		
+		foreach my $field (keys %NameColHash){
+			
+			if (! defined $dataHash{$field}){
+				$dataHash{$field} = "NA";
+			}
+		}
 
 		next;
 		
@@ -487,7 +494,7 @@ while( <VCF> ){
 		
 		#reinitialize dataHash Values
 		foreach my $field (keys %dataHash){
-			$dataHash{$field} = ".";
+			unless($dataHash{$field} eq "NA" ){$dataHash{$field} = ".";}
 		}
 
 
@@ -685,7 +692,7 @@ while( <VCF> ){
 
 		#check missing fields (typo or error) and fill finalSortData array
 		foreach my $field (keys %NameColHash){
-				
+			
 			if (! defined $dataHash{$field}){
 				$finalSortData[$NameColHash{$field} - 1] = "NA";
 			}
@@ -758,7 +765,7 @@ while( <VCF> ){
 				#TODO compute gene penalty exomiser > OMIM_morbid > LOEUF_bin
 				$fullSplitScore = 100.0001;
 				$scorePenaltySplit = 0;
-				if (defined $dataHash{"Exomiser_gene_pheno_score"} && $dataHash{"Exomiser_gene_pheno_score"} ne "-1"){
+				if (defined $dataHash{"Exomiser_gene_pheno_score"} && $dataHash{"Exomiser_gene_pheno_score"} ne "-1" && $dataHash{"Exomiser_gene_pheno_score"} ne "NA"){
 					$fullSplitScore = $fullSplitScore + $dataHash{"Exomiser_gene_pheno_score"};	
 				}	
 				if(defined $dataHash{"OMIM_morbid"} eq "yes"){
@@ -1223,6 +1230,7 @@ var openTab;
 		text-overflow: ellipsis;
 		white-space: normal;
 		overflow-wrap: break-word;
+		box-shadow: 10px 10px 5px grey;
 		}
 	.tooltipHeader:hover .tooltiptext{
 		visibility: visible;
@@ -1352,7 +1360,7 @@ foreach my $rank (rnatkeysort { "$_-$hashFinalSortData{$_}" } keys %hashFinalSor
 		#foreach my $rankSplit (sort {$hashFinalSortData{$rank}{$ID}{$b} <=> $hashFinalSortData{$rank}{$ID}{$a} } ( keys %{$hashFinalSortData{$rank}{$ID}})){
 		foreach my $rankSplit (rnatkeysort { "$_-$hashFinalSortData{$rank}{$ID}{$_}" }  keys %{$hashFinalSortData{$rank}{$ID}}){
 	
-			print "DEBUG ranksplit:  ".$rankSplit."\n";
+			#print "DEBUG ranksplit:  ".$rankSplit."\n";
 
 			foreach my $variant ( keys %{$hashFinalSortData{$rank}{$ID}{$rankSplit}}){
 			
