@@ -886,6 +886,7 @@ var openTab;
 
 //document ready
 \$(document).ready(function() {
+					
 				var height = \$(window).height();
 				var h = Math.floor(height - 250);
 				var filterHash = new Object();
@@ -1127,6 +1128,8 @@ var openTab;
 
 
 			
+			var alertLoading = document.getElementById('alert');
+			alertLoading.style.display='none';
 
 
 
@@ -1290,7 +1293,14 @@ var openTab;
 	.DTFC_LeftBodyLiner { overflow-x: hidden; }
 	.DTFC_RightBodyLiner { overflow-x: hidden; }
 
-
+	#alert {
+		padding: 20px;
+		background-color: #2196F3;
+		color: white;
+		opacity: 1;
+		transition: opacity 0.6s;
+		margin-bottom: 15px;
+		}
 
 
 \n</style>
@@ -1301,7 +1311,11 @@ var openTab;
 #table and columns names
 
 
-my $htmlALL= "<div id=\"FULL+SPLIT\" class=\"tabcontent\">";
+my $htmlALL= "<div id='alert'><strong><br><br><br><br><br><br>Knotting happens!</strong> Please hang on few seconds...<br><br><br><br><br><br></div>
+
+
+			<div id=\"FULL+SPLIT\" class=\"tabcontent\">";
+
 $htmlALL .= "\n\t<table id='tabFULLSPLIT' class='display compact' >
         \n\t\t<thead>\n\t\t\t<tr>";
 
