@@ -74,7 +74,7 @@ Gene_name:
     HEADERTIPS: Some additionnal explanation about this column
     COMMENTLIST:
         - Gnomad_pLI
-        - SV type
+        - OMIM_phenotype
 SV_chrom:
     POSITION: 0
 #SV_start:
