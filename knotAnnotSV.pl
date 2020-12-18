@@ -932,6 +932,9 @@ var openTab;
 						heightMatch: 'auto',
 					 },
 					stateSaveParams: function( settings, data ) {
+						if (typeof filterHash == 'undefined') {
+							filterHash = new Object();
+						}
 						data.filter".$cleanOutBasename." = filterHash;	
 						data.fullMode".$cleanOutBasename." = fullMode;	
 						data.dblClickMode".$cleanOutBasename." = dblClickMode;	
