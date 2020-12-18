@@ -772,7 +772,7 @@ while( <VCF> ){
 					$fullSplitScore += 10;
 				}
 				if(defined $dataHash{"LOEUF_bin"} && $dataHash{"LOEUF_bin"} ne "."){
-					$fullSplitScore +=  (9 - $dataHash{"LOEUF_bin"}) ; 		
+					$fullSplitScore +=  (10 - $dataHash{"LOEUF_bin"}) ; 		
 				}
 
 			}
