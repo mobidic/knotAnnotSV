@@ -871,6 +871,9 @@ if ($datatableDir ne ""){
 ####################################################################
 ######################### HTML  Initialisation ######################
 #
+#
+my $cleanOutBasename = $outBasename =~ s/\.//rg;
+
 #file header
 my $htmlStart = "<!DOCTYPE html>\n<html>
 \n<head>
@@ -929,15 +932,15 @@ var openTab;
 						heightMatch: 'auto',
 					 },
 					stateSaveParams: function( settings, data ) {
-						data.filter".$outBasename." = filterHash;	
-						data.fullMode".$outBasename." = fullMode;	
-						data.dblClickMode".$outBasename." = dblClickMode;	
+						data.filter".$cleanOutBasename." = filterHash;	
+						data.fullMode".$cleanOutBasename." = fullMode;	
+						data.dblClickMode".$cleanOutBasename." = dblClickMode;	
 						//console.log('save__');
 					},
 					stateLoadParams: function( settings, data ) {
-						filterHash = data.filter".$outBasename.";
-						fullMode = data.fullMode".$outBasename.";	
-						dblClickMode = data.dblClickMode".$outBasename." ;	
+						filterHash = data.filter".$cleanOutBasename.";
+						fullMode = data.fullMode".$cleanOutBasename.";	
+						dblClickMode = data.dblClickMode".$cleanOutBasename." ;	
 						//console.log('load__');
 					},
 					drawCallback: function (o) {
