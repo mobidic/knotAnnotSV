@@ -1,4 +1,4 @@
-(https://github.com/mobidic/knotAnnotSV/blob/master/images/logoKNOT.png)
+![KnotAnnotSV](https://github.com/mobidic/knotAnnotSV/blob/master/images/logoKNOT.png)
 
 # What is knotAnnotSV?
 
@@ -57,11 +57,12 @@ AnnotSV_ID:
     POSITION: 1 #mandatory at this position
 ACMG_class:
     POSITION: 2
-    RENAME: ACMG classification     #change the column name in the output 
-    HEADERTIPS: ACMG scoring implementation
-    COMMENTLIST:
+    RENAME: ACMG classification                #change the column name in the output 
+    HEADERTIPS: ACMG scoring implementation    #some details
+    COMMENTLIST:                               #All the fields I want to knot to the main field 
         - SV length
         - AnnotSV_ranking_score
+        - AnnotSV_ranking_criteria
 SV_type:
     POSITION: 5
     RENAME: SV type
