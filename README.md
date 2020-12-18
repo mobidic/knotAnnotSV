@@ -39,7 +39,7 @@ Use a classical annotated tsv file from AnnotSV.
 
 ### A configuration file
 
-Use an indented yaml file (config_cyto.yaml) to configure the AnnotSV output file (use space instead of tab for indentation, tabs are not allowed):
+Use an indented yaml file (see config_AnnotSV.yaml for a good start-up) to configure the AnnotSV output file (use space instead of tab for indentation, tabs are not allowed):
 
 - Precise the POSITION (column ordering) of each field you want to display (AnnotSV_ID must be in position 1 and Annotation_mode must be present for good computation) 
 
