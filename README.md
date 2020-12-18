@@ -1,3 +1,5 @@
+(https://github.com/mobidic/knotAnnotSV/blob/master/images/logoKNOT.png)
+
 # What is knotAnnotSV?
 
 knotAnnotSV is a simple tool to create a customizable html file (to be displayed on a web browser) from an [AnnotSV](https://lbgi.fr/AnnotSV) output.
