@@ -513,6 +513,11 @@ while( <VCF> ){
 				$dataHash{$InColHash{$fieldNbr}} = ".";
 			}
 		}
+
+		#remove "-" sign for SV length
+		if (defined $dataHash{'SV_length'}){
+			$dataHash{'SV_length'} =~ s/^\-//;
+		}
 				
 		#add url to OMIM_ID
 		if ($dataHash{"Annotation_mode"} eq "split"){
@@ -793,9 +798,8 @@ while( <VCF> ){
 			$hashFinalSortData{$SV_ID{$dataHash{'AnnotSV_ID'}}{'finalScore'}."_".$variantID}{$dataHash{'AnnotSV_ID'}}{$fullSplitScore}{$count}{'url2UCSC'} = "http://genome.ucsc.edu/cgi-bin/hgTracks?db=".$genomeBuild."&position=chr".$dataHash{"SV_chrom"}.":".$dataHash{"SV_start"}."-".$dataHash{"SV_end"}."&hgt.out1=submit&highlight=".$genomeBuild.".chr".$dataHash{"SV_chrom"}.":".$dataHash{"SV_start"}."-".$dataHash{"SV_end"}."#aaedff\" target=\"_blank\" rel=\"noopener noreferrer\"" ; 
 
 			#URL to HUGO HGNC for split line only
-			$hashFinalSortData{$SV_ID{$dataHash{'AnnotSV_ID'}}{'finalScore'}."_".$variantID}{$dataHash{'AnnotSV_ID'}}{$fullSplitScore}{$count}{'url2HGNC'} = "https://www.genenames.org/tools/search/#!/all?query=".$dataHash{"Gene_name"}."\" target=\"_blank\" rel=\"noopener noreferrer\"" ; 
-
-
+			#$hashFinalSortData{$SV_ID{$dataHash{'AnnotSV_ID'}}{'finalScore'}."_".$variantID}{$dataHash{'AnnotSV_ID'}}{$fullSplitScore}{$count}{'url2HGNC'} = "https://www.genenames.org/tools/search/#!/all?query=".$dataHash{"Gene_name"}."\" target=\"_blank\" rel=\"noopener noreferrer\"" ; 
+			$hashFinalSortData{$SV_ID{$dataHash{'AnnotSV_ID'}}{'finalScore'}."_".$variantID}{$dataHash{'AnnotSV_ID'}}{$fullSplitScore}{$count}{'url2HGNC'} = "https://www.genecards.org/cgi-bin/carddisp.pl?gene=".$dataHash{"Gene_name"}."\" target=\"_blank\" rel=\"noopener noreferrer\"" ; 
 
 			#url to OMIM
 			#$hashFinalSortData{$SV_ID{$dataHash{'AnnotSV_ID'}}{'finalScore'}."_".$variantID}{$dataHash{'AnnotSV_ID'}}{$dataHash{"ACMG_class"}+$fullSplitScore}{$count}{'url2OMIM'} = "https://www.omim.org/entry/".$dataHash{"OMIM_ID"}  ; 
@@ -907,7 +911,7 @@ var openTab;
 					\$(this).removeClass('sorting').removeClass('sorting_asc').removeClass('sorting_desc');
 					\$(this).unbind();
 					let title = \$(this).text();
-					\$(this).html( '<input id=\"col'+i+'\" type=\"text\" placeholder=\"Search\" data-index=\"'+i+'\" />' );
+					\$(this).html( '<input type=\"text\" placeholder=\"Search\" data-index=\"'+i+'\" />' );
 				}); //END FILTER
 
 
