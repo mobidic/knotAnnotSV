@@ -928,17 +928,17 @@ var openTab;
 						leftColumns: 1,
 						heightMatch: 'auto',
 					 },
-					stateLoadParams: function( settings, data ) {
-						filterHash = data.filter".$outBasename.";
-						fullMode = data.fullMode".$outBasename.";	
-						dblClickMode = data.dblClickMode".$outBasename." ;	
-						//console.log('load__');
-					},
 					stateSaveParams: function( settings, data ) {
 						data.filter".$outBasename." = filterHash;	
 						data.fullMode".$outBasename." = fullMode;	
 						data.dblClickMode".$outBasename." = dblClickMode;	
 						//console.log('save__');
+					},
+					stateLoadParams: function( settings, data ) {
+						filterHash = data.filter".$outBasename.";
+						fullMode = data.fullMode".$outBasename.";	
+						dblClickMode = data.dblClickMode".$outBasename." ;	
+						//console.log('load__');
 					},
 					drawCallback: function (o) {
 						var newStart = this.api().page.info().start;
