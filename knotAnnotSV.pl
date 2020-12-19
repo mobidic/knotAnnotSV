@@ -290,10 +290,10 @@ my %colNameMode = (
 "Exon_count"=>"split",
 "Location"=>"split",
 "Location2"=>"split",
-"Dist_Nearest_SS"=>"split",
+"Dist_nearest_SS"=>"split",
 "Nearest_SS_type"=>"split",
-"Intersect_Start"=>"split",
-"Intersect_End"=>"split",
+"Intersect_start"=>"split",
+"Intersect_end"=>"split",
 "RE_gene"=>"full",
 "B_gain_source"=>"fullsplit",
 "B_gain_coord"=>"fullsplit",
@@ -928,8 +928,8 @@ var openTab;
 					//scrollCollapse: true,
 					oLanguage: { sLengthMenu: 'Show _MENU_ lines',sInfo: 'Showing _START_ to _END_ of _TOTAL_ lines' },
 					lengthMenu: [
-							[50, 100, -1],
-							[50, 100, 'All']
+							[-1, 100],
+							['All', 100]
 						],
 					fixedColumns:   {
 						leftColumns: 1,
