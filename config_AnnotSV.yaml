@@ -100,7 +100,7 @@ OMIM_phenotype:
         - OMIM_ID
         - OMIM_inheritance
         - OMIM_morbid
-        - OMIM_morbid_candidates
+        - OMIM_morbid_candidate
 Exomiser_gene_pheno_score:
     POSITION: 8
     RENAME: "Exomiser score"
