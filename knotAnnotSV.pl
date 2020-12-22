@@ -88,6 +88,9 @@ my $url2DECIPHER="";
 my $url2ensembl="";
 						
 my @criteria;	
+my @OMIM_ID_array;
+my @OMIM_phen_array;
+my @GeneName_array;
 
 my $genomeBuild="";
 #style alignment for tooltiptext
@@ -518,17 +521,98 @@ while( <VCF> ){
 		if (defined $dataHash{'SV_length'}){
 			$dataHash{'SV_length'} =~ s/^\-//;
 		}
-				
+
+
+
+		##### attribute URL to genes and OMIM
+
+		my $GeneName_link_string="";
+		my $OMIM_ID_link_string="";
+		my $OMIM_phen_link_string="";
+		@OMIM_ID_array = "";
+		@OMIM_phen_array = "";
+		@GeneName_array = "";
+		my $tempString;
 		#add url to OMIM_ID
-		if ($dataHash{"Annotation_mode"} eq "split"){
 			if ($dataHash{"OMIM_ID"} ne "."){
-				$dataHash{"OMIM_ID"} =    "<a href=\"https://www.omim.org/entry/".$dataHash{"OMIM_ID"}."\" target=\"_blank\" rel=\"noopener noreferrer\" style=\"color:#00FFFF\">".$dataHash{"OMIM_ID"}."</a>";
+				$tempString = "";
+				@OMIM_ID_array = split(/; /, $dataHash{"OMIM_ID"} );
+				for( my $ID = 0 ; $ID < scalar @OMIM_ID_array; $ID++){
+					$tempString .=    "<a href=\"https://www.omim.org/entry/".$OMIM_ID_array[$ID]."\" target=\"_blank\" rel=\"noopener noreferrer\" style=\"color:#00FFFF\">".$OMIM_ID_array[$ID]."; </a>";
+					if($ID < 5){
+						$OMIM_ID_link_string .= "<a href=\"https://www.omim.org/entry/".$OMIM_ID_array[$ID]."\" target=\"_blank\" rel=\"noopener noreferrer\" >".$OMIM_ID_array[$ID]."; </a>";
+					}
+				}				
+				$dataHash{"OMIM_ID"} = $tempString;
+			}else{
+				$OMIM_ID_link_string = ".";
 			}
+
 			if ($dataHash{"OMIM_phenotype"} ne "."){
-				$dataHash{"OMIM_phenotype"} =~ s/; /;<br>/g ;
+				$tempString = "";
+				@OMIM_phen_array = split(/; /, $dataHash{"OMIM_phenotype"} );
+				if(@OMIM_phen_array){
+					for ( my $ID = 0 ; $ID < scalar @OMIM_phen_array ; $ID++){
+						if( $OMIM_phen_array[$ID] =~ m/^(.+?)(\d{6})(.+?)$/){
+							$tempString .=   $1."<a href=\"https://www.omim.org/entry/".$2."\" target=\"_blank\" rel=\"noopener noreferrer\" style=\"color:#00FFFF\">".$2."</a>".$3.";<br>";   	
+						
+							#DEBUG TODO not sure
+							if ( $ID == 0 ){
+								if ( scalar @OMIM_phen_array > 1){
+									$OMIM_phen_link_string = $1."<a href=\"https://www.omim.org/entry/".$2."\" target=\"_blank\" rel=\"noopener noreferrer\" >".$2."</a>".$3."; [...".scalar @OMIM_phen_array." pheno]";
+								}else{
+									$OMIM_phen_link_string = $1."<a href=\"https://www.omim.org/entry/".$2."\" target=\"_blank\" rel=\"noopener noreferrer\" >".$2."</a>".$3;
+								}
+							}
+						}else{
+							$tempString .= $OMIM_phen_array[$ID].";<br>";
+						}
+					}
+					$tempString =~ s/<br>$//;
+					$dataHash{"OMIM_phenotype"} = $tempString ;
+					if ($OMIM_phen_link_string eq ""){
+						$OMIM_phen_link_string = $dataHash{"OMIM_phenotype"};
+					}
+
+				}else{
+					$dataHash{"OMIM_phenotype"} =~ s/; /;<br>/g ;
+					$OMIM_phen_link_string = ".";
+				}
+			}else{
+				if ($dataHash{"OMIM_morbid"} eq "yes"){
+					$OMIM_phen_link_string = "yes";
+				}else{
+					$OMIM_phen_link_string = ".";
+				}
+
 			}
-		}
-		
+	
+
+			#URL for gene name
+			if ($dataHash{"Gene_name"} ne "."){
+				$tempString = "";
+				@GeneName_array = split(/; /, $dataHash{"Gene_name"} );
+				for( my $ID = 0 ; $ID < scalar @GeneName_array; $ID++){
+					$tempString .=    "<a href=\"https://www.genecards.org/cgi-bin/carddisp.pl?gene=".$GeneName_array[$ID]."\" target=\"_blank\" rel=\"noopener noreferrer\" style=\"color:#00FFFF\">".$GeneName_array[$ID]."; </a>";
+					if($ID < 5){
+						$GeneName_link_string .= "<a href=\"https://www.genecards.org/cgi-bin/carddisp.pl?gene=".$GeneName_array[$ID]."\" target=\"_blank\" rel=\"noopener noreferrer\" >".$GeneName_array[$ID]."</a>; ";
+					}
+				}			
+
+				$dataHash{"Gene_name"} = $tempString  ;
+				if (scalar @GeneName_array > 1){
+					$GeneName_link_string .= " [...".$dataHash{"Gene_count"}."genes]";
+				}else{
+					$GeneName_link_string =~ s/; $//;
+				}
+			}else{
+				$GeneName_link_string = ".";
+			}
+				
+			
+
+
+
 		#get SVtype
 		$SV_type = $dataHash{'SV_type'};
 
@@ -757,10 +841,22 @@ while( <VCF> ){
 				$scorePenalty = 0;	
 				if(defined $dataHash{"ACMG_class"}){
 					
-					if($dataHash{"ACMG_class"} ne "."){
+					if($dataHash{"ACMG_class"} ne "." && $dataHash{"ACMG_class"} ne "NA" ){
 						$scorePenalty = $dataHash{"ACMG_class"} + $dataHash{"AnnotSV_ranking_score"};
 					}else {
-						$scorePenalty = $dataHash{"SV_end"} - $dataHash{"SV_start"};
+						if (defined $dataHash{"Exomiser_gene_pheno_score"} && $dataHash{"Exomiser_gene_pheno_score"} eq "-1.0" && $dataHash{"Exomiser_gene_pheno_score"} ne "NA"){
+							$scorePenalty .= ".".$dataHash{"ACMG_class"}."_".$dataHash{"Exomiser_gene_pheno_score"}."_";
+						}else {
+							$scorePenalty .= ".".$dataHash{"ACMG_class"}."_0.0000_";
+						}
+						if(defined $dataHash{"OMIM_morbid"} && $dataHash{"OMIM_morbid"} eq "yes"){
+							$scorePenalty .= "1_" ;
+						}else{
+							$scorePenalty .= "0_" ;
+						}
+					
+					
+					
 					}
 				}
 				#if (defined $SV_ID{$dataHash{'AnnotSV ID'}}{'finalScore'}){
@@ -783,33 +879,25 @@ while( <VCF> ){
 			}
 
 			#finalsortData assigment according to full or split
-			#$hashFinalSortData{$SV_ID{$dataHash{'AnnotSV_ID'}}{'finalScore'}."_".$variantID}{$dataHash{'AnnotSV_ID'}}{$dataHash{"ACMG_class"}+$fullSplitScore}{$count}{'finalArray'} = [@finalSortData] ; 
 			$hashFinalSortData{$SV_ID{$dataHash{'AnnotSV_ID'}}{'finalScore'}."_".$variantID}{$dataHash{'AnnotSV_ID'}}{$fullSplitScore}{$count}{'finalArray'} = [@finalSortData] ; 
-
-			#finalsortData assigment
-			#$hashFinalSortData{$dataHash{"AnnotSV ranking"}.$scorePenalty."_".$variantID}{$count}{'finalArray'} = [@finalSortData] ; 
-
-
 
 
 			
 			#url to UCSC for SV , highlight in blue and zoomout x1.5
-			#$hashFinalSortData{$SV_ID{$dataHash{'AnnotSV_ID'}}{'finalScore'}."_".$variantID}{$dataHash{'AnnotSV_ID'}}{$dataHash{"ACMG_class"}+$fullSplitScore}{$count}{'url2UCSC'} = "http://genome.ucsc.edu/cgi-bin/hgTracks?db=".$genomeBuild."&position=chr".$dataHash{"SV_chrom"}.":".$dataHash{"SV_start"}."-".$dataHash{"SV_end"}."&hgt.out1=submit&highlight=".$genomeBuild.".chr".$dataHash{"SV_chrom"}.":".$dataHash{"SV_start"}."-".$dataHash{"SV_end"}."#aaedff\" target=\"_blank\" rel=\"noopener noreferrer\"" ; 
 			$hashFinalSortData{$SV_ID{$dataHash{'AnnotSV_ID'}}{'finalScore'}."_".$variantID}{$dataHash{'AnnotSV_ID'}}{$fullSplitScore}{$count}{'url2UCSC'} = "http://genome.ucsc.edu/cgi-bin/hgTracks?db=".$genomeBuild."&position=chr".$dataHash{"SV_chrom"}.":".$dataHash{"SV_start"}."-".$dataHash{"SV_end"}."&hgt.out1=submit&highlight=".$genomeBuild.".chr".$dataHash{"SV_chrom"}.":".$dataHash{"SV_start"}."-".$dataHash{"SV_end"}."#aaedff\" target=\"_blank\" rel=\"noopener noreferrer\"" ; 
 
 			#URL to HUGO HGNC for split line only
-			#$hashFinalSortData{$SV_ID{$dataHash{'AnnotSV_ID'}}{'finalScore'}."_".$variantID}{$dataHash{'AnnotSV_ID'}}{$fullSplitScore}{$count}{'url2HGNC'} = "https://www.genenames.org/tools/search/#!/all?query=".$dataHash{"Gene_name"}."\" target=\"_blank\" rel=\"noopener noreferrer\"" ; 
-			$hashFinalSortData{$SV_ID{$dataHash{'AnnotSV_ID'}}{'finalScore'}."_".$variantID}{$dataHash{'AnnotSV_ID'}}{$fullSplitScore}{$count}{'url2HGNC'} = "https://www.genecards.org/cgi-bin/carddisp.pl?gene=".$dataHash{"Gene_name"}."\" target=\"_blank\" rel=\"noopener noreferrer\"" ; 
+			$hashFinalSortData{$SV_ID{$dataHash{'AnnotSV_ID'}}{'finalScore'}."_".$variantID}{$dataHash{'AnnotSV_ID'}}{$fullSplitScore}{$count}{'GeneName_short'} = $GeneName_link_string ; 
 
 			#url to OMIM
-			#$hashFinalSortData{$SV_ID{$dataHash{'AnnotSV_ID'}}{'finalScore'}."_".$variantID}{$dataHash{'AnnotSV_ID'}}{$dataHash{"ACMG_class"}+$fullSplitScore}{$count}{'url2OMIM'} = "https://www.omim.org/entry/".$dataHash{"OMIM_ID"}  ; 
-			$hashFinalSortData{$SV_ID{$dataHash{'AnnotSV_ID'}}{'finalScore'}."_".$variantID}{$dataHash{'AnnotSV_ID'}}{$fullSplitScore}{$count}{'url2OMIM'} = "https://www.omim.org/entry/".$dataHash{"OMIM_ID"}  ; 
+			#$hashFinalSortData{$SV_ID{$dataHash{'AnnotSV_ID'}}{'finalScore'}."_".$variantID}{$dataHash{'AnnotSV_ID'}}{$fullSplitScore}{$count}{'url2OMIM'} = "https://www.omim.org/entry/".$dataHash{"OMIM_ID"}  ;
 
+			$hashFinalSortData{$SV_ID{$dataHash{'AnnotSV_ID'}}{'finalScore'}."_".$variantID}{$dataHash{'AnnotSV_ID'}}{$fullSplitScore}{$count}{'OMIM_ID_short'} = $OMIM_ID_link_string ; 
+			$hashFinalSortData{$SV_ID{$dataHash{'AnnotSV_ID'}}{'finalScore'}."_".$variantID}{$dataHash{'AnnotSV_ID'}}{$fullSplitScore}{$count}{'OMIM_phen_short'} = $OMIM_phen_link_string ; 
 
 
 			#comment assigment
 			foreach my $fieldCom (keys %dataCommentHash){
-				#$hashFinalSortData{$SV_ID{$dataHash{'AnnotSV_ID'}}{'finalScore'}."_".$variantID}{$dataHash{'AnnotSV_ID'}}{$dataHash{"ACMG_class"}+$fullSplitScore}{$count}{'hashComments'}{$NameColHash{$fieldCom} -1} = $dataCommentHash{$fieldCom}{'values'} ; 
 				$hashFinalSortData{$SV_ID{$dataHash{'AnnotSV_ID'}}{'finalScore'}."_".$variantID}{$dataHash{'AnnotSV_ID'}}{$fullSplitScore}{$count}{'hashComments'}{$NameColHash{$fieldCom} -1} = $dataCommentHash{$fieldCom}{'values'} ; 
 				#print $dataCommentHash{'Gene name'}{'values'}."\n\n";
 				#TODO check color for gene according to output position of gene field 
@@ -817,13 +905,11 @@ while( <VCF> ){
 
 
             #assign color to Gene Name
-			#$hashFinalSortData{$SV_ID{$dataHash{'AnnotSV_ID'}}{'finalScore'}."_".$variantID}{$dataHash{'AnnotSV_ID'}}{$dataHash{"ACMG_class"}+$fullSplitScore}{$count}{'hashColor'}{$NameColHash{'Gene_name'}-1} = $LOEUF_Color ;
 			$hashFinalSortData{$SV_ID{$dataHash{'AnnotSV_ID'}}{'finalScore'}."_".$variantID}{$dataHash{'AnnotSV_ID'}}{$fullSplitScore}{$count}{'hashColor'}{$NameColHash{'Gene_name'}-1} = $LOEUF_Color ;
 
 
 
             #assign color to Gene Name
-			#$hashFinalSortData{$SV_ID{$dataHash{'AnnotSV_ID'}}{'finalScore'}."_".$variantID}{$dataHash{'AnnotSV_ID'}}{$dataHash{"ACMG_class"}+$fullSplitScore}{$count}{'fullRowColor'} = $fullRowColor ;
 			$hashFinalSortData{$SV_ID{$dataHash{'AnnotSV_ID'}}{'finalScore'}."_".$variantID}{$dataHash{'AnnotSV_ID'}}{$fullSplitScore}{$count}{'fullRowColor'} = $fullRowColor ;
 
 
@@ -956,16 +1042,18 @@ var openTab;
 							\$('.dataTables_scrollBody').scrollTop(0);
 							oldStart = newStart;
 						}
+						\$('body').removeClass('waiting');
 					},
 			});  //END initialisation
 
 			//FILTER FUNCTION
 			\$(tabFULLSPLIT.table().container() ).on( 'keyup change', 'thead input', function (){ 
 
-						//console.log('toto1');
+						\$('body').addClass('waiting');
 						var expr = this.value;
 						var i = \$(this).data('index');
 						if(/^[!<>=]+\$/.test(expr)){
+							\$('body').removeClass('waiting');
 							return;
 						}
 						
@@ -981,6 +1069,7 @@ var openTab;
 								var exp = exprClean.match(/^\\W+([-]?\\w+[.]?\\w*)/i);
 								filterHash[i]['operator'] = oper[0];
 								if (exp === null){
+									\$('body').removeClass('waiting');
 									return;
 								}
 								filterHash[i]['expr'] = exp[1];
@@ -1009,6 +1098,8 @@ var openTab;
 					var rowID = this.id;			
 					var fm = fullMode;
 					if (rowID !== '' && fullMode === 'full'){
+
+						\$('body').addClass('waiting');
 
 						if (dblClickMode == 'off'){
 							dblClickMode = 'on';
@@ -1101,6 +1192,8 @@ var openTab;
 	//click full split button
 	openTab =	function(evt, cityName) {
 				
+				\$('body').addClass('waiting');
+
 				if(cityName === 'full'){
 				
 					fullMode = 'full';
@@ -1311,12 +1404,16 @@ var openTab;
 		transition: opacity 0.6s;
 		margin-bottom: 15px;
 		}
-
+	
+	body.waiting * {
+		cursor: wait ;
+	}
 
 \n</style>
 
 \n</head>
-\n\t<body>\n\n<div> <h2>".$outPrefix.$outBasename."___".$genomeBuild."</h2></div>";
+\n\t<body class='waiting'>
+\n\n<div> <h2>".$outPrefix.$outBasename."___".$genomeBuild."</h2></div>";
 
 #table and columns names
 
@@ -1327,7 +1424,8 @@ my $htmlALL= "<div id='alert'><strong><br><br><br><br><br><br>Knotting happens!<
 			<div id=\"FULL+SPLIT\" class=\"tabcontent\">";
 
 $htmlALL .= "\n\t<table id='tabFULLSPLIT' class='display compact' >
-        \n\t\t<thead>\n\t\t\t<tr>";
+				\n\t\t<thead>
+				\n\t\t\t<tr>";
 
 
 foreach my $col (sort {$a <=> $b} keys %OutColHash){
@@ -1436,7 +1534,7 @@ foreach my $rank (rnatkeysort { "$_-$hashFinalSortData{$_}" } keys %hashFinalSor
 
 
 				#define search field
-				if ($OutColHash{$fieldNbr + 1}{'field'} =~ /^OMIM_|^P_/){
+				if ($OutColHash{$fieldNbr + 1}{'field'} =~ /^OMIM_|^P_|^Gene_name/){
 					$htmlALL .= ">";
 				}else{
 					$htmlALL .= "data-search=\"".$hashFinalSortData{$rank}{$ID}{$rankSplit}{$variant}{'finalArray'}[$fieldNbr] ."\">";
@@ -1450,14 +1548,25 @@ foreach my $rank (rnatkeysort { "$_-$hashFinalSortData{$_}" } keys %hashFinalSor
 					if ($fieldNbr eq $NameColHash{'AnnotSV_ID'} - 1){
 						$htmlALL .= "<div class=\"tooltip\"><a href=\"".$hashFinalSortData{$rank}{$ID}{$rankSplit}{$variant}{'url2UCSC'}."\">".$hashFinalSortData{$rank}{$ID}{$rankSplit}{$variant}{'finalArray'}[$fieldNbr]."</a>";
 					
-					}elsif ($fieldNbr eq $NameColHash{'Gene_name'} - 1  &&  $hashFinalSortData{$rank}{$ID}{$rankSplit}{$variant}{'finalArray'}[$NameColHash{'Annotation_mode'} - 1] eq "split" ){
-						$htmlALL .= "<div class=\"tooltip\"><a href=\"".$hashFinalSortData{$rank}{$ID}{$rankSplit}{$variant}{'url2HGNC'}."\">".$hashFinalSortData{$rank}{$ID}{$rankSplit}{$variant}{'finalArray'}[$fieldNbr]."</a>";
+					#}elsif ($fieldNbr eq $NameColHash{'Gene_name'} - 1  &&  $hashFinalSortData{$rank}{$ID}{$rankSplit}{$variant}{'finalArray'}[$NameColHash{'Annotation_mode'} - 1] eq "split" ){
+					}elsif (defined $NameColHash{'Gene_name'} && $fieldNbr eq $NameColHash{'Gene_name'} - 1 ){
+					
+						$htmlALL .= "<div class=\"tooltip\">".$hashFinalSortData{$rank}{$ID}{$rankSplit}{$variant}{'GeneName_short'};
+					
+					}elsif (defined $NameColHash{'OMIM_phenotype'} && $fieldNbr eq $NameColHash{'OMIM_phenotype'} - 1 ){
+
+						$htmlALL .= "<div class=\"tooltip\">".$hashFinalSortData{$rank}{$ID}{$rankSplit}{$variant}{'OMIM_phen_short'};
+						
+					}elsif (defined $NameColHash{'OMIM_ID'} && $fieldNbr eq $NameColHash{'OMIM_ID'} - 1 ){
+
+						$htmlALL .= "<div class=\"tooltip\">".$hashFinalSortData{$rank}{$ID}{$rankSplit}{$variant}{'OMIM_ID_short'};
+					
 					}else{
 							if( length($hashFinalSortData{$rank}{$ID}{$rankSplit}{$variant}{'finalArray'}[$fieldNbr]) > 50 ){
 								$htmlALL .= "<div class=\"tooltip\">".substr($hashFinalSortData{$rank}{$ID}{$rankSplit}{$variant}{'finalArray'}[$fieldNbr],0,45)."[...]";
 							}else{
 								$htmlALL .= "<div class=\"tooltip\">".$hashFinalSortData{$rank}{$ID}{$rankSplit}{$variant}{'finalArray'}[$fieldNbr];
-							}	
+							}
 
 					}
 
