@@ -91,6 +91,7 @@ my @criteria;
 my @OMIM_ID_array;
 my @OMIM_phen_array;
 my @GeneName_array;
+my @RE_gene_array;
 
 my $genomeBuild="";
 #style alignment for tooltiptext
@@ -532,6 +533,9 @@ while( <VCF> ){
 		@OMIM_ID_array = "";
 		@OMIM_phen_array = "";
 		@GeneName_array = "";
+		@RE_gene_array = "";
+		my %GeneName_hash ;
+		my %RE_gene_hash ;
 		my $tempString;
 		#add url to OMIM_ID
 			if ($dataHash{"OMIM_ID"} ne "."){
@@ -593,6 +597,7 @@ while( <VCF> ){
 				$tempString = "";
 				@GeneName_array = split(/; /, $dataHash{"Gene_name"} );
 				for( my $ID = 0 ; $ID < scalar @GeneName_array; $ID++){
+					$GeneName_hash{$GeneName_array[$ID]} = 1;
 					$tempString .=    "<a href=\"https://www.genecards.org/cgi-bin/carddisp.pl?gene=".$GeneName_array[$ID]."\" target=\"_blank\" rel=\"noopener noreferrer\" style=\"color:#00FFFF\">".$GeneName_array[$ID]."; </a>";
 					if($ID < 5){
 						$GeneName_link_string .= "<a href=\"https://www.genecards.org/cgi-bin/carddisp.pl?gene=".$GeneName_array[$ID]."\" target=\"_blank\" rel=\"noopener noreferrer\" >".$GeneName_array[$ID]."</a>; ";
@@ -608,7 +613,41 @@ while( <VCF> ){
 			}else{
 				$GeneName_link_string = ".";
 			}
-				
+			
+
+			#Classify RE_Gene elements according to Gene name list to highlight missing elements
+			if ($dataHash{"RE_gene"} ne "."){
+				$tempString = "";
+				my $splicebool = 0;
+				$dataHash{"RE_gene"} =~ s/; morbid/\/morbid/g;
+				@RE_gene_array = split(/; /, $dataHash{"RE_gene"} );
+				for ( my $ID = 0 ; $ID < scalar @RE_gene_array ; $ID++){
+					if( $RE_gene_array[$ID] =~ m/^(\S+)\s?/ ){
+						#print $RE_gene_array[$ID]."__ge__".$1."\n";
+						if (defined $GeneName_hash{$1}){
+							$RE_gene_hash{$RE_gene_array[$ID]} = 0;
+						}else{
+							$RE_gene_hash{$RE_gene_array[$ID]} = 1000;
+							if ($RE_gene_array[$ID] =~ /morbid/){
+								$RE_gene_hash{$RE_gene_array[$ID]} += 10;
+							}
+							if ($RE_gene_array[$ID] =~ m/EX=(\d\.\d{4})/){
+								$RE_gene_hash{$RE_gene_array[$ID]} += 20 * $1;
+								#print $RE_gene_array[$ID]."__ex__".$1."\n";
+							}
+
+						}
+					}
+				}	
+                foreach my $ReGene (sort {$RE_gene_hash{$b} <=> $RE_gene_hash{$a}} keys %RE_gene_hash){
+					if ($splicebool == 0 && $RE_gene_hash{$ReGene} == 0 && $tempString ne ""){
+						$splicebool =1;
+						$tempString .= "<br>------<br>";
+					}
+					$tempString .= $ReGene."; ";
+				}
+				$dataHash{"RE_gene"} = $tempString;
+			}
 			
 
 
@@ -841,13 +880,29 @@ while( <VCF> ){
 				$scorePenalty = 0;	
 				if(defined $dataHash{"ACMG_class"}){
 					
-					if($dataHash{"ACMG_class"} ne "." && $dataHash{"ACMG_class"} ne "NA" ){
-						$scorePenalty = $dataHash{"ACMG_class"} + $dataHash{"AnnotSV_ranking_score"};
-					}else {
-						if (defined $dataHash{"Exomiser_gene_pheno_score"} && $dataHash{"Exomiser_gene_pheno_score"} eq "-1.0" && $dataHash{"Exomiser_gene_pheno_score"} ne "NA"){
-							$scorePenalty .= ".".$dataHash{"ACMG_class"}."_".$dataHash{"Exomiser_gene_pheno_score"}."_";
+						if($dataHash{"ACMG_class"} ne "." && $dataHash{"ACMG_class"} ne "NA" ){
+							$scorePenalty = $dataHash{"ACMG_class"}."_" ;
+						}else{
+							$scorePenalty .= "_" ;
+						}
+
+						if($SV_type eq "DEL"){
+							$scorePenalty .= "3_";
+						}elsif($SV_type eq "DUP"){
+							$scorePenalty .= "2_";
+						}else{
+							$scorePenalty .= "1_";
+						}
+
+						if($dataHash{"Gene_count"} ne "."){
+							$scorePenalty .= $dataHash{"Gene_count"}."_";
+						}else{
+							$scorePenalty .= "0_";
+						}	
+						if (defined $dataHash{"Exomiser_gene_pheno_score"} && $dataHash{"Exomiser_gene_pheno_score"} ne "-1.0" && $dataHash{"Exomiser_gene_pheno_score"} ne "NA"){
+							$scorePenalty .= $dataHash{"Exomiser_gene_pheno_score"}."_";
 						}else {
-							$scorePenalty .= ".".$dataHash{"ACMG_class"}."_0.0000_";
+							$scorePenalty .= "0.0000_";
 						}
 						if(defined $dataHash{"OMIM_morbid"} && $dataHash{"OMIM_morbid"} eq "yes"){
 							$scorePenalty .= "1_" ;
@@ -855,19 +910,14 @@ while( <VCF> ){
 							$scorePenalty .= "0_" ;
 						}
 					
-					
-					
-					}
 				}
-				#if (defined $SV_ID{$dataHash{'AnnotSV ID'}}{'finalScore'}){
 				$SV_ID{$dataHash{'AnnotSV_ID'}}{'finalScore'} = $scorePenalty;
-				#$SV_ID{$dataHash{'AnnotSV ID'}}{'splitScore'} = $dataHash{"AnnotSV ranking"} + 1000;
 				$fullSplitScore = 1000;
 			}else{
 				#TODO compute gene penalty exomiser > OMIM_morbid > LOEUF_bin
 				$fullSplitScore = 10;
 				if (defined $dataHash{"Exomiser_gene_pheno_score"} && $dataHash{"Exomiser_gene_pheno_score"} ne "-1" && $dataHash{"Exomiser_gene_pheno_score"} ne "NA"){
-					$fullSplitScore += (10 * $dataHash{"Exomiser_gene_pheno_score"});	
+					$fullSplitScore += (20 * $dataHash{"Exomiser_gene_pheno_score"});	
 				}	
 				if(defined $dataHash{"OMIM_morbid"} && $dataHash{"OMIM_morbid"} eq "yes"){
 					$fullSplitScore += 10;
