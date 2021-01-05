@@ -104,7 +104,7 @@ perl ./knotAnnotSV.pl
     
     --LOEUFcolorRange <Number to define which color gradient to use for LOEUF bin: 1 (red-to-green), 2 (red-shades-only) (default = 1)>
 
-    --datatableDir <Local Path to dataTables directory containing css and js files (default = \"\", requires web connection)>
+    --datatableDir <Local Path to DataTables directory containing css and js files (default = \"\", requires web connection)>
   
 ```
 
