@@ -26,7 +26,7 @@
 ---
 #### General annotations on the SV
 ##################################
-AnnotSV_ID:    #mandatory
+AnnotSV_ID:    #mandatory in first position
     POSITION: 1
     RENAME: "AnnotSV ID"
 
@@ -43,6 +43,7 @@ SV_type:
     HEADERTIPS: "Type of the SV (DEL, DUP...)"
     COMMENTLIST:
         - SV_length
+        - Gene_count
 
 Annotation_mode: #mandatory
     POSITION: 4 
@@ -58,7 +59,6 @@ Gene_name:     # mandatory
     RENAME: "Gene name"
     HEADERTIPS: "Gene symbol"
     COMMENTLIST:
-        - Gene_count
         - LOEUF_bin
         - GnomAD_pLI
         - ExAC_pLI
@@ -88,11 +88,11 @@ Location:
         - Overlapped_CDS_length
         - Overlapped_CDS_percent
         - Frameshift
-        - Dist_Nearest_SS
+        - Dist_nearest_SS
         - Nearest_SS_type
         - Intersect_Start
         - Intersect_End
-OMIM_ID:
+OMIM_phenotype:
     POSITION: 7
     RENAME: "OMIM ID"
     HEADERTIPS: "Hover your mouse to highlight OMIM annotations"
@@ -112,12 +112,6 @@ Exomiser_gene_pheno_score:
         - Mouse_pheno_evidence
         - Fish_pheno_evidence
 
-### Annotations done with regulatory elements
-#############################################
-RE_gene:
-    POSITION: 9
-    RENAME: "Overlapped regulatory elements"
-    HEADERTIPS: "Report the name of the genes potentially badly regulated"
 
 ### Annotations done with pathogenic SV
 #######################################
@@ -153,6 +147,14 @@ B_gain_source:
         - B_gain_coord
         - B_loss_source
         - B_loss_coord
+
+
+### Annotations done with regulatory elements
+#############################################
+RE_gene:
+    POSITION: 9
+    RENAME: "Overlapped regulatory elements"
+    HEADERTIPS: "Report the name of the genes potentially badly regulated"
 
 ### Annotations of the breakpoints
 ##################################
