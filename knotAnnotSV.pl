@@ -3,14 +3,14 @@
 ##############################################################################################
 # knotAnnotSV 1.0                                                                            #	
 #                                                                                            #
-# knotAnnotSV: Creation of a customizable html file to visualize, filter                   	 # 
+# knotAnnotSV: Creation of a customizable html file to visualize, filter                     # 
 #                   and analyze an AnnotSV output                                            #
 #                                                                                            #
-# Author: Thomas Guignard 2020                                                               #
+# Author: Thomas Guignard 2020-2021                                                          #
 #                                                                                            #
-# Copyright (C) 2020 Thomas Guignard (t-guignard@chu-montpellier.fr)                         #
+# Copyright (C) 2020-2021 Thomas Guignard (t-guignard@chu-montpellier.fr)                    #
 #                                                                                            #
-# This is part of knotAnnotSV source code.        	                                         #
+# This is part of knotAnnotSV source code.                                                   #
 #                                                                                            #
 # This program is free software; you can redistribute it and/or                              #
 # modify it under the terms of the GNU General Public License                                #
@@ -44,8 +44,8 @@ my $man = "USAGE : \nperl knotAnnotSV.pl
 \n--outDir <output directory (default = current dir)> 
 \n--outPrefix <output file prefix (default = \"\")> 
 \n--genomeBuild <Genome Assembly reference (default = hg19)> 
-\n--LOEUFcolorRange <Number to define which color to use for LOEUF bin:  1(red-to-green), 2(red-shades-only)  (default = 1)> 
-\n--datatableDir <Local Path to dataTables directory containing css and js files (default = \"\", requires web connection)>"; 
+\n--LOEUFcolorRange <Number to define which color to use for LOEUF bin: 1 (red-to-green), 2 (red-shades-only). (default = 1)> 
+\n--datatableDir <Local Path to DataTables directory containing css and js files (default = \"\", requires web connection)>"; 
 
 
 my $configFile = ".";
@@ -395,8 +395,8 @@ my %gainRankCriteria = (
 "3B"=>"35–49 genes wholly or partially included",
 "3C"=>"50 or more genes wholly or partially included",
 "5F"=>"Inheritance information is unavailable or uninformative.",
-"5G"=>"The patient phenotype is nonspecific, but is consistent with what has been described in similar cases (EXOMISER_GENE_PHENO_SCORE > 0.5).Inheritance information is unavailable or uninformative.",
-"5H"=>"The patient phenotype is highly specific and consistent with what has been described in similar cases (EXOMISER_GENE_PHENO_SCORE > 0.7).Inheritance information is unavailable or uninformative.");
+"5G"=>"The patient phenotype is nonspecific, but is consistent with what has been described in similar cases (EXOMISER_GENE_PHENO_SCORE > 0.5).",
+"5H"=>"The patient phenotype is highly specific and consistent with what has been described in similar cases (EXOMISER_GENE_PHENO_SCORE > 0.7).");
 
 
 my %lossRankCriteria = (
@@ -423,8 +423,8 @@ my %lossRankCriteria = (
 "3B"=>"25–34 genes wholly or partially included",
 "3C"=>"35+ genes wholly or partially included",
 "5F"=>"Inheritance information is unavailable or uninformative.",
-"5G"=>"The patient phenotype is nonspecific, but is consistent with what has been described in similar cases (EXOMISER_GENE_PHENO_SCORE > 0.5).Inheritance information is unavailable or uninformative.",
-"5H"=>"The patient phenotype is highly specific and consistent with what has been described in similar cases (EXOMISER_GENE_PHENO_SCORE > 0.7).Inheritance information is unavailable or uninformative.");
+"5G"=>"The patient phenotype is nonspecific, but is consistent with what has been described in similar cases (EXOMISER_GENE_PHENO_SCORE > 0.5).",
+"5H"=>"The patient phenotype is highly specific and consistent with what has been described in similar cases (EXOMISER_GENE_PHENO_SCORE > 0.7).");
 
 
 

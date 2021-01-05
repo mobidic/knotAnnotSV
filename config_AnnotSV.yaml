@@ -6,7 +6,7 @@
 #                                                                                            #
 # Author: Thomas Guignard 2020                                                               #
 #                                                                                            #
-# Copyright (C) 2020 Thomas Guignard (t-guignard@chu-montpellier.fr)                         #
+# Copyright (C) 2020-2021 Thomas Guignard (t-guignard@chu-montpellier.fr)                    #
 #                                                                                            #
 # This is part of knotAnnotSV source code.                                                   #
 #                                                                                            #
@@ -90,14 +90,14 @@ Location:
         - Frameshift
         - Dist_nearest_SS
         - Nearest_SS_type
-        - Intersect_start
-        - Intersect_end
+        - Intersect_Start
+        - Intersect_End
 OMIM_phenotype:
     POSITION: 7
-    RENAME: "OMIM phenotype"
+    RENAME: "OMIM ID"
     HEADERTIPS: "Hover your mouse to highlight OMIM annotations"
     COMMENTLIST:
-        - OMIM_ID
+        - OMIM_phenotype
         - OMIM_inheritance
         - OMIM_morbid
         - OMIM_morbid_candidate
@@ -117,7 +117,7 @@ Exomiser_gene_pheno_score:
 #######################################
 P_gain_coord:
     POSITION: 10
-    RENAME: "Pathogenic SV sources"
+    RENAME: "Pathogenic SV"
     HEADERTIPS: "Known pathogenic genes or genomic regions (with the same SV type; from ClinVar, ClinGen, dbVar, OMIM) completely overlapped with the SV to annotate"
     COMMENTLIST:
         - P_gain_source
@@ -141,7 +141,7 @@ P_snvindel_nb:
 ###################################
 B_gain_source:
     POSITION: 12
-    RENAME: "Benign SV sources"
+    RENAME: "Benign SV"
     HEADERTIPS: "Benign genomic regions (with the same SV type; from gnomAD, ClinVar, ClinGen, DGV, DDD, 1000g, IMH) completely overlapping the SV to annotate"
     COMMENTLIST:
         - B_gain_coord

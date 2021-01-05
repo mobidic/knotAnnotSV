@@ -1,4 +1,6 @@
-![KnotAnnotSV](https://github.com/mobidic/knotAnnotSV/blob/master/images/logoKNOT.png)
+<p align="center">
+    <img src="https://github.com/mobidic/knotAnnotSV/blob/master/images/logoKNOT.png" width="600"/>
+</p>
 
 # What is knotAnnotSV?
 
@@ -104,7 +106,7 @@ perl ./knotAnnotSV.pl
     
     --LOEUFcolorRange <Number to define which color gradient to use for LOEUF bin: 1 (red-to-green), 2 (red-shades-only) (default = 1)>
 
-    --datatableDir <Local Path to dataTables directory containing css and js files (default = \"\", requires web connection)>
+    --datatableDir <Local Path to DataTables directory containing css and js files (default = \"\", requires web connection)>
   
 ```
 
@@ -117,7 +119,7 @@ To help you get how to make effective use of knotAnnotSV, we have provided an in
 
 cd /path/to/install/knotAnnotSV
 
-perl ./knotAnnotSV.pl --annotSVfile ./example/example.annotated.tsv --configFile ./config_AnnotSV.yaml
+perl ./knotAnnotSV.pl --annotSVfile ./example/example.annotated.tsv --configFile ./config_AnnotSV.yaml --outDir ./example
 ```
 2. Display the html output on a web browser
 
