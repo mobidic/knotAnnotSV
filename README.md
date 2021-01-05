@@ -1,4 +1,6 @@
-![KnotAnnotSV](https://github.com/mobidic/knotAnnotSV/blob/master/images/logoKNOT.png)
+<p align="center">
+    <img src="https://github.com/mobidic/knotAnnotSV/blob/master/images/logoKNOT.png" width="600"/>
+</p>
 
 # What is knotAnnotSV?
 
