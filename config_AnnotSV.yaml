@@ -92,7 +92,7 @@ Location:
         - Nearest_SS_type
         - Intersect_Start
         - Intersect_End
-OMIM_phenotype:
+OMIM_ID:
     POSITION: 7
     RENAME: "OMIM ID"
     HEADERTIPS: "Hover your mouse to highlight OMIM annotations"
