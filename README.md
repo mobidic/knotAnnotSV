@@ -117,7 +117,7 @@ To help you get how to make effective use of knotAnnotSV, we have provided an in
 
 cd /path/to/install/knotAnnotSV
 
-perl ./knotAnnotSV.pl --annotSVfile ./example/example.annotated.tsv --configFile ./config_AnnotSV.yaml
+perl ./knotAnnotSV.pl --annotSVfile ./example/example.annotated.tsv --configFile ./config_AnnotSV.yaml --outDir ./example
 ```
 2. Display the html output on a web browser
 
