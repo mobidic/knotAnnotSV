@@ -6,9 +6,9 @@
 # knotAnnotSV: Creation of a customizable html file to visualize, filter                     # 
 #                   and analyze an AnnotSV output                                            #
 #                                                                                            #
-# Author: Thomas Guignard 2020                                                               #
+# Author: Thomas Guignard 2020-2021                                                          #
 #                                                                                            #
-# Copyright (C) 2020 Thomas Guignard (t-guignard@chu-montpellier.fr)                         #
+# Copyright (C) 2020-2021 Thomas Guignard (t-guignard@chu-montpellier.fr)                    #
 #                                                                                            #
 # This is part of knotAnnotSV source code.                                                   #
 #                                                                                            #
