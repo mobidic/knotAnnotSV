@@ -90,8 +90,8 @@ Location:
         - Frameshift
         - Dist_nearest_SS
         - Nearest_SS_type
-        - Intersect_Start
-        - Intersect_End
+        - Intersect_start
+        - Intersect_end
 OMIM_ID:
     POSITION: 7
     RENAME: "OMIM ID"
