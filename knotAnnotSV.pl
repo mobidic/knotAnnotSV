@@ -774,7 +774,7 @@ while( <VCF> ){
 							}
 
                         }else{
-                            print "Undefined field (typo error in config file or absent in annotation file (ex: exomiser):  ".$field."\n";
+                            print "Undefined field (typo error in config file or absent in annotation file (ex: exomiser):  ".$fieldCom." in ".$field."\n";
 
                             $dataCommentHash{$field}{'values'} .= "<br><span class=\"commentTitle\">".$fieldCom . " :</span> NA";
                         }
@@ -1019,6 +1019,7 @@ my $htmlStart = "<!DOCTYPE html>\n<html>
 \n<head>
 \n<meta charset=\"utf-8\">
 \n<title>".$outPrefix.$outBasename."</title>\n
+\n<link rel=\"shortcut icon\" href=\"https://github.com/mobidic/knotAnnotSV/raw/master/images/knot_favicon.png\" type=\"image/png\"/>
 \n<script type=\"text/javascript\" language=\"javascript\" src='".$path2jquery."jquery-3.5.1.js'></script>
 \n<script type=\"text/javascript\" language=\"javascript\" src='".$path2jqueryDT."jquery.dataTables.min.js'></script>
 \n<script type=\"text/javascript\" language=\"javascript\" src='".$path2jsFCDT."dataTables.fixedColumns.min.js'></script>
@@ -1031,7 +1032,11 @@ var openTab;
 \$(document).ready(function() {
 					
 				var height = \$(window).height();
-				var h = Math.floor(height - 250);
+				if (height < 840){
+					var h = Math.floor(height - 280);
+				}else{
+					var h = Math.floor(height - height/3);
+				}
 				var filterHash = new Object();
 				var keyType = \"".($NameColHash{'Annotation_mode'} - 1)."\";
 				var keyAnnotID = \"".($NameColHash{'AnnotSV_ID'} - 1)."\";
@@ -1463,7 +1468,9 @@ var openTab;
 
 \n</head>
 \n\t<body class='waiting'>
-\n\n<div> <h2>".$outPrefix.$outBasename."___".$genomeBuild."</h2></div>";
+\n\n<div style=\"width: 98%; margin: 10px 10px 10px 10px; text-align:right;display: inline-block\"> <h3 style=\"margin: 0px 0px 0px 0px;\">".$outPrefix.$outBasename." in ".$genomeBuild." <a href=\"https://github.com/mobidic/knotAnnotSV\"  target=\"_blank\" rel=\"noopener noreferrer\" ><img src=\"https://github.com/mobidic/knotAnnotSV/raw/master/images/logoKNOT.png\" style=\"display:inline; width:12em;height:3em;\" align=\"left\" alt=\"Logo is Knot here.\"></a></h3></div>";
+
+
 
 #table and columns names
 
