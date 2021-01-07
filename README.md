@@ -87,6 +87,61 @@ SV_chrom:
 
 An AnnotSV html file is produced and ready to be displayed on a web browser (Firefox 81.0, Chrome 86.0.4240.75, Edge 83.0.478.54, IE 11, tested so far). 
 
+### Color codes
+
+The full lines are highlighted depending on their SV type. Split lines have a white background. 
+
+<p align="center">
+    <img src="https://github.com/mobidic/knotAnnotSV/blob/master/images/SVcolorcode.png" width="400"/>
+</p>
+
+
+Two different palettes of colors can be used to visualized for each gene its corresponding GnomAD defined LOEUF_bin value (user defined, see the USAGE/OPTIONS section), smaller values reflect loss of function intolerance:
+
+- A red-to-green palette (default): The red color means the lower LOEUF_bin value (0). The green color means the higher LOEUF_bin value (9).
+- A sequential palette of red: Darker colors mean lower LOEUF_bin values (e.g 0).
+
+<p align="center">
+    <img src="https://github.com/mobidic/knotAnnotSV/blob/master/images/LOEUF_ranges.png" width="600"/>
+</p>
+
+Depending on the overlapped gene part, the « Gene name » box is fully colored or not:
+- Gene totally overlapped: fully colored box
+<p align="center">
+    <img src="https://github.com/mobidic/knotAnnotSV/blob/master/images/gene_fulloverlap.png" width="200"/>
+</p>
+
+- Gene partially overlapped: half colored box depending on whether the 3’ of the gene is overlapped or the 5’ of the gene is overlapped
+
+<p align="center">
+    <img src="https://github.com/mobidic/knotAnnotSV/blob/master/images/gene_overlap.png" width="200"/>
+</p>
+
+
+### Main features
+
+Three display modes are available thanks to click action :
+- “Compact”: only the “full” AnnotSV lines are displayed (COMPACT button)
+- “Expanded”: the “full” and “split” AnnotSV lines are displayed (EXPANDED button)
+- “Single SV focus”: only the “full” and “split” AnnotSV lines of a single SV are displayed (double-click on a full line in compact mode)
+
+Additionnal data and links are available:
+- Hover annotation with mouse to display complementary information (tooltips)
+- Click on the « AnnotSV ID » to open the SV coordinates in the UCSC Genome browser (the SV region is automatically highlighted in blue and zoomed out by 1.5x)
+- Click on the blue hyperlinks to access directly to the corresponding public database (OMIM, genecards)
+
+
+Column headers have searching and sorting features:
+- Searching words or extracting matching records
+- Filtering a range of numerical values (with the “>”, “>=”, “<” and “<=” symbols) e.g. to select frequencies smaller than 1%, type “<0.01”
+- Filtering out some numerical values (“!= value”) 
+- Filtering out some words (“! word”)
+- Search is also performed in the tooltips of the OMIM, Pathogenic and Gene Name fields (e.g. you can to match phenotype in the tootip). 
+- Column header is clickable to sort values 
+- At each stage of the analysis process, all the set-up filters are locally stored
+- Reset original sorting by clicking on the header of the first column (AnnotSV ID)
+
+
 
 # USAGE
 ```
