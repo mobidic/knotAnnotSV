@@ -102,7 +102,7 @@ Two different palettes of colors can be used to visualized for each gene its cor
 - A sequential palette of red: Darker colors mean lower LOEUF_bin values (e.g 0).
 
 <p align="center">
-    <img src="https://github.com/mobidic/knotAnnotSV/blob/master/images/LOEUF_ranges.png" width="600"/>
+    <img src="https://github.com/mobidic/knotAnnotSV/blob/master/images/" width="600"/>
 </p>
 
 Depending on the overlapped gene part, the « Gene name » box is fully colored or not:
