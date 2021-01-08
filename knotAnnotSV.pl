@@ -667,13 +667,13 @@ while( <VCF> ){
 			$fullRowColor = "#FEE7CD";
 		}elsif ($SV_type =~ /INS/i){
 			$SV_type = "INS";
-			$fullRowColor = "#FFFF99";
+			$fullRowColor = "#FFCCEF";
 		}elsif ($SV_type =~ /CPX/i){
 			$SV_type = "CPX";
 			$fullRowColor = "#D4F7DC";
 		}elsif ($SV_type =~ /BND/i){
 			$SV_type = "BND";
-			$fullRowColor = "#D2F8E3";
+			$fullRowColor = "#FFFF99";
 		}else{
 			$fullRowColor = "#E0CCFF";
 		}
