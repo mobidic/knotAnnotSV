@@ -129,7 +129,7 @@ Additionnal data, links and sorting are available:
 - Hover annotation with mouse to display complementary information (tooltips)
 - Click on the « AnnotSV ID » to open the SV coordinates in the UCSC Genome browser (the SV region is automatically highlighted in blue and zoomed out by 1.5x)
 - Click on the blue hyperlinks to access directly to the corresponding public database (OMIM, genecards)
-- By default, the annotation lines are sorted according to these priorization rules: ACMG class > Exomiser Score > OMIM morbid > LOEUF bin (this last applied on split lines only)
+- By default, the annotation lines are sorted according to these priorization rules: ACMG class > Exomiser Score > OMIM morbid > LOEUF bin (this last one is applied on split lines only)
 
 
 Column headers have searching and sorting features:
