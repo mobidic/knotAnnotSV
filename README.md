@@ -125,10 +125,11 @@ Three display modes are available thanks to click action :
 - “Expanded”: the “full” and “split” AnnotSV lines are displayed (EXPANDED button)
 - “Single SV focus”: only the “full” and “split” AnnotSV lines of a single SV are displayed (double-click on a full line in compact mode)
 
-Additionnal data and links are available:
+Additionnal data, links and sorting are available:
 - Hover annotation with mouse to display complementary information (tooltips)
 - Click on the « AnnotSV ID » to open the SV coordinates in the UCSC Genome browser (the SV region is automatically highlighted in blue and zoomed out by 1.5x)
 - Click on the blue hyperlinks to access directly to the corresponding public database (OMIM, genecards)
+- By default, the annotation lines are sorted according to these priorization rules: ACMG class > Exomiser Score > OMIM morbid > LOEUF bin (this last applied on split lines only)
 
 
 Column headers have searching and sorting features:
