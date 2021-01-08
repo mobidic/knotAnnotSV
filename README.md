@@ -92,7 +92,7 @@ An AnnotSV html file is produced and ready to be displayed on a web browser (Fir
 The full lines are highlighted depending on their SV type. Split lines have a white background. 
 
 <p align="center">
-    <img src="https://github.com/mobidic/knotAnnotSV/blob/master/images/SVcolor.png" width="500"/>
+    <img src="https://github.com/mobidic/knotAnnotSV/blob/master/images/SVcolor.png" width="600"/>
 </p>
 
 
