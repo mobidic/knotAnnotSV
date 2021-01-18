@@ -93,6 +93,8 @@ my @OMIM_phen_array;
 my @GeneName_array;
 my @RE_gene_array;
 
+my %debugHash;
+
 my $genomeBuild="";
 #style alignment for tooltiptext
 my $alignTooltiptext="";
@@ -774,8 +776,14 @@ while( <VCF> ){
 							}
 
                         }else{
-                            print "Undefined field (typo error in config file or absent in annotation file (ex: exomiser):  ".$fieldCom." in ".$field."\n";
-
+                            
+				if (defined $debugHash{$fieldCom."_".$field}){
+					#Do nothing
+				}else{
+			    		$debugHash{$fieldCom."_".$field} = 1;
+			        	print "Undefined field (typo error in config file or absent in annotation file (ex: exomiser):  ".$fieldCom." in ".$field."\n";
+				}
+				
                             $dataCommentHash{$field}{'values'} .= "<br><span class=\"commentTitle\">".$fieldCom . " :</span> NA";
                         }
                         #print $field.":\t".$fieldCom.":\t".$dataCommentHash{'Gene name'}{'values'}."\n";
