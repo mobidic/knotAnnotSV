@@ -112,6 +112,12 @@ Exomiser_gene_pheno_score:
         - Mouse_pheno_evidence
         - Fish_pheno_evidence
 
+### Annotations done with regulatory elements
+#############################################
+RE_gene:
+    POSITION: 9
+    RENAME: "Overlapped regulatory elements"
+    HEADERTIPS: "Report the name of the genes potentially badly regulated"
 
 ### Annotations done with pathogenic SV
 #######################################
@@ -147,14 +153,6 @@ B_gain_source:
         - B_gain_coord
         - B_loss_source
         - B_loss_coord
-
-
-### Annotations done with regulatory elements
-#############################################
-RE_gene:
-    POSITION: 9
-    RENAME: "Overlapped regulatory elements"
-    HEADERTIPS: "Report the name of the genes potentially badly regulated"
 
 ### Annotations of the breakpoints
 ##################################
