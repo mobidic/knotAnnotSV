@@ -1077,8 +1077,8 @@ var openTab;
 					//scrollCollapse: true,
 					oLanguage: { sLengthMenu: 'Show _MENU_ lines',sInfo: 'Showing _START_ to _END_ of _TOTAL_ lines' },
 					lengthMenu: [
-							[-1, 100],
-							['All', 100]
+							[250, -1],
+							[250, 'All']
 						],
 					fixedColumns:   {
 						leftColumns: 1,
