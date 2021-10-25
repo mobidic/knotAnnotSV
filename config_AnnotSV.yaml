@@ -1,5 +1,5 @@
 ##############################################################################################
-# knotAnnotSV 1.0                                                                            #
+# knotAnnotSV 1.1                                                                            #
 #                                                                                            #
 # knotAnnotSV: Creation of a customizable html file to visualize, filter                     # 
 #                   and analyze an AnnotSV output                                            #
@@ -29,7 +29,6 @@
 AnnotSV_ID:    #mandatory in first position
     POSITION: 1
     RENAME: "AnnotSV ID"
-
 ACMG_class:  # mandatory   
     POSITION: 2
     RENAME: "ACMG class"
@@ -76,13 +75,20 @@ Gene_name:     # mandatory
         - DDD_consequence
         - DDD_disease
         - DDD_pmid
+        - GenCC_disease
+        - GenCC_moi
+        - GenCC_classification
+        - GenCC_pmid
 Location:
     POSITION: 6
     RENAME: "Location"
     HEADERTIPS: "Hover your mouse to highlight SV location annotations in the gene"
     COMMENTLIST:
+        - CytoBand
         - Location2
         - Tx
+        - Tx_start
+        - Tx_end
         - Exon_count
         - Overlapped_tx_length
         - Overlapped_CDS_length
@@ -151,8 +157,10 @@ B_gain_source:
     HEADERTIPS: "Benign genomic regions (with the same SV type; from gnomAD, ClinVar, ClinGen, DGV, DDD, 1000g, IMH) completely overlapping the SV to annotate"
     COMMENTLIST:
         - B_gain_coord
+        - B_gain_AFmax
         - B_loss_source
         - B_loss_coord
+        - B_loss_AFmax
 
 ### Annotations of the breakpoints
 ##################################
@@ -183,6 +191,10 @@ ENCODE_blacklist_characteristics_right:
 TAD_coordinate:
     POSITION: 0
 ENCODE_experiment:
+    POSITION: 0
+Cosmic_ID:
+    POSITION: 0
+Cosmic_mut_typ:
     POSITION: 0
 compound-htz(sample):
     POSITION: 0
