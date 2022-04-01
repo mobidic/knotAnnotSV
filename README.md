@@ -193,4 +193,4 @@ France
 
 ![MoBiDiC](https://raw.githubusercontent.com/mobidic/Captain-ACHAB/master/img/logo-mobidic.png)
 
-[Visit our website](https://neuro-2.iurc.montp.inserm.fr/mobidic/)
+[Visit our website](https://pmmg.iurc.montp.inserm.fr/mobidic/)
