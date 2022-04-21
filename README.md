@@ -5,6 +5,7 @@
 # What is knotAnnotSV?
 
 knotAnnotSV is a simple tool to create a customizable html file (to be displayed on a web browser) from an [AnnotSV](https://lbgi.fr/AnnotSV) output.
+knotAnnotSV2XL is a second simple tool to create a customizable xlsm file (to be displayed as a spreadsheet file) especially from large [AnnotSV](https://lbgi.fr/AnnotSV) output.
 
 The user can customize the order and the number of the annotation columns as well as the visualization mode (direct display or by comment) thanks to a configuration file. He can then visualize, filter and analyze the annotation data thanks to different user friendly available functions (search/filtering box, tooltip, links to public databases, color coded information...).
 
@@ -30,6 +31,8 @@ $ git clone https://github.com/mobidic/knotAnnotSV.git
 - Linux OS
 
 - Perl library via cpan : YAML::XS, Sort::Key::Natural
+
+- (only for knotAnnotSV2XL.pl) Perl library via cpan : Excel::Writer::XLSX
 
 
 # Input
@@ -66,7 +69,7 @@ ACMG_class:
         - AnnotSV_ranking_score
         - AnnotSV_ranking_criteria
 SV_type:
-    POSITION: 5
+    POSITION: 3
     RENAME: SV type
 Annotation_mode:
     POSITION: 4
@@ -85,7 +88,8 @@ SV_chrom:
 
 # Output
 
-An AnnotSV html file is produced and ready to be displayed on a web browser (Firefox 81.0, Chrome 86.0.4240.75, Edge 83.0.478.54, IE 11, tested so far). 
+With knotAnnotSV.pl, an AnnotSV html file is produced and ready to be displayed on a web browser (Firefox 81.0, Chrome 86.0.4240.75, Edge 83.0.478.54, IE 11, tested so far). 
+With knotAnnotSV2XL.pl, an AnnotSV xlsm file is produced and ready to be displayed on a standard spreadsheet (tested on WPS-office_11.1.0.955, onlyoffice 6.3.0, Excel 2010). 
 
 ### Color codes
 
@@ -145,6 +149,8 @@ Column headers have searching and sorting features:
 
 
 # USAGE
+
+For html output:
 ```
 cd /path/to/install/knotAnnotSV
 
@@ -166,6 +172,34 @@ perl ./knotAnnotSV.pl
   
 ```
 
+For spreadsheet output:
+```
+cd /path/to/install/knotAnnotSV
+
+perl ./knotAnnotSV2XL.pl
+
+    --configFile <YAML config file for customizing output>
+
+    --annotSVfile <AnnotSV annotated file> 
+
+    --outDir <output directory (default = current dir)> 
+
+    --outPrefix <output file prefix (default = "")> 
+    
+    --genomeBuild <Genome Assembly reference (default = hg19)>
+    
+    --LOEUFcolorRange <Number to define which color gradient to use for LOEUF bin: 1 (red-to-green), 2 (red-shades-only) (default = 1)>
+    
+    --vbaBin <path to vbaProject.bin file to add macro to output file> 
+
+    --geneCountThreshold <Maximum number of genes to output in split lines, omim morbid genes or exomiser > 0.7 will be kept anyway (All genes by default, 40 is advised )>
+
+  
+```
+
+
+
+
 # Test knotAnnotSV
 
 To help you get how to make effective use of knotAnnotSV, we have provided an input/output example in the ```example``` folder. 
@@ -176,8 +210,9 @@ To help you get how to make effective use of knotAnnotSV, we have provided an in
 cd /path/to/install/knotAnnotSV
 
 perl ./knotAnnotSV.pl --annotSVfile ./example/example.annotated.tsv --configFile ./config_AnnotSV.yaml --outDir ./example
+perl ../knotAnnotSV2XL.pl --annotSVfile ./example/example.annotated.tsv --configFile ./config_AnnotSV.yaml  --vbaBin --outDir ./example  ../vbaProject.bin
 ```
-2. Display the html output on a web browser
+2. Display the html output on a web browser or the xlsm output on a spreadsheet
 
 3. Have fun with the exploring!
 
