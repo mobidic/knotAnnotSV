@@ -1,7 +1,7 @@
 #!/usr/bin/perl
 
 ##############################################################################################
-# knotAnnotSV 1.0                                                                            #	
+# knotAnnotSV 1.1                                                                            #	
 #                                                                                            #
 # knotAnnotSV2XL: Creation of a customizable xlsm file to visualize, filter                  # 
 #                   and analyze an AnnotSV output                                            #
@@ -363,7 +363,16 @@ my %colNameMode = (
 "Count_total(cohort)"=>"fullsplit",
 "AnnotSV_ranking_score"=>"full",
 "AnnotSV_ranking_criteria"=>"full",
-"ACMG_class"=>"full");
+"ACMG_class"=>"full"
+"CytoBand"=>"fullsplit",
+"GenCC_disease"=>"split",
+"GenCC_moi"=>"split",
+"GenCC_classification"=>"split",
+"GenCC_pmid"=>"split",
+"B_gain_AFmax"=>"fullsplit",
+"B_ins_AFmax"=>"fullsplit",
+"B_inv_AFmax"=>"fullsplit",
+"B_loss_AFmax"=>"fullsplit");
 
 # Initialisation of ACMG criteria
 my %gainRankCriteria = (
