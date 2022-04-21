@@ -5,6 +5,7 @@
 # What is knotAnnotSV?
 
 knotAnnotSV is a simple tool to create a customizable html file (to be displayed on a web browser) from an [AnnotSV](https://lbgi.fr/AnnotSV) output.
+
 knotAnnotSV2XL is a second simple tool to create a customizable xlsm file (to be displayed as a spreadsheet file) especially from large [AnnotSV](https://lbgi.fr/AnnotSV) output.
 
 The user can customize the order and the number of the annotation columns as well as the visualization mode (direct display or by comment) thanks to a configuration file. He can then visualize, filter and analyze the annotation data thanks to different user friendly available functions (search/filtering box, tooltip, links to public databases, color coded information...).
@@ -88,7 +89,8 @@ SV_chrom:
 
 # Output
 
-With knotAnnotSV.pl, an AnnotSV html file is produced and ready to be displayed on a web browser (Firefox 81.0, Chrome 86.0.4240.75, Edge 83.0.478.54, IE 11, tested so far). 
+With knotAnnotSV.pl, an AnnotSV html file is produced and ready to be displayed on a web browser (Firefox 81.0, Chrome 86.0.4240.75, Edge 83.0.478.54, IE 11, tested so far).
+
 With knotAnnotSV2XL.pl, an AnnotSV xlsm file is produced and ready to be displayed on a standard spreadsheet (tested on WPS-office_11.1.0.955, onlyoffice 6.3.0, Excel 2010). 
 
 ### Color codes
@@ -210,7 +212,7 @@ To help you get how to make effective use of knotAnnotSV, we have provided an in
 cd /path/to/install/knotAnnotSV
 
 perl ./knotAnnotSV.pl --annotSVfile ./example/example.annotated.tsv --configFile ./config_AnnotSV.yaml --outDir ./example
-perl ../knotAnnotSV2XL.pl --annotSVfile ./example/example.annotated.tsv --configFile ./config_AnnotSV.yaml  --vbaBin --outDir ./example  ../vbaProject.bin
+perl ./knotAnnotSV2XL.pl --annotSVfile ./example/example.annotated.tsv --configFile ./config_AnnotSV.yaml  --vbaBin --outDir ./example  ../vbaProject.bin
 ```
 2. Display the html output on a web browser or the xlsm output on a spreadsheet
 
