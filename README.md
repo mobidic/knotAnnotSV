@@ -212,7 +212,7 @@ To help you get how to make effective use of knotAnnotSV, we have provided an in
 cd /path/to/install/knotAnnotSV
 
 perl ./knotAnnotSV.pl --annotSVfile ./example/example.annotated.tsv --configFile ./config_AnnotSV.yaml --outDir ./example
-perl ./knotAnnotSV2XL.pl --annotSVfile ./example/example.annotated.tsv --configFile ./config_AnnotSV.yaml  --vbaBin --outDir ./example  ../vbaProject.bin
+perl ./knotAnnotSV2XL.pl --annotSVfile ./example/example.annotated.tsv --configFile ./config_AnnotSV.yaml  --vbaBin --outDir ./example  ./vbaProject.bin
 ```
 2. Display the html output on a web browser or the xlsm output on a spreadsheet
 
