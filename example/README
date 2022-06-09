@@ -5,7 +5,7 @@ $ANNOTSV/bin/AnnotSV -SVinputFile example.bed -svtBedCol 4 -outputFile ./example
 
 perl ../knotAnnotSV.pl --annotSVfile ./example.annotated.tsv --configFile ../config_AnnotSV.yaml
 
-perl ../knotAnnotSV2XL.pl --annotSVfile ./example.annotated.tsv --configFile ../config_AnnotSV.yaml  --vbaBin ../vbaProject.bin
+perl ../knotAnnotSV2XL.pl --annotSVfile ./example.annotated.tsv --configFile ../config_AnnotSV.yaml
 
 
 
