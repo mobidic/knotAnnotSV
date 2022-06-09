@@ -49,7 +49,6 @@ my $man = "USAGE : \nperl knotAnnotSV2XL.pl
 \n--outPrefix <output file prefix (default = \"\")> 
 \n--genomeBuild <Genome Assembly reference (default = hg19)> 
 \n--LOEUFcolorRange <Number to define which color to use for LOEUF bin: 1 (red-to-green), 2 (red-shades-only). (default = 1)> 
-\n--vbaBin <path to vbaProject.bin file to add macro to output file> 
 \n--geneCountThreshold <Maximum number genes (split lines) to output, omim morbid genes or exomiser > 0.7 will be kept anyway (inactive by default, 40 is advised )>"; 
 
 
@@ -111,7 +110,6 @@ GetOptions( "annotSVfile=s"		=> \$incfile,
 			"outPrefix:s"		=> \$outPrefix,
 			"genomeBuild=s"		=> \$genomeBuild,
 			"LOEUFcolorRange=s"	=> \$LOEUFcolorRange,
-			"vbaBin=s"			=> \$vbaBin,
 			"geneCountThreshold=s"	=> \$geneCountThreshold,
 			"help|h"			=> \$help);
 				
@@ -956,7 +954,8 @@ while( <VCF> ){
 				#TODO compute gene penalty exomiser > OMIM_morbid > LOEUF_bin
 				$fullSplitScore = 10;
 				$gene2Keep=""; 
-				if (defined $dataHash{"Exomiser_gene_pheno_score"} && $dataHash{"Exomiser_gene_pheno_score"} ne "-1" && $dataHash{"Exomiser_gene_pheno_score"} ne "NA"){
+			
+				if (defined $dataHash{"Exomiser_gene_pheno_score"} && $dataHash{"Exomiser_gene_pheno_score"} >= 0 && $dataHash{"Exomiser_gene_pheno_score"} ne "NA"){
 					$fullSplitScore += (40 * $dataHash{"Exomiser_gene_pheno_score"});	
 					if($dataHash{"Exomiser_gene_pheno_score"} >= 0.7){
 						$gene2Keep="yes";
@@ -965,15 +964,16 @@ while( <VCF> ){
 				if(defined $dataHash{"OMIM_morbid"} && $dataHash{"OMIM_morbid"} eq "yes"){
 					$fullSplitScore += 30;
 					$gene2Keep="yes";
-				}
-				if(defined $dataHash{"OMIM_morbid_candidate"} && $dataHash{"OMIM_morbid_candidate"} eq "yes"){
-					$fullSplitScore += 20;
-					$gene2Keep="yes";
-				}
+				}else{
+					if(defined $dataHash{"OMIM_morbid_candidate"} && $dataHash{"OMIM_morbid_candidate"} eq "yes"){
+						$fullSplitScore += 20;
+						$gene2Keep="yes";
+					}
+				}	
 				if(defined $dataHash{"LOEUF_bin"} && $dataHash{"LOEUF_bin"} ne "."){
 					$fullSplitScore +=  (10 - $dataHash{"LOEUF_bin"}) ; 		
 				}
-
+				
 			}
 
 			#finalsortData assigment according to full or split
@@ -1054,9 +1054,15 @@ $workbook = Excel::Writer::XLSX->new($outDir."/".$outPrefix.$outBasename.".xlsm"
 
 #add vba macro 
 #open( VBAmacro , "<$vbaBin" )or print("Cannot find VBA bin file ".$vbaBin."\n") ;
-$workbook->add_vba_project( $vbaBin );
-$workbook->set_vba_name( 'ThisWorkbook' );
-
+#get dirname from knot script, and hope to find vbaBin there
+my $dirname = dirname(__FILE__);
+$vbaBin =  $dirname."/vbaProject.bin";
+if (-e $vbaBin){
+	$workbook->add_vba_project( $vbaBin );
+	$workbook->set_vba_name( 'ThisWorkbook' );
+}else {
+	print "WARNING: vbaProject.bin file doesn't exist in ".$dirname.", no macro will be associated in the output.\n"; 
+}	
 
 #optimize memory usage (row of data is discarded once it has been written in worksheet
 $workbook->set_optimization();
@@ -1065,8 +1071,10 @@ my $worksheet = $workbook->add_worksheet('knot');
 #my $worksheet = $workbook->add_worksheet($outPrefix.$outBasename);
 #$worksheet->set_vba_name($outPrefix.$outBasename); 
 
-# set worksheet name according to vbaProject.bin
-$worksheet->set_vba_name('knot'); 
+if (-e $vbaBin){
+	# set worksheet name according to vbaProject.bin
+	$worksheet->set_vba_name('knot'); 
+}
 
 # set outline (group) features
 $worksheet->outline_settings(1,0,0,0); 
@@ -1117,8 +1125,9 @@ my $format_pLI_split = $workbook->add_format(bg_color => 'undef');
 my $format_pLI_url_split = $workbook->add_format(bg_color => 'undef' ,color => 'blue', underline => 1 );
 my $format_pLI_basic_split = $workbook->add_format(bg_color => 'undef');
 
+my $format_comment_line_full = $workbook->add_format(bg_color => 'undef', color => 'navy', italic => 1);
 my $format_comment_line = $workbook->add_format(bg_color => 'undef', color => 'gray');
-
+my $format_comment_line_switch;
 
 my $geneCounter=0;
 
@@ -1150,6 +1159,8 @@ foreach my $rank (rnatkeysort { "$_-$hashFinalSortData{$_}" } keys %hashFinalSor
 
 				$geneCounter=0;
 
+				$format_comment_line_switch = $format_comment_line_full;
+
 
 			}else{
 			
@@ -1170,6 +1181,7 @@ foreach my $rank (rnatkeysort { "$_-$hashFinalSortData{$_}" } keys %hashFinalSor
 				$worksheet->write( $worksheetLine, 0, $kindRank, $format_pLI_split  );
 				$worksheet->write_row( $worksheetLine, 1,$hashFinalSortData{$rank}{$ID}{$rankSplit}{$variant}{'finalArray'}, $format_pLI_split  );
 			
+				$format_comment_line_switch = $format_comment_line;
 			}
 
 
@@ -1235,8 +1247,8 @@ foreach my $rank (rnatkeysort { "$_-$hashFinalSortData{$_}" } keys %hashFinalSor
 
 			$worksheet->set_row( $worksheetLine , undef, undef, 1, 2 ,1);
 			
-			$worksheet->write( $worksheetLine, 0, $kindRank, $format_comment_line );
-			$worksheet->write( $worksheetLine, 1 , $hashFinalSortData{$rank}{$ID}{$rankSplit}{$variant}{'finalArray'}[$NameColHash{'AnnotSV_ID'} - 1], $format_comment_line)  ;
+			$worksheet->write( $worksheetLine, 0, $kindRank, $format_comment_line_switch );
+			$worksheet->write( $worksheetLine, 1 , $hashFinalSortData{$rank}{$ID}{$rankSplit}{$variant}{'finalArray'}[$NameColHash{'AnnotSV_ID'} - 1], $format_comment_line_switch)  ;
 
 
 			for( my $fieldNbr = 0 ; $fieldNbr < scalar @{$hashFinalSortData{$rank}{$ID}{$rankSplit}{$variant}{'finalArray'}} ; $fieldNbr++){
@@ -1245,10 +1257,10 @@ foreach my $rank (rnatkeysort { "$_-$hashFinalSortData{$_}" } keys %hashFinalSor
 				if (defined $hashFinalSortData{$rank}{$ID}{$rankSplit}{$variant}{'hashCommentsXLSX'}{$fieldNbr}){
 
 						if (defined $NameColHash{'OMIM_phenotype'} && $fieldNbr eq $NameColHash{'OMIM_phenotype'} - 1 ){
-							$worksheet->write( $worksheetLine, $fieldNbr + 1 ,   $hashFinalSortData{$rank}{$ID}{$rankSplit}{$variant}{'OMIM_phen_short_XLSX'},$format_comment_line)  ;   
+							$worksheet->write( $worksheetLine, $fieldNbr + 1 ,   $hashFinalSortData{$rank}{$ID}{$rankSplit}{$variant}{'OMIM_phen_short_XLSX'},$format_comment_line_switch)  ;   
 
 						}else{
-							$worksheet->write( $worksheetLine, $fieldNbr + 1 ,   $hashFinalSortData{$rank}{$ID}{$rankSplit}{$variant}{'hashCommentsXLSX'}{$fieldNbr},$format_comment_line)  ;   
+							$worksheet->write( $worksheetLine, $fieldNbr + 1 ,   $hashFinalSortData{$rank}{$ID}{$rankSplit}{$variant}{'hashCommentsXLSX'}{$fieldNbr},$format_comment_line_switch)  ;   
 
 						}
 				}
@@ -1268,8 +1280,6 @@ foreach my $rank (rnatkeysort { "$_-$hashFinalSortData{$_}" } keys %hashFinalSor
 
 close(VCF);
 
-
-#$worksheet->autofilter('A1:Z'.$worksheetLine);
 
 
 print STDERR "\n\n\nDone!\n\n\n";
