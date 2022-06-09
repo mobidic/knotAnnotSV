@@ -4,9 +4,9 @@
 
 # What is knotAnnotSV?
 
-knotAnnotSV is a simple tool to create a customizable html file (to be displayed on a web browser) from an [AnnotSV](https://lbgi.fr/AnnotSV) output.
+**knotAnnotSV** is a simple tool to create a customizable **html file** (to be displayed on a web browser) from an [AnnotSV](https://lbgi.fr/AnnotSV) output.
 
-knotAnnotSV2XL is a second simple tool to create a customizable xlsm file (to be displayed as a spreadsheet file) especially from large [AnnotSV](https://lbgi.fr/AnnotSV) output.
+**knotAnnotSV2XL** is a second simple tool to create a customizable **xlsm file** (to be displayed as a spreadsheet file) especially from **LARGE** [AnnotSV](https://lbgi.fr/AnnotSV) output (compatible with thousands of SV).
 
 The user can customize the order and the number of the annotation columns as well as the visualization mode (direct display or by comment) thanks to a configuration file. He can then visualize, filter and analyze the annotation data thanks to different user friendly available functions (search/filtering box, tooltip, links to public databases, color coded information...).
 
@@ -33,7 +33,7 @@ $ git clone https://github.com/mobidic/knotAnnotSV.git
 
 - Perl library via cpan : YAML::XS, Sort::Key::Natural
 
-- (only for knotAnnotSV2XL.pl) Perl library via cpan : Excel::Writer::XLSX
+- Perl library via cpan : Excel::Writer::XLSX (only for knotAnnotSV2XL.pl and spreadsheet output) 
 
 
 # Input
@@ -91,7 +91,7 @@ SV_chrom:
 
 With knotAnnotSV.pl, an AnnotSV html file is produced and ready to be displayed on a web browser (Firefox 81.0, Chrome 86.0.4240.75, Edge 83.0.478.54, IE 11, tested so far).
 
-With knotAnnotSV2XL.pl, an AnnotSV xlsm file is produced and ready to be displayed on a standard spreadsheet (tested on WPS-office_11.1.0.955, onlyoffice 6.3.0, Excel 2010). 
+With knotAnnotSV2XL.pl, an AnnotSV xlsm file is produced and ready to be displayed on a standard spreadsheet (tested on WPS-office_11.1.0.955, onlyoffice 6.3.0, Excel 2010+). 
 
 ### Color codes
 
@@ -127,12 +127,13 @@ Depending on the overlapped gene part, the « Gene name » box is fully colore
 ### Main features
 
 Three display modes are available thanks to click action :
-- “Compact”: only the “full” AnnotSV lines are displayed (COMPACT button)
-- “Expanded”: the “full” and “split” AnnotSV lines are displayed (EXPANDED button)
-- “Single SV focus”: only the “full” and “split” AnnotSV lines of a single SV are displayed (double-click on a full line in compact mode)
+- **“Compact”**: only the “full” AnnotSV lines are displayed (COMPACT button in web output or "1" grouping button in spreadsheet output)
+- **“Expanded”**: the “full” and “split” AnnotSV lines are displayed (EXPANDED button in web output or "2" grouping button in spreadsheet output)
+- (Web only) **“Single SV focus”**: only the “full” and “split” AnnotSV lines of a single SV are displayed (double-click on a full line in compact mode)
+- (Spreadsheet only) **“Annotation“**: the annotations are displayed as a new line below the full and split lines ("3" grouping button or double-click on a line in spreadsheet output) 
 
 Additionnal data, links and sorting are available:
-- Hover annotation with mouse to display complementary information (tooltips)
+- Hover annotation with mouse to display complementary information (tooltips only in web output)
 - Click on the « AnnotSV ID » to open the SV coordinates in the UCSC Genome browser (the SV region is automatically highlighted in blue and zoomed out by 1.5x)
 - Click on the blue hyperlinks to access directly to the corresponding public database (OMIM, genecards)
 - By default, the annotation lines are sorted according to these priorization rules: ACMG class > Exomiser Score > OMIM morbid > LOEUF bin (this last one is applied on split lines only)
@@ -152,7 +153,7 @@ Column headers have searching and sorting features:
 
 # USAGE
 
-For html output:
+For **html** output:
 ```
 cd /path/to/install/knotAnnotSV
 
@@ -174,7 +175,7 @@ perl ./knotAnnotSV.pl
   
 ```
 
-For spreadsheet output:
+For **spreadsheet** output:
 ```
 cd /path/to/install/knotAnnotSV
 
@@ -192,8 +193,6 @@ perl ./knotAnnotSV2XL.pl
     
     --LOEUFcolorRange <Number to define which color gradient to use for LOEUF bin: 1 (red-to-green), 2 (red-shades-only) (default = 1)>
     
-    --vbaBin <path to vbaProject.bin file to add macro to output file> 
-
     --geneCountThreshold <Maximum number of genes to output in split lines, omim morbid genes or exomiser > 0.7 will be kept anyway (All genes by default, 40 is advised )>
 
   
@@ -212,7 +211,7 @@ To help you get how to make effective use of knotAnnotSV, we have provided an in
 cd /path/to/install/knotAnnotSV
 
 perl ./knotAnnotSV.pl --annotSVfile ./example/example.annotated.tsv --configFile ./config_AnnotSV.yaml --outDir ./example
-perl ./knotAnnotSV2XL.pl --annotSVfile ./example/example.annotated.tsv --configFile ./config_AnnotSV.yaml  --vbaBin --outDir ./example  ./vbaProject.bin
+perl ./knotAnnotSV2XL.pl --annotSVfile ./example/example.annotated.tsv --configFile ./config_AnnotSV.yaml --outDir ./example --outPrefix spreadsheet
 ```
 2. Display the html output on a web browser or the xlsm output on a spreadsheet
 
