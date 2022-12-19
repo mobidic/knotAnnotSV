@@ -383,7 +383,25 @@ my %colNameMode = (
 "B_gain_AFmax"=>"fullsplit",
 "B_ins_AFmax"=>"fullsplit",
 "B_inv_AFmax"=>"fullsplit",
-"B_loss_AFmax"=>"fullsplit");
+"B_loss_AFmax"=>"fullsplit",
+"po_P_gain_phen"=>"full",
+"po_P_gain_hpo"=>"full",
+"po_P_gain_source"=>"full",
+"po_P_gain_coord"=>"full",
+"po_P_gain_percent"=>"full",
+"po_P_loss_phen"=>"full",
+"po_P_loss_hpo"=>"full",
+"po_P_loss_source"=>"full",
+"po_P_loss_coord"=>"full",
+"po_P_loss_percent"=>"full",
+"po_B_gain_allG_source"=>"full",
+"po_B_gain_allG_coord"=>"full",
+"po_B_gain_someG_source"=>"full",
+"po_B_gain_someG_coord"=>"full",
+"po_B_loss_allG_source"=>"full",
+"po_B_loss_allG_coord"=>"full",
+"po_B_loss_someG_source"=>"full",
+"po_B_loss_someG_coord"=>"full");
 
 # Initialisation of ACMG criteria
 my %gainRankCriteria = (
