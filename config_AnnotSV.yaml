@@ -70,11 +70,6 @@ Gene_name:     # mandatory
         - ExAC_dupZ
         - ExAC_synZ
         - ExAC_misZ
-        - DDD_status
-        - DDD_mode
-        - DDD_consequence
-        - DDD_disease
-        - DDD_pmid
         - GenCC_disease
         - GenCC_moi
         - GenCC_classification
@@ -139,6 +134,16 @@ P_gain_coord:
         - P_loss_source
         - P_loss_phen
         - P_loss_hpo
+        - po_P_gain_phen
+        - po_P_gain_hpo
+        - po_P_gain_source
+        - po_P_gain_coord
+        - po_P_gain_percent
+        - po_P_loss_phen
+        - po_P_loss_hpo
+        - po_P_loss_source
+        - po_P_loss_coord
+        - po_P_loss_percent
 
 ### Annotations done with pathogenic snv/indel
 ##############################################
@@ -161,6 +166,14 @@ B_gain_source:
         - B_loss_source
         - B_loss_coord
         - B_loss_AFmax
+        - po_B_gain_allG_source
+        - po_B_gain_allG_coord
+        - po_B_gain_someG_source
+        - po_B_gain_someG_coord
+        - po_B_loss_allG_source
+        - po_B_loss_allG_coord
+        - po_B_loss_someG_source
+        - po_B_loss_someG_coord
 
 ### Annotations of the breakpoints
 ##################################
