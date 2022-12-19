@@ -748,7 +748,7 @@ while( <VCF> ){
 			if (defined $dataCommentHash{$field}){
                 if (! defined $dataCommentHash{$field}{'values'}){
 					#special treatment for field , adding to comment the switched name
-					if ( $field =~ /^[BP]_/){
+					if ( $field =~ /^[po_]*[BP]_/){
 						if ($SV_type eq "DEL" ){ 
 							$correctFieldCom = $field =~ s/gain|ins|inv/loss/r;
 						}elsif ($SV_type eq "DUP" ){ 
@@ -780,7 +780,7 @@ while( <VCF> ){
 
 
 						if (defined $dataHash{$fieldCom}){
-							if ( $fieldCom =~ /^[BP]_/){
+							if ( $fieldCom =~ /^[po_]*[BP]_/){
 								if ($SV_type eq "DEL" ){ 
 									$correctFieldCom = $fieldCom =~ s/gain|ins|inv/loss/r;
 								}elsif ($SV_type eq "DUP" ){ 
