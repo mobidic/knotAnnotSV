@@ -123,6 +123,12 @@ Depending on the overlapped gene part, the « Gene name » box is fully colore
     <img src="https://github.com/mobidic/knotAnnotSV/blob/master/images/gene_overlap.png" width="200"/>
 </p>
 
+- (Spreadsheet only) Gene partially overlapped: a black dashed line border on the side, in the Location column
+
+<p align="center">
+    <img src="https://github.com/mobidic/knotAnnotSV/blob/master/images/gene_overlap_XL.png" width="200"/>
+</p>
+
 
 ### Main features
 
@@ -130,7 +136,7 @@ Three display modes are available thanks to click action :
 - **“Compact”**: only the “full” AnnotSV lines are displayed (COMPACT button in web output or "1" grouping button in spreadsheet output)
 - **“Expanded”**: the “full” and “split” AnnotSV lines are displayed (EXPANDED button in web output or "2" grouping button in spreadsheet output)
 - (Web only) **“Single SV focus”**: only the “full” and “split” AnnotSV lines of a single SV are displayed (double-click on a full line in compact mode)
-- (Spreadsheet only) **“Annotation“**: the annotations are displayed as a new line below the full and split lines ("3" grouping button or double-click on a line in spreadsheet output) 
+- (Spreadsheet only) **“Annotation“**: the annotations are stored within each cell and displayed in an extended formula bar  
 
 Additionnal data, links and sorting are available:
 - Hover annotation with mouse to display complementary information (tooltips only in web output)
