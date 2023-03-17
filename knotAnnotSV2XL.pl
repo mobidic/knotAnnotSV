@@ -6,9 +6,9 @@
 # knotAnnotSV2XL: Creation of a customizable xlsm file to visualize, filter                  # 
 #                   and analyze an AnnotSV output                                            #
 #                                                                                            #
-# Author: Thomas Guignard 2020-2022                                                          #
+# Author: Thomas Guignard 2020-2023                                                          #
 #                                                                                            #
-# Copyright (C) 2020-2022 Thomas Guignard (t-guignard@chu-montpellier.fr)                    #
+# Copyright (C) 2020-2023 Thomas Guignard (t-guignard@chu-montpellier.fr)                    #
 #                                                                                            #
 # This is part of knotAnnotSV source code.                                                   #
 #                                                                                            #
@@ -512,7 +512,7 @@ while( <VCF> ){
         
 		#reinitialize Comment Values
 		foreach my $field (keys %dataCommentHash){
-			delete $dataCommentHash{$field}{'values'};
+			#delete $dataCommentHash{$field}{'values'};
 			delete $dataCommentHash{$field}{'valuesXLSX'};
 		}
 		
@@ -652,12 +652,16 @@ while( <VCF> ){
 				#$dataHash{"Gene_name"} = $tempString  ;
 				if (scalar @GeneName_array > 1){
 					$GeneName_link_string .= " [...".$dataHash{"Gene_count"}."genes]";
+					$dataHash{"Gene_name_full"} = "Gene list : ".$dataHash{"Gene_name"} ;
+
 				}else{
 					$GeneName_link_string =~ s/;$//;
+					$dataHash{"Gene_name_full"} = "" ;
 				}
 			}else{
 				$GeneName_link_string = ".";
 				$GeneName_link_url = ".";
+				$dataHash{"Gene_name_full"} = "" ;
 			}
 			
 			$dataHash{"Gene_name_XLSX"} = $GeneName_link_string ;
@@ -746,7 +750,8 @@ while( <VCF> ){
 			#if (defined $dataCommentHash{$field})
 			#	foreach my $fieldCom (@{$dataCommentHash{$field}{'commentFieldList'}})
 			if (defined $dataCommentHash{$field}){
-                if (! defined $dataCommentHash{$field}{'values'}){
+                if (! defined $dataCommentHash{$field}{'valuesXLSX'}){
+					$dataCommentHash{$field}{'valuesXLSX'} = ""; 
 					#special treatment for field , adding to comment the switched name
 					if ( $field =~ /^[po_]*[BP]_/){
 						if ($SV_type eq "DEL" ){ 
@@ -758,7 +763,7 @@ while( <VCF> ){
 						}
 						$commentDuplicate{$correctFieldCom} += 1;	
 						#add in first line of comment
-               		 	$dataCommentHash{$field}{'values'} .= "<span class=\"commentTitle\">".$correctFieldCom . " :</span> ".$dataHash{$correctFieldCom};
+               		 	#$dataCommentHash{$field}{'values'} .= "<span class=\"commentTitle\">".$correctFieldCom . " :</span> ".$dataHash{$correctFieldCom};
                		 	$dataCommentHash{$field}{'valuesXLSX'} .= $correctFieldCom . " : ".$dataHash{$correctFieldCom};
 					}
 
@@ -793,12 +798,12 @@ while( <VCF> ){
 									next;
 								}
 								#print $field."_".$correctFieldCom."\n";
-                            	$dataCommentHash{$field}{'valuesXLSX'} .= "\n".$correctFieldCom . " : ".$dataHash{$correctFieldCom};
+                            	$dataCommentHash{$field}{'valuesXLSX'} .= "\n\n".$correctFieldCom . " : ".$dataHash{$correctFieldCom};
 							}else{
 								
 								
 								if($fieldCom eq "AnnotSV_ranking_criteria" && $dataHash{$fieldCom} ne "." ){
-                            		$dataCommentHash{$field}{'valuesXLSX'} .= "\n".$fieldCom . " :\n";
+                            		$dataCommentHash{$field}{'valuesXLSX'} .= "\n\n".$fieldCom . " :\n";
 									
 									@criteria = split( /; /, $dataHash{$fieldCom} );
 									
@@ -870,6 +875,16 @@ while( <VCF> ){
 					$finalSortData[$NameColHash{$field} - 1] = $dataHash{$field};
             	}
 			}
+			if (defined $dataCommentHash{$field} && $dataCommentHash{$field} != 0){
+				$finalSortData[$NameColHash{$field} - 1] .= "\n".$dataCommentHash{$field}{'valuesXLSX'};
+				if ($field eq "Gene_name"){
+					$finalSortData[$NameColHash{$field} - 1] .= "\n\n".$dataHash{'Gene_name_full'};
+				}
+			}
+		}
+
+		if (defined $dataHash{'Gene_name_XLSX'} && defined $dataCommentHash{'Gene_name'} ){
+			$dataHash{'Gene_name_XLSX'} .= $dataCommentHash{'Gene_name'}{'valuesXLSX'};
 		}
 
 		#check missing fields (typo or error) and fill finalSortData array
@@ -1004,6 +1019,10 @@ while( <VCF> ){
 			#add gene count to full line 
 			#$hashFinalSortData{$SV_ID{$dataHash{'AnnotSV_ID'}}{'finalScore'}."_".$variantID}{$dataHash{'AnnotSV_ID'}}{$fullSplitScore}{$count}{'geneCount'} = $geneCount ; 
 
+			#flag gene Location for display 
+			if(defined $dataHash{"Location"}){
+				$hashFinalSortData{$SV_ID{$dataHash{'AnnotSV_ID'}}{'finalScore'}."_".$variantID}{$dataHash{'AnnotSV_ID'}}{$fullSplitScore}{$count}{'Location'} = $dataHash{"Location"} ; 
+			}
 
 			
 			#url to UCSC for SV , highlight in blue and zoomout x1.5
@@ -1028,12 +1047,12 @@ while( <VCF> ){
 
 
 			#comment assigment
-			foreach my $fieldCom (keys %dataCommentHash){
+			#foreach my $fieldCom (keys %dataCommentHash){
 				#$hashFinalSortData{$SV_ID{$dataHash{'AnnotSV_ID'}}{'finalScore'}."_".$variantID}{$dataHash{'AnnotSV_ID'}}{$fullSplitScore}{$count}{'hashComments'}{$NameColHash{$fieldCom} -1} = $dataCommentHash{$fieldCom}{'values'} ; 
-				$hashFinalSortData{$SV_ID{$dataHash{'AnnotSV_ID'}}{'finalScore'}."_".$variantID}{$dataHash{'AnnotSV_ID'}}{$fullSplitScore}{$count}{'hashCommentsXLSX'}{$NameColHash{$fieldCom} -1} = $dataCommentHash{$fieldCom}{'valuesXLSX'} ; 
+			#	$hashFinalSortData{$SV_ID{$dataHash{'AnnotSV_ID'}}{'finalScore'}."_".$variantID}{$dataHash{'AnnotSV_ID'}}{$fullSplitScore}{$count}{'hashCommentsXLSX'}{$NameColHash{$fieldCom} -1} = $dataCommentHash{$fieldCom}{'valuesXLSX'} ; 
 				#print $dataCommentHash{'Gene name'}{'values'}."\n\n";
 				#TODO check color for gene according to output position of gene field 
-			}
+			#}
 
 
             #assign color to Gene Name
@@ -1112,7 +1131,7 @@ my $XLSXcol = 0;
 #initialise first rank column
 my $format_header = $workbook->add_format(bold => 1);
 $worksheet->write( 0, $XLSXcol  , 'RANK', $format_header  );
-$worksheet->set_row( 0, 30);
+$worksheet->set_row( 0, 16);
 
 foreach my $col (sort {$a <=> $b} keys %OutColHash){
 	if (defined $OutColHash{$col}{'field'}){
@@ -1139,13 +1158,19 @@ my $format_pLI;
 my $format_pLI_url;
 my $format_pLI_basic;
 
-my $format_pLI_split = $workbook->add_format(bg_color => 'undef');
-my $format_pLI_url_split = $workbook->add_format(bg_color => 'undef' ,color => 'blue', underline => 1 );
-my $format_pLI_basic_split = $workbook->add_format(bg_color => 'undef');
+#->set_text_wrap();
 
-my $format_comment_line_full = $workbook->add_format(bg_color => 'undef', color => 'navy', italic => 1);
-my $format_comment_line = $workbook->add_format(bg_color => 'undef', color => 'gray');
+
+
+my $format_pLI_split = $workbook->add_format(bg_color => 'undef', text_wrap => 1 , align =>'top');
+my $format_pLI_url_split = $workbook->add_format(bg_color => 'undef' ,color => 'blue', underline => 1, text_wrap => 1 , align =>'top'  );
+my $format_pLI_basic_split = $workbook->add_format(bg_color => 'undef', text_wrap => 1 , align =>'top');
+
+my $format_comment_line_full = $workbook->add_format(bg_color => 'undef', color => 'navy', italic => 1, text_wrap => 1 , align =>'top');
+my $format_comment_line = $workbook->add_format(bg_color => 'undef', color => 'gray', text_wrap => 1 , align =>'top');
 my $format_comment_line_switch;
+
+my $format_truncated_Location = $workbook->add_format(border => 8, bg_color => 'undef', text_wrap => 1 , align =>'top'); # set border for truncated Gene 
 
 my $geneCounter=0;
 
@@ -1167,9 +1192,11 @@ foreach my $rank (rnatkeysort { "$_-$hashFinalSortData{$_}" } keys %hashFinalSor
 			#FILL tab 'ALL';
 			if (    $hashFinalSortData{$rank}{$ID}{$rankSplit}{$variant}{'finalArray'}[$NameColHash{'Annotation_mode'} - 1] eq "full") {
 
-				$format_pLI = $workbook->add_format(bg_color => $hashFinalSortData{$rank}{$ID}{$rankSplit}{$variant}{'fullRowColor'} );
-				$format_pLI_url = $workbook->add_format(bg_color => $hashFinalSortData{$rank}{$ID}{$rankSplit}{$variant}{'fullRowColor'},color => 'blue', underline => 1 );
-				$format_pLI_basic = $workbook->add_format(bg_color => $hashFinalSortData{$rank}{$ID}{$rankSplit}{$variant}{'fullRowColor'} );
+				$format_pLI = $workbook->add_format(bg_color => $hashFinalSortData{$rank}{$ID}{$rankSplit}{$variant}{'fullRowColor'}, text_wrap => 1 , align =>'top');
+				$format_pLI_url = $workbook->add_format(bg_color => $hashFinalSortData{$rank}{$ID}{$rankSplit}{$variant}{'fullRowColor'},color => 'blue', underline => 1, text_wrap => 1 , align =>'top');
+				$format_pLI_basic = $workbook->add_format(bg_color => $hashFinalSortData{$rank}{$ID}{$rankSplit}{$variant}{'fullRowColor'}, text_wrap => 1 , align =>'top');
+				
+				$worksheet->set_row( $worksheetLine, 18, $format_pLI);
 
 				#add first column with original rank of knot
 				$worksheet->write( $worksheetLine, 0, $kindRank, $format_pLI  );
@@ -1193,7 +1220,7 @@ foreach my $rank (rnatkeysort { "$_-$hashFinalSortData{$_}" } keys %hashFinalSor
 				}
 
 				#Line grouping 
-				$worksheet->set_row( $worksheetLine , undef, undef, 1, 1 ,1);
+				$worksheet->set_row( $worksheetLine , 18, $format_pLI_split, 1, 1 ,1);
 				
 				#add first column with original rank of knot
 				$worksheet->write( $worksheetLine, 0, $kindRank, $format_pLI_split  );
@@ -1245,14 +1272,22 @@ foreach my $rank (rnatkeysort { "$_-$hashFinalSortData{$_}" } keys %hashFinalSor
 						if (defined $hashFinalSortData{$rank}{$ID}{$rankSplit}{$variant}{'finalArray'}[$fieldNbr]){
 							if( $hashFinalSortData{$rank}{$ID}{$rankSplit}{$variant}{'GeneName_url'} ne "."){	
 								if (defined $hashFinalSortData{$rank}{$ID}{$rankSplit}{$variant}{'hashColor'}{$fieldNbr}){
-									$format_pLI_basic = $workbook->add_format(bg_color => $hashFinalSortData{$rank}{$ID}{$rankSplit}{$variant}{'hashColor'}{$fieldNbr}, color =>      'blue', underline => 1 );
+									$format_pLI_basic = $workbook->add_format(bg_color => $hashFinalSortData{$rank}{$ID}{$rankSplit}{$variant}{'hashColor'}{$fieldNbr}, color =>      'blue', text_wrap => 1, align => 'top' );
 								}
-								$worksheet->write_url( $worksheetLine, $fieldNbr + 1 , $hashFinalSortData{$rank}{$ID}{$rankSplit}{$variant}{'GeneName_url'} , $format_pLI_basic, $hashFinalSortData{$rank}{$ID}{$rankSplit}{$variant}{'GeneName_short_XLSX'})  ;   
+								$worksheet->write( $worksheetLine, $fieldNbr + 1 , $hashFinalSortData{$rank}{$ID}{$rankSplit}{$variant}{'GeneName_url'} , $format_pLI_basic, $hashFinalSortData{$rank}{$ID}{$rankSplit}{$variant}{'GeneName_short_XLSX'})  ;   
 							}else{
 								$worksheet->write( $worksheetLine, $fieldNbr + 1 , $hashFinalSortData{$rank}{$ID}{$rankSplit}{$variant}{'GeneName_short_XLSX'} , $format_pLI_basic)  ;   
 							}				
 						#}elsif (defined $NameColHash{'OMIM_ID'} && $fieldNbr eq $NameColHash{'OMIM_ID'} - 1 ){
 						#	$worksheet->write( $worksheetLine, $fieldNbr + 1 , $hashFinalSortData{$rank}{$ID}{$rankSplit}{$variant}{'OMIM_ID_short_XLSX'}  )  ;   
+						}
+					}elsif (defined $NameColHash{'Location'} && $fieldNbr eq $NameColHash{'Location'} - 1 ){
+					
+						if (defined $hashFinalSortData{$rank}{$ID}{$rankSplit}{$variant}{'finalArray'}[$fieldNbr]){
+							if ($hashFinalSortData{$rank}{$ID}{$rankSplit}{$variant}{'Location'} ne "txStart-txEnd" && $hashFinalSortData{$rank}{$ID}{$rankSplit}{$variant}{'Location'} ne "."){
+								
+								$worksheet->write( $worksheetLine, $fieldNbr + 1 , $hashFinalSortData{$rank}{$ID}{$rankSplit}{$variant}{'finalArray'}[$fieldNbr] , $format_truncated_Location); ;   
+							}				
 						}
 					}
 				
@@ -1263,31 +1298,31 @@ foreach my $rank (rnatkeysort { "$_-$hashFinalSortData{$_}" } keys %hashFinalSor
 	
 			$worksheetLine ++;
 
-			$worksheet->set_row( $worksheetLine , undef, undef, 1, 2 ,1);
+			#$worksheet->set_row( $worksheetLine , undef, undef, 1, 2 ,1);
 			
-			$worksheet->write( $worksheetLine, 0, $kindRank, $format_comment_line_switch );
-			$worksheet->write( $worksheetLine, 1 , $hashFinalSortData{$rank}{$ID}{$rankSplit}{$variant}{'finalArray'}[$NameColHash{'AnnotSV_ID'} - 1], $format_comment_line_switch)  ;
+			#$worksheet->write( $worksheetLine, 0, $kindRank, $format_comment_line_switch );
+			#$worksheet->write( $worksheetLine, 1 , $hashFinalSortData{$rank}{$ID}{$rankSplit}{$variant}{'finalArray'}[$NameColHash{'AnnotSV_ID'} - 1], $format_comment_line_switch)  ;
 
 
-			for( my $fieldNbr = 0 ; $fieldNbr < scalar @{$hashFinalSortData{$rank}{$ID}{$rankSplit}{$variant}{'finalArray'}} ; $fieldNbr++){
+			#for( my $fieldNbr = 0 ; $fieldNbr < scalar @{$hashFinalSortData{$rank}{$ID}{$rankSplit}{$variant}{'finalArray'}} ; $fieldNbr++){
 	
 				#ADD COMMENTS IF EXIST
-				if (defined $hashFinalSortData{$rank}{$ID}{$rankSplit}{$variant}{'hashCommentsXLSX'}{$fieldNbr}){
+			#	if (defined $hashFinalSortData{$rank}{$ID}{$rankSplit}{$variant}{'hashCommentsXLSX'}{$fieldNbr}){
 
-						if (defined $NameColHash{'OMIM_phenotype'} && $fieldNbr eq $NameColHash{'OMIM_phenotype'} - 1 ){
-							$worksheet->write( $worksheetLine, $fieldNbr + 1 ,   $hashFinalSortData{$rank}{$ID}{$rankSplit}{$variant}{'OMIM_phen_short_XLSX'},$format_comment_line_switch)  ;   
+			#			if (defined $NameColHash{'OMIM_phenotype'} && $fieldNbr eq $NameColHash{'OMIM_phenotype'} - 1 ){
+			#				$worksheet->write( $worksheetLine, $fieldNbr + 1 ,   $hashFinalSortData{$rank}{$ID}{$rankSplit}{$variant}{'OMIM_phen_short_XLSX'},$format_comment_line_switch)  ;   
 
-						}else{
-							$worksheet->write( $worksheetLine, $fieldNbr + 1 ,   $hashFinalSortData{$rank}{$ID}{$rankSplit}{$variant}{'hashCommentsXLSX'}{$fieldNbr},$format_comment_line_switch)  ;   
+			#			}else{
+			#				$worksheet->write( $worksheetLine, $fieldNbr + 1 ,   $hashFinalSortData{$rank}{$ID}{$rankSplit}{$variant}{'hashCommentsXLSX'}{$fieldNbr},$format_comment_line_switch)  ;   
 
-						}
-				}
+			#			}
+			#	}
 				
 				#$XLSXcol ++;
 				
-			}
+			#}
 			
-			$worksheetLine ++;
+			#$worksheetLine ++;
 	
 			}   # END FOREACH VARIANT
 		}   # END FOREACH RANKSPLIT
