@@ -4,9 +4,9 @@
 # knotAnnotSV: Creation of a customizable html file to visualize, filter                     # 
 #                   and analyze an AnnotSV output                                            #
 #                                                                                            #
-# Author: Thomas Guignard 2020                                                               #
+# Author: Thomas Guignard 2020-2024                                                          #
 #                                                                                            #
-# Copyright (C) 2020-2023 Thomas Guignard (t-guignard@chu-montpellier.fr)                    #
+# Copyright (C) 2020-2024 Thomas Guignard (t-guignard@chu-montpellier.fr)                    #
 #                                                                                            #
 # This is part of knotAnnotSV source code.                                                   #
 #                                                                                            #
@@ -74,6 +74,9 @@ Gene_name:     # mandatory
         - GenCC_moi
         - GenCC_classification
         - GenCC_pmid
+        - Closest_left
+        - Closest_right
+        - NCBI_gene_ID
 Location:
     POSITION: 6
     RENAME: "Location"
@@ -82,6 +85,7 @@ Location:
         - CytoBand
         - Location2
         - Tx
+        - Tx_version
         - Tx_start
         - Tx_end
         - Exon_count
@@ -112,18 +116,30 @@ Exomiser_gene_pheno_score:
         - Human_pheno_evidence
         - Mouse_pheno_evidence
         - Fish_pheno_evidence
+PhenoGenius_specificity:
+    POSITION: 9
+    RENAME: "PhenoGenius specificity"
+    HEADERTIPS: "Phenotype specificity into one of A, B, C, D or “”:<br>
+    A - the reported phenotype is highly specific and relatively unique to the gene (top 40, 50% of diagnosis in PhenoGenius cohort).<br>
+    B - the reported phenotype is consistent with the gene, is highly specific, but not necessarily unique to the gene (top 250, 75% of diagnosis in PhenoGenius cohort).<br>
+    C - the phenotype is reported with limited association with the gene, not highly specific and/or with high genetic heterogeneity.<br>
+    D - the reported phenotype is NOT consistent with what is expected for the gene/genomic region or not consistent in general.<br>
+    “”- NO reported phenotype"
+    COMMENTLIST:
+    - PhenoGenius_phenotype
+    - PhenoGenius_score
 
 ### Annotations done with regulatory elements
 #############################################
 RE_gene:
-    POSITION: 9
+    POSITION: 10
     RENAME: "Overlapped regulatory elements"
     HEADERTIPS: "Report the name of the genes potentially badly regulated"
 
 ### Annotations done with pathogenic SV
 #######################################
 P_gain_coord:
-    POSITION: 10
+    POSITION: 11
     RENAME: "Pathogenic SV"
     HEADERTIPS: "Known pathogenic genes or genomic regions (with the same SV type; from ClinVar, ClinGen, dbVar, OMIM) completely overlapped with the SV to annotate"
     COMMENTLIST:
@@ -148,7 +164,7 @@ P_gain_coord:
 ### Annotations done with pathogenic snv/indel
 ##############################################
 P_snvindel_nb:
-    POSITION: 11
+    POSITION: 12
     RENAME: "Number of pathogenic SNV/indel overlapped"
     HEADERTIPS: "Pathogenic SNV/indel (from ClinVar) completely overlapped with the SV to annotate"
     COMMENTLIST:
@@ -157,7 +173,7 @@ P_snvindel_nb:
 ### Annotations done with benign SV
 ###################################
 B_gain_source:
-    POSITION: 12
+    POSITION: 13
     RENAME: "Benign SV"
     HEADERTIPS: "Benign genomic regions (with the same SV type; from gnomAD, ClinVar, ClinGen, DGV, DDD, 1000g, IMH) completely overlapping the SV to annotate"
     COMMENTLIST:
@@ -178,7 +194,7 @@ B_gain_source:
 ### Annotations of the breakpoints
 ##################################
 ENCODE_blacklist_characteristics_left:
-    POSITION: 13
+    POSITION: 14
     RENAME: "Left breakpoint annotations"
     HEADERTIPS: "Hover your mouse to highlight the left SV breakpoint (+/- 100bp) annotations"
     COMMENTLIST:
@@ -190,7 +206,7 @@ ENCODE_blacklist_characteristics_left:
         - GC_content_left
 
 ENCODE_blacklist_characteristics_right:
-    POSITION: 14
+    POSITION: 15
     RENAME: "Right breakpoint annotations"
     HEADERTIPS: "Hover your mouse to highlight the right SV breakpoint (+/- 100bp) annotations"
     COMMENTLIST:
@@ -209,7 +225,7 @@ Cosmic_ID:
     POSITION: 0
 Cosmic_mut_typ:
     POSITION: 0
-compound-htz(sample):
+Compound-htz(sample):
     POSITION: 0
 Count_hom(sample):
     POSITION: 0

@@ -6,9 +6,9 @@
 # knotAnnotSV2XL: Creation of a customizable xlsm file to visualize, filter                  # 
 #                   and analyze an AnnotSV output                                            #
 #                                                                                            #
-# Author: Thomas Guignard 2020-2023                                                          #
+# Author: Thomas Guignard 2020-2024                                                          #
 #                                                                                            #
-# Copyright (C) 2020-2023 Thomas Guignard (t-guignard@chu-montpellier.fr)                    #
+# Copyright (C) 2020-2024 Thomas Guignard (t-guignard@chu-montpellier.fr)                    #
 #                                                                                            #
 # This is part of knotAnnotSV source code.                                                   #
 #                                                                                            #

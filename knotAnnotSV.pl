@@ -6,9 +6,9 @@
 # knotAnnotSV: Creation of a customizable html file to visualize, filter                     # 
 #                   and analyze an AnnotSV output                                            #
 #                                                                                            #
-# Author: Thomas Guignard 2020-2021                                                          #
+# Author: Thomas Guignard 2020-2024                                                          #
 #                                                                                            #
-# Copyright (C) 2020-2021 Thomas Guignard (t-guignard@chu-montpellier.fr)                    #
+# Copyright (C) 2020-2024 Thomas Guignard (t-guignard@chu-montpellier.fr)                    #
 #                                                                                            #
 # This is part of knotAnnotSV source code.                                                   #
 #                                                                                            #
@@ -285,6 +285,13 @@ my %colNameMode = (
 "FORMAT"=>"fullsplit",
 "Annotation_mode"=>"fullsplit",
 "Gene_name"=>"fullsplit",
+"Closest_left"=>"full",
+"Closest_right"=>"full",
+"NCBI_gene_ID"=>"split",
+"Tx_version"=>"split",
+"PhenoGenius_specificity"=>"split",
+"PhenoGenius_phenotype"=>"split",
+"PhenoGenius_score"=>"split",
 "Gene_count"=>"full",
 "Tx"=>"split",
 "Tx_start"=>"split",
