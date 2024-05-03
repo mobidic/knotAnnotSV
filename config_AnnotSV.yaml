@@ -4,9 +4,9 @@
 # knotAnnotSV: Creation of a customizable html file to visualize, filter                     # 
 #                   and analyze an AnnotSV output                                            #
 #                                                                                            #
-# Author: Thomas Guignard 2020-2024                                                          #
+# Author: Thomas Guignard 2020-present                                                       #
 #                                                                                            #
-# Copyright (C) 2020-2024 Thomas Guignard (t-guignard@chu-montpellier.fr)                    #
+# Copyright (C) 2020-present Thomas Guignard (t-guignard@chu-montpellier.fr)                 #
 #                                                                                            #
 # This is part of knotAnnotSV source code.                                                   #
 #                                                                                            #
@@ -119,12 +119,12 @@ Exomiser_gene_pheno_score:
 PhenoGenius_specificity:
     POSITION: 9
     RENAME: "PhenoGenius specificity"
-    HEADERTIPS: "Phenotype specificity into one of A, B, C, D or “”:<br>
-    A - the reported phenotype is highly specific and relatively unique to the gene (top 40, 50% of diagnosis in PhenoGenius cohort).<br>
-    B - the reported phenotype is consistent with the gene, is highly specific, but not necessarily unique to the gene (top 250, 75% of diagnosis in PhenoGenius cohort).<br>
-    C - the phenotype is reported with limited association with the gene, not highly specific and/or with high genetic heterogeneity.<br>
-    D - the reported phenotype is NOT consistent with what is expected for the gene/genomic region or not consistent in general.<br>
-    “”- NO reported phenotype"
+    HEADERTIPS: "Phenotype specificity into one of A, B, C, D or . :<br>
+    A - Highly specific and relatively unique to the gene<br>
+    B - Consistent with the gene, highly specific, but not necessarily unique to the gene<br>
+    C - Limited association with the gene, not highly specific and/or with high genetic heterogeneity<br>
+    D - Not consistent with what is expected for the gene/genomic region or not consistent in general<br>
+    . - No reported phenotype"
     COMMENTLIST:
     - PhenoGenius_phenotype
     - PhenoGenius_score

@@ -6,9 +6,9 @@
 # knotAnnotSV: Creation of a customizable html file to visualize, filter                     # 
 #                   and analyze an AnnotSV output                                            #
 #                                                                                            #
-# Author: Thomas Guignard 2020-2024                                                          #
+# Author: Thomas Guignard 2020-present                                                       #
 #                                                                                            #
-# Copyright (C) 2020-2024 Thomas Guignard (t-guignard@chu-montpellier.fr)                    #
+# Copyright (C) 2020-present Thomas Guignard (t-guignard@chu-montpellier.fr)                 #
 #                                                                                            #
 # This is part of knotAnnotSV source code.                                                   #
 #                                                                                            #
@@ -219,7 +219,10 @@ if ($annotSVranking ne ""){
 
 
 #Hash of ACMG incidentalome genes  => grey color #808080
-my %ACMGgene = ("ACTA2" =>1,"ACTC1" =>1,"APC" =>1,"APOB" =>1,"ATP7B" =>1,"BMPR1A" =>1,"BRCA1" =>1,"BRCA2" =>1,"CACNA1S" =>1,"COL3A1" =>1,"DSC2" =>1,"DSG2" =>1,"DSP" =>1,"FBN1" =>1,"GLA" =>1,"KCNH2" =>1,"KCNQ1" =>1,"LDLR" =>1,"LMNA" =>1,"MEN1" =>1,"MLH1" =>1,"MSH2" =>1,"MSH6" =>1,"MUTYH" =>1,"MYBPC3" =>1,"MYH11" =>1,"MYH7" =>1,"MYL2" =>1,"MYL3" =>1,"NF2" =>1,"OTC" =>1,"PCSK9" =>1,"PKP2" =>1,"PMS2" =>1,"PRKAG2" =>1,"PTEN" =>1,"RB1" =>1,"RET" =>1,"RYR1" =>1,"RYR2" =>1,"SCN5A" =>1,"SDHAF2" =>1,"SDHB" =>1,"SDHC" =>1,"SDHD" =>1,"SMAD3" =>1,"SMAD4" =>1,"STK11" =>1,"TGFBR1" =>1,"TGFBR2" =>1,"TMEM43" =>1,"TNNI3" =>1,"TNNT2" =>1,"TP53" =>1,"TPM1" =>1,"TSC1" =>1,"TSC2" =>1,"VHL" =>1,"WT1"=>1);
+
+#Hash of 81 ACMG incidentalome genes secondary findings SF v3.2 according to  https://www.ncbi.nlm.nih.gov/clinvar/docs/acmg/
+my %ACMGgene = ("ACTA2" =>1,"ACTC1" =>1,"ACVRL1" =>1,"APC" =>1,"APOB" =>1,"ATP7B" =>1,"BAG3" =>1,"BMPR1A" =>1,"BRCA1" =>1,"BRCA2" =>1,"BTD" =>1,"CACNA1S" =>1,"CALM1" =>1,"CALM2" =>1,"CALM3" =>1,"CASQ2" =>1,"COL3A1" =>1,"DES" =>1,"DSC2" =>1,"DSG2" =>1,"DSP" =>1,"ENG" =>1,"FBN1" =>1,"FLNC" =>1,"GAA" =>1,"GLA" =>1,"HFE" =>1,"HNF1A" =>1,"KCNH2" =>1,"KCNQ1" =>1,"LDLR" =>1,"LMNA" =>1,"MAX" =>1,"MEN1" =>1,"MLH1" =>1,"MSH2" =>1,"MSH6" =>1,"MUTYH" =>1,"MYBPC3" =>1,"MYH11" =>1,"MYH7" =>1,"MYL2" =>1,"MYL3" =>1,"NF2" =>1,"OTC" =>1,"PALB2" =>1,"PCSK9" =>1,"PKP2" =>1,"PMS2" =>1,"PRKAG2" =>1,"PTEN" =>1,"RB1" =>1,"RBM20" =>1,"RET" =>1,"RPE65" =>1,"RYR1" =>1,"RYR2" =>1,"SCN5A" =>1,"SDHAF2" =>1,"SDHB" =>1,"SDHC" =>1,"SDHD" =>1,"SMAD3" =>1,"SMAD4" =>1,"STK11" =>1,"TGFBR1" =>1,"TGFBR2" =>1,"TMEM127" =>1,"TMEM43" =>1,"TNNC1" =>1,"TNNI3" =>1,"TNNT2" =>1,"TP53" =>1,"TPM1" =>1,"TRDN" =>1,"TSC1" =>1,"TSC2" =>1,"TTN" =>1,"TTR" =>1,"VHL" =>1,"WT1" =>1);
+
 
 
 #initialize gene colore according to pLI/LOEUF
@@ -289,7 +292,7 @@ my %colNameMode = (
 "Closest_right"=>"full",
 "NCBI_gene_ID"=>"split",
 "Tx_version"=>"split",
-"PhenoGenius_specificity"=>"split",
+"PhenoGenius_specificity"=>"fullsplit",
 "PhenoGenius_phenotype"=>"split",
 "PhenoGenius_score"=>"split",
 "Gene_count"=>"full",
@@ -710,6 +713,9 @@ while( <VCF> ){
 		}elsif ($SV_type =~ /BND/i){
 			$SV_type = "BND";
 			$fullRowColor = "#FFFF99";
+		}elsif ($SV_type =~ /TRA/i){
+			$SV_type = "TRA";
+			$fullRowColor = "#FFFF99";
 		}else{
 			$fullRowColor = "#E0CCFF";
 		}
@@ -958,15 +964,43 @@ while( <VCF> ){
 			}else{
 				#TODO compute gene penalty exomiser > OMIM_morbid > LOEUF_bin
 				$fullSplitScore = 10;
-				if (defined $dataHash{"Exomiser_gene_pheno_score"} && $dataHash{"Exomiser_gene_pheno_score"} ne "-1" && $dataHash{"Exomiser_gene_pheno_score"} ne "NA"){
-					$fullSplitScore += (20 * $dataHash{"Exomiser_gene_pheno_score"});	
+				if (defined $dataHash{"Exomiser_gene_pheno_score"} && $dataHash{"Exomiser_gene_pheno_score"} ne "-1.0" && $dataHash{"Exomiser_gene_pheno_score"} ne "NA"){
+					$fullSplitScore += (50 * $dataHash{"Exomiser_gene_pheno_score"});	
 				}	
 				if(defined $dataHash{"OMIM_morbid"} && $dataHash{"OMIM_morbid"} eq "yes"){
-					$fullSplitScore += 10;
+					$fullSplitScore += 30;
+				}else{
+					if(defined $dataHash{"OMIM_morbid_candidate"} && $dataHash{"OMIM_morbid_candidate"} eq "yes"){
+						$fullSplitScore += 15;
+					}
 				}
 				if(defined $dataHash{"LOEUF_bin"} && $dataHash{"LOEUF_bin"} ne "."){
 					$fullSplitScore +=  (10 - $dataHash{"LOEUF_bin"}) ; 		
 				}
+				if(defined $dataHash{"PhenoGenius_specificity"} && $dataHash{"PhenoGenius_specificity"} ne "."){
+					if($dataHash{"PhenoGenius_specificity"} eq "A"){
+						$fullSplitScore += 30 ; 		
+					}elsif($dataHash{"PhenoGenius_specificity"} eq "B"){
+						$fullSplitScore += 20 ; 		
+					}elsif($dataHash{"PhenoGenius_specificity"} eq "C"){
+						$fullSplitScore += 10 ; 		
+					}	
+				}
+				if($SV_type eq "DUP" && defined $dataHash{"TS"} && $dataHash{"TS"} eq "3"){
+					$fullSplitScore += 20 ; 		
+				}
+				if(defined $dataHash{"HI"} && $dataHash{"HI"} eq "3"){
+					if($SV_type eq "DEL" || (defined $dataHash{"Location"} && $dataHash{"Location"} ne "txStart-txEnd")){
+						$fullSplitScore += 20 ; 		
+					}
+				}
+				if (defined $dataHash{"Exomiser_gene_pheno_score"} && $dataHash{"Exomiser_gene_pheno_score"} ne "NA"){
+					$fullSplitScore = $fullSplitScore * (1.001 + $dataHash{"Exomiser_gene_pheno_score"});	
+				}else{
+					$fullSplitScore = $fullSplitScore * 0.0001;	
+
+				}
+
 
 			}
 
@@ -1581,13 +1615,13 @@ foreach my $rank (rnatkeysort { "$_-$hashFinalSortData{$_}" } keys %hashFinalSor
 		#foreach my $rankSplit (sort {$hashFinalSortData{$rank}{$ID}{$b} <=> $hashFinalSortData{$rank}{$ID}{$a} } ( keys %{$hashFinalSortData{$rank}{$ID}})){
 		foreach my $rankSplit (rnatkeysort { "$_-$hashFinalSortData{$rank}{$ID}{$_}" }  keys %{$hashFinalSortData{$rank}{$ID}}){
 	
-			#print "DEBUG ranksplit:  ".$rankSplit."\n";
 
 			foreach my $variant ( keys %{$hashFinalSortData{$rank}{$ID}{$rankSplit}}){
 			
 			#increse rank number then change final array
 			$kindRank++;
 		
+			#print "DEBUG ranksplit:  ".$rankSplit."________".$hashFinalSortData{$rank}{$ID}{$rankSplit}{$variant}{'finalArray'}[$NameColHash{'Gene_name'} - 1]."\n";
 
 			#FILL tab 'ALL';
 			if (    $hashFinalSortData{$rank}{$ID}{$rankSplit}{$variant}{'finalArray'}[$NameColHash{'Annotation_mode'} - 1] eq "full") {
