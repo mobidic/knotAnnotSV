@@ -1,0 +1,9 @@
+
+# Run with AnnotSV 3.4 
+
+perl ../knotAnnotSV.pl --annotSVfile ./AnnotSV_3.4.tsv --configFile ../config_AnnotSV.yaml --outPrefix knot_example
+
+perl ../knotAnnotSV2XL.pl --annotSVfile ./AnnotSV_3.4.tsv --configFile ../config_AnnotSV.yaml --outPrefix knot_example
+
+
+
