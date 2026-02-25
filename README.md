@@ -211,13 +211,13 @@ perl ./knotAnnotSV2XL.pl
 
 To help you get how to make effective use of knotAnnotSV, we have provided an input/output example in the ```example``` folder. 
 
-1. Change to the repo directory, and run the example
+1. Change to the example directory, and run the example
 ```bash
 
-cd /path/to/install/knotAnnotSV
+cd /path/to/install/knotAnnotSV/example
 
-perl ./knotAnnotSV.pl --annotSVfile ./example/example.annotated.tsv --configFile ./config_AnnotSV.yaml --outDir ./example
-perl ./knotAnnotSV2XL.pl --annotSVfile ./example/example.annotated.tsv --configFile ./config_AnnotSV.yaml --outDir ./example --outPrefix spreadsheet
+perl ../knotAnnotSV.pl --annotSVfile ./AnnotSV_3.4.tsv --configFile ../config_AnnotSV.yaml --outPrefix knot_example
+perl ../knotAnnotSV2XL.pl --annotSVfile ./AnnotSV_3.4.tsv --configFile ../config_AnnotSV.yaml --outPrefix knot_example
 ```
 2. Display the html output on a web browser or the xlsm output on a spreadsheet
 
