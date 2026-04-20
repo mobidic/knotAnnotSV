@@ -1,0 +1,9 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/nf-core/modules/master/modules/environment-schema.json
+name: knotAnnotSV
+channels:
+  - conda-forge
+  - bioconda
+dependencies:
+  - bioconda::perl-yaml-libyaml=0.66
+  - bioconda::perl-sort-key=1.33
+  - bioconda::perl-excel-writer-xlsx=1.15

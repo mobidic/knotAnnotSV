@@ -19,6 +19,12 @@ Check AnnotSV repo: https://github.com/lgmgeo/AnnotSV
 
 # Installation
 
+## Bioconda (prefered)
+```bash
+conda create -n knotAnnotSV bioconda::knotannotsv
+```
+
+## From sources
 Please use git to download the most recent development tree.
 
 The sources can be cloned to any directory:
@@ -27,7 +33,7 @@ cd /path/to/install/
 $ git clone https://github.com/mobidic/knotAnnotSV.git
 ```
 
-# Requirements 
+### Requirements
 
 - Linux OS
 
@@ -161,9 +167,9 @@ Column headers have searching and sorting features:
 
 For **html** output:
 ```
-cd /path/to/install/knotAnnotSV
+conda activate knotAnnotSV  # Or from sources: cd /path/to/install/knotAnnotSV
 
-perl ./knotAnnotSV.pl
+knotAnnotSV.pl
 
     --configFile <YAML config file for customizing output>
 
@@ -183,9 +189,9 @@ perl ./knotAnnotSV.pl
 
 For **spreadsheet** output:
 ```
-cd /path/to/install/knotAnnotSV
+conda activate knotAnnotSV  # Or from sources: cd /path/to/install/knotAnnotSV
 
-perl ./knotAnnotSV2XL.pl
+knotAnnotSV2XL.pl
 
     --configFile <YAML config file for customizing output>
 
@@ -214,10 +220,10 @@ To help you get how to make effective use of knotAnnotSV, we have provided an in
 1. Change to the repo directory, and run the example
 ```bash
 
-cd /path/to/install/knotAnnotSV
+conda activate knotAnnotSV  # Or from sources: cd /path/to/install/knotAnnotSV
 
-perl ./knotAnnotSV.pl --annotSVfile ./example/example.annotated.tsv --configFile ./config_AnnotSV.yaml --outDir ./example
-perl ./knotAnnotSV2XL.pl --annotSVfile ./example/example.annotated.tsv --configFile ./config_AnnotSV.yaml --outDir ./example --outPrefix spreadsheet
+knotAnnotSV.pl --annotSVfile $CONDA_PREFIX/share/knotAnnotSV/example/AnnotSV_3.4.tsv --configFile $CONDA_PREFIX/share/knotAnnotSV/config_AnnotSV.yaml --outDir ./example
+knotAnnotSV2XL.pl --annotSVfile $CONDA_PREFIX/share/knotAnnotSV/example/AnnotSV_3.4.tsv --configFile $CONDA_PREFIX/share/knotAnnotSV/config_AnnotSV.yaml --outDir ./example --outPrefix spreadsheet
 ```
 2. Display the html output on a web browser or the xlsm output on a spreadsheet
 
